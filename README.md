@@ -1,2 +1,2 @@
-# XiexenEconomy
-Xiexen is a next-gem economy plugin.
+# XialotEconomy
+Xialot is a next-gem economy plugin.
