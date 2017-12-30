@@ -1,0 +1,18 @@
+main: DHMO\xialotecon\MainClass
+api: [3.0.0-ALPHA10]
+
+name: XialotEcon
+description: A next-gem economy plugin
+version: 0.0.1
+author: DHMO Team
+
+commands:
+
+permissions:
+ xialot:
+  default: true
+  description: Allows access to basic functionality of XialotEcon
+  children:
+    xialot.command.*:
+        default: true
+        description: Allows use of all core XialotEcon commands
