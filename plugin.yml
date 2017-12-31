@@ -1,10 +1,13 @@
-main: DHMO\xialotecon\MainClass
+main: DHMO\XialotEcon\MainClass
 api: [3.0.0-ALPHA10]
 
 name: XialotEcon
 description: A next-gem economy plugin
 version: 0.0.1
 author: DHMO Team
+authors:
+- Hittmana
+- SOFe
 
 commands:
     XialotEcon:

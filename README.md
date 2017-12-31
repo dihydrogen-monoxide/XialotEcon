@@ -1,5 +1,6 @@
 # XialotEcon
 XialotEcon is a next-gem economy plugin.
+<!--
 # Features
 - Living Economy (supply/demand determines prices)
 - Multiple currencies (want to have Trumps as a currency? Go ahead!)
@@ -7,6 +8,7 @@ XialotEcon is a next-gem economy plugin.
 - Disable/Enable whatever features you desire!
 - Easy to use API
 - More
+
 # Roadmap:
 - [ ] Core plugin
   - [x] Create user account
@@ -15,10 +17,4 @@ XialotEcon is a next-gem economy plugin.
   - [ ] Multiple currency support
     - [ ] Convert between currencies
     - [ ] Set currency value based on the BaseUnit
-- [ ] Living Economy
-  - [ ] Implement item limits (artificially create supply)
-  - [ ] Add supply/demand curves
-  - [ ] Change value of BaseUnit based on supply/demand
-- [ ] ShopConomy
-  - [ ] Create shop
-  - [ ] Buy/Sell with shop
+-->

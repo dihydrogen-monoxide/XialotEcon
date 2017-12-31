@@ -1,7 +1,0 @@
----
-hittmanb:
-  name: hittmanb
-  currencies:
-  - Gold: 1
-  - Gem: 10
-...
