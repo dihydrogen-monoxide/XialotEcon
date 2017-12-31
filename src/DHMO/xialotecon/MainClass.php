@@ -2,6 +2,8 @@
 
 namespace DHMO\xialotecon;
 
+//Commands
+use DHMO\xialotecon\command\Balance;
 //Providers
 use DHMO\xialotecon\provider\BaseProvider;
 use DHMO\xialotecon\provider\MySQLProvider;
@@ -69,164 +71,37 @@ class MainClass extends PluginBase implements Listener
         $player = $event->getPlayer();
         if(!$this->provider->playerHasAccount($player)){
             $this->provider->createAccount($player);
+            $this->getLogger()->notice("Created a new account for " . $player->getName());
         }
 
         return true;
     }
 
-    /*public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool
     {
-        if($command->getName() == "factionspp")
+        if($command->getName() == "XialotEcon")
         {
             //The subcommand of the command
             $subCmd = strtolower(array_shift($args));
-
-            if ($sender instanceof Player)
+            switch ($subCmd)
             {
-                switch ($subCmd)
-                {
-                    case "accept":
+                case "bal":
+                case "balance":
 
-                        if($this->provider->playerIsInFaction($sender))
-                        {
-                            $sender->sendMessage(TextFormat::RED . "You must leave your current faction to join a new one.");
-                            return true;
-                        }
-                        $accept = new Accept($args, $this->provider, $command, $sender);
-                        $accept->execute();
-                        return true;
+                    $balance = new Balance($args, $this->provider, $command, $sender);
+                    $balance->execute();
+                    return true;
 
-                        break;
+                    break;
 
-                    case "kick":
+                default:
 
-                        if(isset($args[0]))
-                        {
-                            if(!$this->provider->playerIsInFaction($sender))
-                            {
-                                $sender->sendMessage(TextFormat::RED . "You must be in a faction to run this command.");
-                                return true;
-                            }
-                            $kick = new Kick($args, $this->provider, $command, $sender);
-                            $kick->execute();
-                            return true;
-                        }
-                        else
-                        {
-                            $sender->sendMessage(TextFormat::RED . "You must specify a player name. Example: /f kick Steve");
-                            return true;
-                        }
+                    $sender->sendMessage(TextFormat::RED . "Unknown XialotEcon command. Do '/xe help' for more info.");
+                    return true;
 
-                        break;
-
-                    case "invite":
-
-                        if(isset($args[0]))
-                        {
-                            if(!$this->provider->playerIsInFaction($sender))
-                            {
-                                $sender->sendMessage(TextFormat::RED . "You are not a member of any faction.");
-                                return true;
-                            }
-                            $role = $this->provider->getPlayer($sender)["role"];
-                            if($role !== Member::MEMBER_LEADER && $role !== Member::MEMBER_OFFICER)
-                            {
-                                $sender->sendMessage(TextFormat::RED . "Only officers and leaders are allowed to invite new members.");
-                                return true;
-                            }
-                            $invite = new Invite($args, $this->provider, $command, $sender);
-                            $invite->execute();
-                            return true;
-                        }
-                        else
-                        {
-                            $sender->sendMessage(TextFormat::RED . "You must specify a player name. Example: /f invite Steve");
-                            return true;
-                        }
-
-                        break;
-
-                    case "create":
-
-                        if(isset($args[0]))
-                        {
-                            if($this->provider->playerIsInFaction($sender))
-                            {
-                                $sender->sendMessage(TextFormat::RED . "You are already in a faction! You must leave your faction to create a new one.");
-                                return true;
-                            }
-                            else
-                            {
-                                $create = new CreateFaction($args, $this->provider, $command, $sender);
-                                $create->execute();
-                                return true;
-                            }
-                        }
-                        else
-                        {
-                            $sender->sendMessage(TextFormat::RED . "You must specify a faction name. Example: /f create Example");
-                            return true;
-                        }
-
-                        break;
-
-                    case "delete":
-                        if(!$this->provider->playerIsInFaction($sender))
-                        {
-                            $sender->sendMessage(TextFormat::RED . "You aren't in a faction!");
-                            return true;
-                        }
-                        else
-                        {
-                            $delete = new DeleteFaction($args, $this->provider, $command, $sender);
-                            $delete->execute();
-                            return true;
-                        }
-
-                        break;
-
-                    case "info":
-                        if($this->provider->playerIsInFaction($sender) || isset($args[0]))
-                        {
-                            $info = new Info($args, $this->provider, $command, $sender);
-                            $info->execute();
-                            return true;
-                        }
-                        else
-                        {
-                            $sender->sendMessage(TextFormat::RED . "You must be in a faction to run this command.");
-                            return true;
-                        }
-
-                        break;
-
-                    case "motd":
-                        if($this->provider->playerIsInFaction($sender))
-                        {
-                            $motd = new MOTD($args, $this->provider, $command, $sender);
-                            $motd->execute();
-                            return true;
-                        }
-                        else
-                        {
-                            $sender->sendMessage(TextFormat::RED . "You must be in a faction to run this command.");
-                            return true;
-                        }
-
-                        break;
-
-                    default:
-                        $sender->sendMessage(TextFormat::RED . "Unknown FactionsPP command. Do '/f help' for more info.");
-
-                }
-                return true;
             }
-            else
-            {
-                $sender->sendMessage(TextFormat::RED . "You must be a player to run FactionsPP commands!");
-                return true;
-            }
+            return true;
         }
         return false;
-    }*/
+    }
 }

@@ -16,11 +16,11 @@ interface Provider
     public function playerHasAccount(IPlayer $player): bool;
 
     /**
-     * @param Player $sender
+     * @param IPlayer $sender
      *
      * @return bool
      */
-    public function createAccount(Player $player): bool;
+    public function createAccount(IPlayer $player): bool;
 
     /**
      * @param IPlayer $player
@@ -38,6 +38,14 @@ interface Provider
      * @return int
      */
     public function getNumberOfAccounts(): int;
+
+    /**
+     * @param string $currency
+     * @param IPlayer $player
+     *
+     * @return array
+     */
+    public function getMoney(string $currency, IPlayer $player): array;
 
     public function save();
 }

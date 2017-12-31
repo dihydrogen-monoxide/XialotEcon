@@ -30,12 +30,12 @@ class JSONProvider extends BaseProvider implements Provider
         return count($this->users->getAll());
     }
 
-    public function createAccount(Player $sender): bool
+    public function createAccount(IPlayer $sender): bool
     {
         $playerName = strtolower($sender->getName());
         $currencyArray = array();
         foreach($this->plugin->getConfig()->get("currencies") as $key => $value){
-            array_push($currencyArray, $key => $value["value"]);
+            array_push($currencyArray, [$key => $value["value"]]);
         }
         $this->users->set($playerName, [
             "name" => $playerName,
@@ -73,6 +73,24 @@ class JSONProvider extends BaseProvider implements Provider
         else
         {
             return false;
+        }
+    }
+
+    public function getMoney(string $currency = "{{|ALL|}}", IPlayer $player): array
+    {
+        $ProviderPlayer = $this->getPlayer($player);
+        if($currency !== "{{|ALL|}}"){
+            if(isset($ProviderPlayer[$currency])){
+                return array($ProviderPlayer[$currency]);
+            } else {
+                return array();
+            }
+        } else {
+            $returnArray = array();
+            foreach($this->getPlayer($player)["currencies"] as $key => $value){
+                array_push($returnArray, [$key => $value]);
+            }
+            return $returnArray;
         }
     }
 }
