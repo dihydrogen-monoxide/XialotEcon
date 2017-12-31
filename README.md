@@ -9,7 +9,7 @@ XialotEcon is a next-gem economy plugin.
 - More
 # Roadmap:
 - [ ] Core plugin
-  - [ ] Create user account
+  - [x] Create user account
   - [ ] Basic wallet
   - [ ] Withdraw/Deposit to/from wallet and bank.
   - [ ] Multiple currency support
