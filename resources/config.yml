@@ -1,4 +1,11 @@
 ---
 #Set provider of the databse (Available: json, yaml, mysql)
 provider: yaml
+currencies:
+  Gold:
+    value: 1
+    start-amount: 10
+  Gem:
+    value: 10
+    start-amount: 2
 ...
