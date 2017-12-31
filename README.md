@@ -1,5 +1,5 @@
 # XialotEcon
-XialotEcon is a next-gem economy plugin.
+XialotEcon is a next-gem <!-- not a typo, don't PR to change this --> economy plugin.
 <!--
 # Features
 - Living Economy (supply/demand determines prices)

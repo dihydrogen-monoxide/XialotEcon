@@ -6,7 +6,7 @@ CREATE TABLE currencies (
 
 CREATE TABLE accounts (
 	accountId INT PRIMARY KEY,
-	ownerType TEXT,
+	ownerType TEXT, -- example types: "xialotecon.player", "xialotecon.item"
 	ownerName TEXT,
 	accountType TEXT, -- account types with namespaces used for quick filtering, e.g. xialotecon.player.capital, xialotecon.shops.revenue, factions.faction.treasury
 	currency INT,
@@ -64,4 +64,9 @@ CREATE TABLE block_p2p_shops (
 	x INT,
 	y INT,
 	z INT
+);
+CREATE TABLE factions (
+	factionId INT PRIMARY KEY,
+	-- obvious columns like names etc.
+	accountId INT REFERENCES accounts(accountId)
 );
