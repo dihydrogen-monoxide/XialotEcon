@@ -23,7 +23,7 @@ CREATE TABLE transactions (
 	amount FLOAT,
 	transactionType TEXT, -- transaction types with namespaces used for quick filtering
 	active BIT(1),
-	KEY(accountType)
+	KEY(transactionType)
 );
 
 -- -------------------------------------------------------------------------------------------- --
