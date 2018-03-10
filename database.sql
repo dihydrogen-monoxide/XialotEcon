@@ -20,7 +20,8 @@ CREATE TABLE transactions (
 	source INT REFERENCES accounts(accountId),
 	target INT REFERENCES accounts(accountId),
 	date TIMESTAMP,
-	amount FLOAT,
+	sourceReduction FLOAT,
+	targetAddition FLOAT,
 	transactionType TEXT, -- transaction types with namespaces used for quick filtering
 	active BIT(1),
 	KEY(transactionType)
