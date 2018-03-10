@@ -26,18 +26,13 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider;
+namespace DHMO\XialotEcon\Event;
 
 use DHMO\XialotEcon\XialotEcon;
+use pocketmine\event\plugin\PluginEvent;
 
-abstract class BaseProvider{
-	public static function parseFile(XialotEcon $plugin, string $file):string{
-		if($file{0} === "/"){
-			return $file;
-		}
-		if(strpos($file, ":/") === 1 || strpos($file, ":\\") === 1){
-			return $file;
-		}
-		return $plugin->getDataFolder() . $file;
-}
+class XialotEconEvent extends PluginEvent{
+	public function __construct(){
+		parent::__construct(XialotEcon::getInstance());
+	}
 }

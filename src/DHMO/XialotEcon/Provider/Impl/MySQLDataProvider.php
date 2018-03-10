@@ -26,29 +26,27 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider;
+namespace DHMO\XialotEcon\Provider\Impl;
 
-use DHMO\XialotEcon\Exceptions\ExtensionMissingException;
+use DHMO\XialotEcon\Provider\DataProvider;
 use DHMO\XialotEcon\XialotEcon;
 
-class SQLiteProvider implements Provider{
-	public const CONFIG_NAME = "sqlite";
+class MySQLDataProvider implements DataProvider{
+	public const CONFIG_NAME = "mysql";
 
 	/** @var XialotEcon */
 	private $plugin;
 
 	public function __construct(XialotEcon $plugin){
-		ExtensionMissingException::test("sqlite3");
 		$this->plugin = $plugin;
 	}
 
 	public function init() : void{
-		$db = new \SQLite3($this->plugin->getConfig()->getNested("sqlite.path"));
-		// TODO create tables
-		$db->close(); // we are not retaining the database instance
+		// TODO: Test connection
+		// TODO: create tables
 	}
 
 	public function cleanup() : void{
-		// TODO fire tasks to the pool that execute SQLite3::close()
+		// TODO: fire tasks to the pool that execute mysqli::close()
 	}
 }

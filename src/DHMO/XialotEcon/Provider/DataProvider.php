@@ -28,8 +28,20 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Provider;
 
-interface Provider{
+interface DataProvider{
+	/**
+	 * @param GenericPreparedStatement[] $statements
+	 */
+	public function importStatements(array $statements) : void;
+
 	public function init() : void;
+
+	/**
+	 * @param string        $queryName
+	 * @param mixed[]       $args
+	 * @param callable|null $callback
+	 */
+	public function executeQuery(string $queryName, array $args = [], ?callable $callback = null) : void;
 
 	public function cleanup() : void;
 }

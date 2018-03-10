@@ -26,45 +26,18 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon;
+namespace DHMO\XialotEcon\Provider;
 
-use DHMO\XialotEcon\Provider\DataProvider;
-use DHMO\XialotEcon\Provider\Impl\MySQLDataProvider;
-use DHMO\XialotEcon\Provider\Impl\SQLiteDataProvider;
-use DHMO\XialotEcon\Provider\ProvidedDatum;
-use pocketmine\plugin\PluginBase;
-use function mkdir;
+use pocketmine\utils\UUID;
 
-class XialotEcon extends PluginBase{
-	/** @var XialotEcon */
-	private static $instance;
-
-	public static function getInstance() : XialotEcon{
-		return self::$instance;
-	}
-
-	public function onLoad() : void{
-		self::$instance = $this;
-	}
-
+class ProvidedDatumMap{
 	/** @var DataProvider */
-	private $provider = null;
+	private $provider;
+	/** @var ProvidedDatum[] */
+	private $store = [];
 
-	public function onEnable() : void{
-		//Make the faction config
-		@mkdir($this->getDataFolder());
-		$this->saveDefaultConfig();
-
-		switch(strtolower($this->getConfig()->getNested("core.provider"))){
-			case SQLiteDataProvider::CONFIG_NAME:
-				$this->provider = new SQLiteDataProvider($this);
-				break;
-			case MySQLDataProvider::CONFIG_NAME:
-				$this->provider = new MySQLDataProvider($this);
-				break;
-		}
-
-		ProvidedDatum::$EXPIRY_CONFIG = $this->getConfig()->getNested("update-rate");
+	public function __construct(DataProvider $provider){
+		$this->provider = $provider;
 	}
 
 	/**
@@ -74,11 +47,24 @@ class XialotEcon extends PluginBase{
 		return $this->provider;
 	}
 
-	public function setProvider(DataProvider $provider){
-		if($this->provider !== null){
-			$this->provider->cleanup();
+	public function onDatumLoaded(ProvidedDatum $datum) : void{
+		$this->store[$datum->uuid->toString()] = $datum;
+	}
+
+	public function onUpdate(UUID $uuid) : void{
+		if(isset($this->store[$str = $uuid->toString()])){
+			$this->store[$str]->setOutdated();
 		}
-		$provider->init();
-		$this->provider = $provider;
+	}
+
+	public function doCycle() : void{
+		foreach($this->store as $uuid => $datum){
+			if($datum->shouldStore()){
+				$datum->store();
+			}
+			if($datum->isGarbage()){
+				unset($this->store[$uuid]);
+			}
+		}
 	}
 }

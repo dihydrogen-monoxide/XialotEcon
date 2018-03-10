@@ -29,56 +29,22 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon;
 
 use DHMO\XialotEcon\Provider\DataProvider;
-use DHMO\XialotEcon\Provider\Impl\MySQLDataProvider;
-use DHMO\XialotEcon\Provider\Impl\SQLiteDataProvider;
 use DHMO\XialotEcon\Provider\ProvidedDatum;
-use pocketmine\plugin\PluginBase;
-use function mkdir;
+use pocketmine\utils\UUID;
 
-class XialotEcon extends PluginBase{
-	/** @var XialotEcon */
-	private static $instance;
+class Transaction extends ProvidedDatum{
+	public const DATUM_TYPE = "xialotecon.core.transaction";
 
-	public static function getInstance() : XialotEcon{
-		return self::$instance;
+
+	public static function load(DataProvider $provider, UUID $uuid, callable $consumer) : void{
+		// TODO: Implement load() method.
 	}
 
-	public function onLoad() : void{
-		self::$instance = $this;
+	protected function doStore() : void{
+		// TODO: Implement doStore() method.
 	}
 
-	/** @var DataProvider */
-	private $provider = null;
-
-	public function onEnable() : void{
-		//Make the faction config
-		@mkdir($this->getDataFolder());
-		$this->saveDefaultConfig();
-
-		switch(strtolower($this->getConfig()->getNested("core.provider"))){
-			case SQLiteDataProvider::CONFIG_NAME:
-				$this->provider = new SQLiteDataProvider($this);
-				break;
-			case MySQLDataProvider::CONFIG_NAME:
-				$this->provider = new MySQLDataProvider($this);
-				break;
-		}
-
-		ProvidedDatum::$EXPIRY_CONFIG = $this->getConfig()->getNested("update-rate");
-	}
-
-	/**
-	 * @return DataProvider
-	 */
-	public function getProvider() : DataProvider{
-		return $this->provider;
-	}
-
-	public function setProvider(DataProvider $provider){
-		if($this->provider !== null){
-			$this->provider->cleanup();
-		}
-		$provider->init();
-		$this->provider = $provider;
+	protected function onOutdated() : void{
+		// TODO: Implement onOutdated() method.
 	}
 }

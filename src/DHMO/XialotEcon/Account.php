@@ -26,26 +26,25 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider;
+namespace DHMO\XialotEcon;
 
-use DHMO\XialotEcon\XialotEcon;
+use DHMO\XialotEcon\Provider\DataProvider;
+use DHMO\XialotEcon\Provider\ProvidedDatum;
+use pocketmine\utils\UUID;
 
-class MySQLProvider implements Provider{
-	public const CONFIG_NAME = "mysql";
+class Account extends ProvidedDatum{
+	public const DATUM_TYPE = "xialotecon.core.account";
 
-	/** @var XialotEcon */
-	private $plugin;
 
-	public function __construct(XialotEcon $plugin){
-		$this->plugin = $plugin;
+	public static function load(DataProvider $provider, UUID $uuid, callable $consumer) : void{
+		// TODO: Implement load() method.
 	}
 
-	public function init() : void{
-		// TODO: Test connection
-		// TOOD: create tables
+	protected function doStore() : void{
+		// TODO: Implement doStore() method.
 	}
 
-	public function cleanup() : void{
-		// TODO: fire tasks to the pool that execute mysqli::close()
+	protected function onOutdated() : void{
+		// TODO: Implement onOutdated() method.
 	}
 }

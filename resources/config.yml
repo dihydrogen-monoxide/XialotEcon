@@ -1,29 +1,22 @@
 ---
-#####################
-# DATABASE SETTINGS #
-#####################
-# Database type (sqlite or mysql)
-## "sqlite" creates a single file in your machine. You can edit it using an SQLite browser.
-## "mysql" connects to a MySQL server. All queries are executed in the background (apart from during server start), so
-## you don't need to worry about performance if the MySQL server is hosted remotely.
-provider: sqlite
-# Settings for sqlite database. If you are using mysql, you can ignore these settings.
-sqlite:
-  # The name of the SQLite3 database file.
-  ## This path is relative to the plugin's data folder (plugins/XialotEcon/, next to this config file)
-  ## Absolute paths are allowed, i.e. paths starting with a drive name (e.g. C:\path\to.db) (Windows), or
-  ## paths starting with a slash (e.g. /path/to.db) (Mac/Linux) are accepted.
-  ## If you are not using an absolute path, do NOT start your path with a slash.
-  path: XialotEcon.db
-# Settings for mysql database. If you are using sqlite, you can ignore these settings.
-mysql:
-  host: localhost
-  # avoid using root user!
-  username: root
-  password: 123456
-  # schema is also known as "database"
-  schema: xialotecon
-# Number of workers used to connect with the database
-## This is similar to the settings.async-workers option in pocketmine.yml
-workers-limit: auto
+core:
+  provider: sqlite
+  sqlite:
+    path: XialotEcon.db
+  mysql:
+    host: localhost
+    username: root
+    password: ""
+    schema: xialotecon
+  workers-limit: auto
+  update-rate:
+    currency:
+      garbage: never
+      store: immediate
+    account:
+      garbage: 5min
+      store: 10s
+    transaction:
+      garbage: 30s
+      store: immediate
 ...
