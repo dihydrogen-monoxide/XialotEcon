@@ -29,7 +29,8 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon;
 
 use DHMO\XialotEcon\Provider\DataProvider;
-use DHMO\XialotEcon\Provider\Impl\MySQLDataProvider;
+use DHMO\XialotEcon\Provider\GenericPreparedStatement;
+use DHMO\XialotEcon\Provider\Impl\MySQL\MySQLDataProvider;
 use DHMO\XialotEcon\Provider\Impl\SQLiteDataProvider;
 use DHMO\XialotEcon\Provider\ProvidedDatum;
 use pocketmine\plugin\PluginBase;
@@ -58,13 +59,24 @@ class XialotEcon extends PluginBase{
 		switch(strtolower($this->getConfig()->getNested("core.provider"))){
 			case SQLiteDataProvider::CONFIG_NAME:
 				$this->provider = new SQLiteDataProvider($this);
+				$this->provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("sqlite3.sql")));
 				break;
+
 			case MySQLDataProvider::CONFIG_NAME:
 				$this->provider = new MySQLDataProvider($this);
+				$this->provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("mysql.sql")));
 				break;
 		}
 
+		$this->provider->init();
+
 		ProvidedDatum::$EXPIRY_CONFIG = $this->getConfig()->getNested("update-rate");
+	}
+
+	public function onDisable() : void{
+		if($this->provider !== null){
+			$this->provider->cleanup();
+		}
 	}
 
 	/**

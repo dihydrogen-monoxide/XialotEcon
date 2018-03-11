@@ -52,17 +52,36 @@ class Currency extends ProvidedDatum{
 		return $instance;
 	}
 
-
 	public static function loadAll(ProvidedDatumMap $map, callable $consumer) : void{
 		$map->getProvider()->executeQuery("xialotecon.core.currency.loadAll", [], function($rows) use ($consumer, $map){
 			$consumer(array_map(function(array $row) use ($map){
 				$instance = new Currency($map, UUID::fromString($row["currencyId"]), self::DATUM_TYPE, false);
-				$instance->name = $row["name"];
-				$instance->symbolBefore = $row["symbolBefore"];
-				$instance->symbolAfter = $row["symbolAfter"];
+				$instance->applyRow($row);
 				return $instance;
 			}, $rows));
 		});
+	}
+
+
+	private function applyRow(array $row) : void{
+		$this->name = $row["name"];
+		$this->symbolBefore = $row["symbolBefore"];
+		$this->symbolAfter = $row["symbolAfter"];
+	}
+
+	public function getName() : string{
+		$this->touchAccess();
+		return $this->name;
+	}
+
+	public function getSymbolBefore() : string{
+		$this->touchAccess();
+		return $this->symbolBefore;
+	}
+
+	public function getSymbolAfter() : string{
+		$this->touchAccess();
+		return $this->symbolAfter;
 	}
 
 	public function setName(string $newName) : void{
@@ -80,6 +99,7 @@ class Currency extends ProvidedDatum{
 		$this->touchLocalModify();
 	}
 
+
 	protected function doStore() : void{
 		$this->getProvider()->executeQuery("xialotecon.core.currency.update.hybrid", [
 			"uuid" => $this->uuid,
@@ -91,10 +111,8 @@ class Currency extends ProvidedDatum{
 
 	protected function onOutdated() : void{
 		$this->getProvider()->executeQuery("xialotecon.core.currency.load.byUuid", ["uuid" => $this->uuid], function($rows){
-			$this->name = $rows[0]["name"];
-			$this->symbolBefore = $rows[0]["symbolBefore"];
-			$this->symbolAfter = $rows[0]["symbolAfter"];
-			$this->setUpdated();
+			$this->applyRow($rows[0]);
+			$this->onUpdated();
 		});
 	}
 }

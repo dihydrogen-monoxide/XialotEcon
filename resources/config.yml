@@ -8,7 +8,6 @@ core:
     username: root
     password: ""
     schema: xialotecon
-  workers-limit: auto
   update-rate:
     currency:
       garbage: never

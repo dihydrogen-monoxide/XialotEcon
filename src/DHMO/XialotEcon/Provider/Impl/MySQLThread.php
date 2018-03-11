@@ -28,25 +28,21 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Provider\Impl;
 
-use DHMO\XialotEcon\Provider\DataProvider;
-use DHMO\XialotEcon\XialotEcon;
 
-class MySQLDataProvider implements DataProvider{
-	public const CONFIG_NAME = "mysql";
+interface MySQLThread{
+	public function start();
 
-	/** @var XialotEcon */
-	private $plugin;
+	public function join();
 
-	public function __construct(XialotEcon $plugin){
-		$this->plugin = $plugin;
-	}
+	public function stopRunning() : void;
 
-	public function init() : void{
-		// TODO: Test connection
-		// TODO: create tables
-	}
+	public function addQuery(int $queryId, string $query) : void;
 
-	public function cleanup() : void{
-		// TODO: fire tasks to the pool that execute mysqli::close()
-	}
+	public function readResults(array &$callbacks) : void;
+
+	public function connCreated() : bool;
+
+	public function hasConnError() : bool;
+
+	public function getConnError() : ?string;
 }

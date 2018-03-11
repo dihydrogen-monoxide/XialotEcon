@@ -41,3 +41,34 @@ ON DUPLICATE KEY UPDATE
 	symbolBefore = VALUES(symbolBefore),
 	symbolAfter  = VALUES(symbolAfter);
 -- -- } #
+
+-- -- { xialotecon.core.account.load.byUuid #
+-- -- var :uuid uuid #
+SELECT
+	accountId,
+	ownerType,
+	ownerName,
+	accountType,
+	currency,
+	balance
+FROM accounts
+WHERE accountId = :uuid;
+-- -- } #
+
+-- -- { xialotecon.core.account.update.hybrid #
+-- -- var :uuid uuid #
+-- -- var :ownerType string #
+-- -- var :ownerName string #
+-- -- var :accountType string #
+-- -- var :currency uuid #
+-- -- var :balance decimal 5 #
+INSERT INTO accounts
+(accountId, ownerType, ownerName, accountType, currency, balance)
+VALUES (:uuid, :ownerType, :ownerName, :accountType, :currency, :balance)
+ON DUPLICATE KEY UPDATE
+	ownerType   = VALUES(ownerType),
+	ownerName   = VALUES(ownerName),
+	accountType = VALUES(accountType),
+	currency    = VALUES(currency),
+	balance     = VALUES(balance);
+-- -- } #

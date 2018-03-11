@@ -29,6 +29,8 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Provider;
 
 interface DataProvider{
+	public function getDialect() : string;
+
 	/**
 	 * @param GenericPreparedStatement[] $statements
 	 */
@@ -44,4 +46,6 @@ interface DataProvider{
 	public function executeQuery(string $queryName, array $args = [], ?callable $callback = null) : void;
 
 	public function cleanup() : void;
+
+	public function tick() : void;
 }

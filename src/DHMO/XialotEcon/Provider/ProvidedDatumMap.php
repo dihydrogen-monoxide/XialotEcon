@@ -28,7 +28,11 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Provider;
 
+use DHMO\XialotEcon\Account;
+use DHMO\XialotEcon\Currency;
+use DHMO\XialotEcon\Transaction;
 use pocketmine\utils\UUID;
+use function assert;
 
 class ProvidedDatumMap{
 	/** @var DataProvider */
@@ -48,7 +52,7 @@ class ProvidedDatumMap{
 	}
 
 	public function onDatumLoaded(ProvidedDatum $datum) : void{
-		$this->store[$datum->uuid->toString()] = $datum;
+		$this->store[$datum->getUUID()->toString()] = $datum;
 	}
 
 	public function onUpdate(UUID $uuid) : void{
@@ -59,12 +63,44 @@ class ProvidedDatumMap{
 
 	public function doCycle() : void{
 		foreach($this->store as $uuid => $datum){
-			if($datum->shouldStore()){
+			if($datum->shouldGarbage()){
+				if($datum->isLocallyModified()){
+					$datum->store();
+				}
+				$datum->setGarbage();
+				unset($this->store[$uuid]);
+			}elseif($datum->shouldStore()){
 				$datum->store();
 			}
-			if($datum->isGarbage()){
-				unset($this->store[$uuid]);
-			}
 		}
+	}
+
+	public function clearAll() : void{
+		foreach($this->store as $uuid => $datum){
+			if($datum->isLocallyModified()){
+				$datum->store();
+			}
+			$datum->setGarbage();
+		}
+		$this->store = [];
+	}
+
+	public function getCurrency(string $uuid) : Currency{
+		$currency = $this->store[$uuid];
+		assert($currency !== null, "Currency $uuid is non-existent");
+		assert($currency instanceof Currency, "UUID $uuid does not point to a Currency");
+		return $currency;
+	}
+
+	public function getAccount(string $uuid) : ?Account{
+		$account = $this->store[$uuid] ?? null;
+		assert($account === null || $account instanceof Account, "UUID $uuid does not point to an Account");
+		return $account;
+	}
+
+	public function getTransaction(string $uuid) : ?Transaction{
+		$transaction = $this->store[$uuid] ?? null;
+		assert($transaction === null || $transaction instanceof Transaction, "UUID $uuid does not point to a Transaction");
+		return $transaction;
 	}
 }

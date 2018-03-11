@@ -29,8 +29,14 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Provider;
 
 use DHMO\XialotEcon\XialotEcon;
+use InvalidArgumentException;
 
-abstract class BaseDataProvider{
+abstract class BaseDataProvider implements DataProvider{
+	/** @var ProvidedDatumMap */
+	protected $map;
+	/** @var GenericPreparedStatement[] */
+	protected $stmts = [];
+
 	public static function parseFile(XialotEcon $plugin, string $file) : string{
 		if($file{0} === "/"){ // absolute path on Unix-like filesystems
 			return $file;
@@ -40,4 +46,29 @@ abstract class BaseDataProvider{
 		}
 		return $plugin->getDataFolder() . $file;
 	}
+
+	/**
+	 * @param GenericPreparedStatement[] $statements
+	 */
+	public function importStatements(array $statements) : void{
+		$this->stmts += $statements; // the first one who takes the namespace wins
+	}
+
+	public function executeQuery(string $queryName, array $args = [], ?callable $callback = null) : void{
+		if(!isset($this->stmts[$queryName])){
+			throw new InvalidArgumentException("Unknown query \"$queryName\"");
+		}
+		$query = $this->stmts[$queryName]->format($args);
+		$this->executeImpl($query, $callback);
+	}
+
+	public function init() : void{
+		$this->map = new ProvidedDatumMap($this);
+	}
+
+	public function cleanup() : void{
+		$this->map->clearAll();
+	}
+
+	protected abstract function executeImpl(string $query, ?callable $rowsConsumer);
 }

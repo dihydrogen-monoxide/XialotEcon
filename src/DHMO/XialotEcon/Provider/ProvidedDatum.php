@@ -41,9 +41,10 @@ abstract class ProvidedDatum{
 
 	/** @var ProvidedDatumMap */
 	private $datumMap;
+	protected $tracked = true;
 
 	/** @var UUID */
-	public $uuid;
+	protected $uuid;
 	/** @var string */
 	private $type;
 
@@ -82,12 +83,20 @@ abstract class ProvidedDatum{
 		$datumMap->onDatumLoaded($this);
 	}
 
-	public function getType() : string{
-		return $this->type;
-	}
-
 	public function getDatumMap() : ProvidedDatumMap{
 		return $this->datumMap;
+	}
+
+	public function isTracked() : bool{
+		return $this->tracked;
+	}
+
+	public function getUUID() : UUID{
+		return $this->uuid;
+	}
+
+	public function getType() : string{
+		return $this->type;
 	}
 
 	public function getProvider() : DataProvider{
@@ -95,13 +104,20 @@ abstract class ProvidedDatum{
 	}
 
 
-	public function isGarbage() : bool{
+	public function shouldGarbage() : bool{
 		$garbagePolicy = ProvidedDatum::$EXPIRY_CONFIG[$this->type]["garbage"];
 		$timeout = StringUtil::parseTime($garbagePolicy);
 		return microtime(true) > $this->lastAccess + $timeout;
 	}
 
+	public function setGarbage() : void{
+		$this->tracked = false;
+	}
+
 	protected function touchAccess() : void{
+		if(!$this->tracked){
+			throw new InvalidStateException("Cannot access a garbage ProvidedDatum");
+		}
 		$this->lastAccess = microtime(true);
 	}
 
@@ -111,6 +127,12 @@ abstract class ProvidedDatum{
 	}
 
 	protected function touchLocalModify() : void{
+		if(!$this->tracked){
+			throw new InvalidStateException("Cannot modify a garbage ProvidedDatum");
+		}
+		if($this->outdated > 0){
+			throw new InvalidStateException("Cannot modify a ProvidedDatum when it is being updated.");
+		}
 		$this->locallyModified = true;
 	}
 
@@ -136,18 +158,12 @@ abstract class ProvidedDatum{
 		return $this->outdated > 0;
 	}
 
-	protected function throwModifyOutdated() : void{
-		if($this->outdated > 0){
-			throw new InvalidStateException("Cannot modify a ProvidedDatum when it is being updated.");
-		}
-	}
-
 	public function setOutdated() : void{
 		++$this->outdated;
 		$this->onOutdated();
 	}
 
-	protected function setUpdated() : void{
+	protected function onUpdated() : void{
 		--$this->outdated;
 	}
 

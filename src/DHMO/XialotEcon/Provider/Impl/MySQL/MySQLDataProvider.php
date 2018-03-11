@@ -26,34 +26,63 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider\Impl;
+namespace DHMO\XialotEcon\Provider\Impl\MySQL;
 
-use DHMO\XialotEcon\Exceptions\ExtensionMissingException;
 use DHMO\XialotEcon\Provider\BaseDataProvider;
-use DHMO\XialotEcon\Provider\DataProvider;
+use DHMO\XialotEcon\Provider\Impl\MySQLThread;
+use DHMO\XialotEcon\Provider\Impl\MySQLThread_mysqli;
 use DHMO\XialotEcon\XialotEcon;
-use SQLite3;
+use RuntimeException;
+use const PHP_INT_MAX;
+use const PHP_INT_MIN;
+use function random_int;
+use function usleep;
 
-class SQLiteDataProvider extends BaseDataProvider{
-	public const CONFIG_NAME = "sqlite";
+class MySQLDataProvider extends BaseDataProvider{
+	public const CONFIG_NAME = "mysql";
 
 	/** @var XialotEcon */
 	private $plugin;
+	private $callbacks;
+	/** @var MySQLThread */
+	private $thread;
 
 	public function __construct(XialotEcon $plugin){
-		ExtensionMissingException::test("sqlite3");
 		$this->plugin = $plugin;
 	}
 
 	public function init() : void{
-		parent::ini();
-		$db = new SQLite3($this->plugin->getConfig()->getNested("sqlite.path"));
-		// TODO create tables
-		$db->close(); // we are not retaining the database instance
+		parent::init();
+		$this->thread = new MySQLThread_mysqli($this->plugin->getConfig()->getNested("core.mysql"));
+		$this->thread->start();
+		while(!$this->thread->connCreated()){
+			usleep(1000); // wait for connection to be created
+		}
+		if($this->thread->hasConnError()){
+			throw new RuntimeException("MySQL connect error: " . $this->thread->getConnError());
+		}
+		// TODO: create tables
+	}
+
+	public function tick() : void{
+		$this->thread->readResults($this->callbacks);
 	}
 
 	public function cleanup() : void{
 		parent::cleanup();
-		// TODO
+		$this->thread->stopRunning();
+		$this->thread->join();
+	}
+
+	protected function executeImpl(string $query, ?callable $rowsConsumer){
+		do{
+			$queryId = random_int(PHP_INT_MIN, PHP_INT_MAX);
+		}while(isset($this->callbacks[$queryId]));
+		$this->thread->addQuery($queryId, $query);
+		$this->callbacks[$queryId] = $rowsConsumer;
+	}
+
+	public function getDialect() : string{
+		return "mysql";
 	}
 }

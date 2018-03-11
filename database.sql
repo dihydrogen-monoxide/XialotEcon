@@ -21,7 +21,6 @@ CREATE TABLE accounts (
 	accountType      VARCHAR(100), -- account types with namespaces used for quick filtering, e.g. xialotecon.player.capital, xialotecon.shops.revenue, factions.faction.treasury. do not store data here; if you need to store account-specific data, create a "peer table". this should not be used as an identifier.
 	currency         CHAR(36) REFERENCES currencies (currencyId), -- if someone has multiple currencies, split them to multiple accounts.
 	balance          DECIMAL(35, 5), -- the signed amount of capital in this currency that can be attributed to the owner. may be used for data analysis, so this balance should represent actual capital, not other things like shop prices. if this account represents a liability, the balance should be negative.
-	inflationPegging FLOAT,
 	touch            TIMESTAMP,
 	KEY (accountType)
 );

@@ -34,6 +34,7 @@ use UnexpectedValueException;
 use const SORT_NUMERIC;
 use function array_slice;
 use function assert;
+use function count;
 use function explode;
 use function fclose;
 use function feof;
@@ -94,6 +95,15 @@ class GenericPreparedStatement{
 			}
 		}
 		ksort($this->positions, SORT_NUMERIC);
+		$copy = $this->variables;
+		foreach($this->positions as $name){
+			if(isset($copy[$name])){
+				unset($copy[$name]);
+			}
+		}
+		if(count($copy) > 0){
+			throw new UnexpectedValueException("Statement $this->name has unused var: " . implode(", ", $copy));
+		}
 	}
 
 
