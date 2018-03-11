@@ -29,8 +29,7 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Provider\Impl\MySQL;
 
 use DHMO\XialotEcon\Provider\BaseDataProvider;
-use DHMO\XialotEcon\Provider\Impl\MySQLThread;
-use DHMO\XialotEcon\Provider\Impl\MySQLThread_mysqli;
+use DHMO\XialotEcon\Provider\ProvidedDatumMap;
 use DHMO\XialotEcon\XialotEcon;
 use RuntimeException;
 use const PHP_INT_MAX;
@@ -51,8 +50,8 @@ class MySQLDataProvider extends BaseDataProvider{
 		$this->plugin = $plugin;
 	}
 
-	public function init() : void{
-		parent::init();
+	public function init(ProvidedDatumMap $map) : void{
+		parent::init($map);
 		$this->thread = new MySQLThread_mysqli($this->plugin->getConfig()->getNested("core.mysql"));
 		$this->thread->start();
 		while(!$this->thread->connCreated()){

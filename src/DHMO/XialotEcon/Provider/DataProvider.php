@@ -36,7 +36,7 @@ interface DataProvider{
 	 */
 	public function importStatements(array $statements) : void;
 
-	public function init() : void;
+	public function init(ProvidedDatumMap$map) : void;
 
 	/**
 	 * @param string        $queryName

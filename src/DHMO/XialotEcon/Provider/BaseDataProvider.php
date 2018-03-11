@@ -62,8 +62,8 @@ abstract class BaseDataProvider implements DataProvider{
 		$this->executeImpl($query, $callback);
 	}
 
-	public function init() : void{
-		$this->map = new ProvidedDatumMap($this);
+	public function init(ProvidedDatumMap $map) : void{
+		$this->map = $map;
 	}
 
 	public function cleanup() : void{

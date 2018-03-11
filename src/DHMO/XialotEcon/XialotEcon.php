@@ -33,7 +33,9 @@ use DHMO\XialotEcon\Provider\GenericPreparedStatement;
 use DHMO\XialotEcon\Provider\Impl\MySQL\MySQLDataProvider;
 use DHMO\XialotEcon\Provider\Impl\SQLiteDataProvider;
 use DHMO\XialotEcon\Provider\ProvidedDatum;
+use DHMO\XialotEcon\Provider\ProvidedDatumMap;
 use pocketmine\plugin\PluginBase;
+use RuntimeException;
 use function mkdir;
 
 class XialotEcon extends PluginBase{
@@ -48,6 +50,8 @@ class XialotEcon extends PluginBase{
 		self::$instance = $this;
 	}
 
+	/** @var ProvidedDatumMap */
+	private $map;
 	/** @var DataProvider */
 	private $provider = null;
 
@@ -56,19 +60,22 @@ class XialotEcon extends PluginBase{
 		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 
-		switch(strtolower($this->getConfig()->getNested("core.provider"))){
+		switch($providerName = strtolower($this->getConfig()->getNested("core.provider", SQLiteDataProvider::CONFIG_NAME))){
 			case SQLiteDataProvider::CONFIG_NAME:
-				$this->provider = new SQLiteDataProvider($this);
-				$this->provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("sqlite3.sql")));
+				$provider = new SQLiteDataProvider($this);
+				$provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("sqlite3.sql")));
 				break;
 
 			case MySQLDataProvider::CONFIG_NAME:
-				$this->provider = new MySQLDataProvider($this);
-				$this->provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("mysql.sql")));
+				$provider = new MySQLDataProvider($this);
+				$provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("mysql.sql")));
 				break;
+
+			default:
+				throw new RuntimeException("Unsupported data provider $providerName");
 		}
 
-		$this->provider->init();
+		$this->setProvider($provider);
 
 		ProvidedDatum::$EXPIRY_CONFIG = $this->getConfig()->getNested("update-rate");
 	}
@@ -86,11 +93,12 @@ class XialotEcon extends PluginBase{
 		return $this->provider;
 	}
 
-	public function setProvider(DataProvider $provider){
+	public function setProvider(DataProvider $provider) : void{
 		if($this->provider !== null){
 			$this->provider->cleanup();
 		}
-		$provider->init();
+		$this->map = new ProvidedDatumMap($provider);
+		$provider->init($this->map);
 		$this->provider = $provider;
 	}
 }

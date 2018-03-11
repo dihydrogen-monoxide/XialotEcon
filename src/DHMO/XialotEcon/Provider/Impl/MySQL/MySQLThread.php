@@ -26,7 +26,7 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider\Impl;
+namespace DHMO\XialotEcon\Provider\Impl\MySQL;
 
 
 interface MySQLThread{
