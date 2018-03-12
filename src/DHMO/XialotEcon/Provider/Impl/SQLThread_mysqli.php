@@ -26,8 +26,9 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider\Impl\MySQL;
+namespace DHMO\XialotEcon\Provider\Impl;
 
+use DHMO\XialotEcon\Provider\SQLThread;
 use mysqli_result;
 use pocketmine\Thread;
 use RuntimeException;
@@ -38,7 +39,7 @@ use function mysqli_init;
 use function serialize;
 use function unserialize;
 
-class MySQLThread_mysqli extends Thread implements MySQLThread{
+class SQLThread_mysqli extends Thread implements SQLThread{
 	private $credentials;
 
 	public $created = false;
@@ -69,6 +70,8 @@ class MySQLThread_mysqli extends Thread implements MySQLThread{
 			return;
 		}
 
+		$mysqli->set_charset("utf8");
+
 		while($this->running){
 			while(is_array($querySet = $this->queries->shift())){
 				[$queryId, $query] = $querySet;
@@ -86,7 +89,7 @@ class MySQLThread_mysqli extends Thread implements MySQLThread{
 				$this->results[] = [$queryId, $result, $mysqli->affected_rows, $mysqli->insert_id];
 			}
 
-			$this->synchronized(function(MySQLThread_mysqli $thread){
+			$this->synchronized(function(SQLThread_mysqli $thread){
 				$thread->wait(200000);
 			}, $this);
 		}

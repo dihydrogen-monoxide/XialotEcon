@@ -29,8 +29,6 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Provider;
 
 interface DataProvider{
-	public function getDialect() : string;
-
 	/**
 	 * @param GenericPreparedStatement[] $statements
 	 */

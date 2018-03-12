@@ -30,12 +30,18 @@ namespace DHMO\XialotEcon\Provider;
 
 use DHMO\XialotEcon\XialotEcon;
 use InvalidArgumentException;
+use RuntimeException;
 
-abstract class BaseDataProvider implements DataProvider{
+class AsyncDataProvider implements DataProvider{
 	/** @var ProvidedDatumMap */
 	protected $map;
 	/** @var GenericPreparedStatement[] */
 	protected $stmts = [];
+	/** @var XialotEcon */
+	private $plugin;
+	private $callbacks;
+	/** @var \DHMO\XialotEcon\Provider\Impl\SQLThread */
+	private $thread;
 
 	public static function parseFile(XialotEcon $plugin, string $file) : string{
 		if($file{0} === "/"){ // absolute path on Unix-like filesystems
@@ -45,6 +51,10 @@ abstract class BaseDataProvider implements DataProvider{
 			return $file;
 		}
 		return $plugin->getDataFolder() . $file;
+	}
+
+	public function __construct(SQLThread $thread){
+		$this->thread = $thread;
 	}
 
 	/**
@@ -59,16 +69,32 @@ abstract class BaseDataProvider implements DataProvider{
 			throw new InvalidArgumentException("Unknown query \"$queryName\"");
 		}
 		$query = $this->stmts[$queryName]->format($args);
-		$this->executeImpl($query, $callback);
+		do{
+			$queryId = random_int(PHP_INT_MIN, PHP_INT_MAX);
+		}while(isset($this->callbacks[$queryId]));
+		$this->thread->addQuery($queryId, $query);
+		$this->callbacks[$queryId] = $callback;
 	}
 
 	public function init(ProvidedDatumMap $map) : void{
 		$this->map = $map;
+		$this->thread->start();
+		while(!$this->thread->connCreated()){
+			usleep(1000); // wait for connection to be created
+		}
+		if($this->thread->hasConnError()){
+			throw new RuntimeException("MySQL connect error: " . $this->thread->getConnError());
+		}
+		// TODO: create tables
 	}
 
 	public function cleanup() : void{
 		$this->map->clearAll();
+		$this->thread->stopRunning();
+		$this->thread->join();
 	}
 
-	protected abstract function executeImpl(string $query, ?callable $rowsConsumer);
+	public function tick() : void{
+		$this->thread->readResults($this->callbacks);
+	}
 }

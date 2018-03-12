@@ -30,11 +30,12 @@ namespace DHMO\XialotEcon;
 
 use DHMO\XialotEcon\Provider\DataProvider;
 use DHMO\XialotEcon\Provider\GenericPreparedStatement;
-use DHMO\XialotEcon\Provider\Impl\MySQL\MySQLDataProvider;
-use DHMO\XialotEcon\Provider\Impl\SQLiteDataProvider;
+use DHMO\XialotEcon\Provider\Impl\SQLThread_mysqli;
 use DHMO\XialotEcon\Provider\ProvidedDatum;
 use DHMO\XialotEcon\Provider\ProvidedDatumMap;
+use DHMO\XialotEcon\Provider\AsyncDataProvider;
 use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\PluginTask;
 use RuntimeException;
 use function mkdir;
 
@@ -60,14 +61,11 @@ class XialotEcon extends PluginBase{
 		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 
-		switch($providerName = strtolower($this->getConfig()->getNested("core.provider", SQLiteDataProvider::CONFIG_NAME))){
-			case SQLiteDataProvider::CONFIG_NAME:
-				$provider = new SQLiteDataProvider($this);
-				$provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("sqlite3.sql")));
-				break;
+		switch($providerName = strtolower($this->getConfig()->getNested("core.provider", "sqlite"))){
+			// TODO sqlite3
 
-			case MySQLDataProvider::CONFIG_NAME:
-				$provider = new MySQLDataProvider($this);
+			case "mysql":
+				$provider = new AsyncDataProvider(new SQLThread_mysqli($this->getConfig()->getNested("core.mysql"))); // TODO check extensions and PDO
 				$provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("mysql.sql")));
 				break;
 
@@ -78,6 +76,14 @@ class XialotEcon extends PluginBase{
 		$this->setProvider($provider);
 
 		ProvidedDatum::$EXPIRY_CONFIG = $this->getConfig()->getNested("update-rate");
+
+		$this->getServer()->getScheduler()->scheduleRepeatingTask(new class($this) extends PluginTask{
+			public function onRun(int $currentTick) : void{
+				/** @var XialotEcon $plugin */
+				$plugin = $this->owner;
+				$plugin->getProvider()->tick();
+			}
+		}, 1);
 	}
 
 	public function onDisable() : void{

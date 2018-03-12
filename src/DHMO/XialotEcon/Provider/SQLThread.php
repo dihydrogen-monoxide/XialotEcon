@@ -26,10 +26,10 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider\Impl\MySQL;
+namespace DHMO\XialotEcon\Provider;
 
 
-interface MySQLThread{
+interface SQLThread{
 	public function start();
 
 	public function join();
