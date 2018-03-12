@@ -98,16 +98,6 @@ class Account extends ProvidedDatum{
 		$this->ownerName = $ownerName;
 	}
 
-	public function setAccountType(string $accountType) : void{
-		$this->touchLocalModify();
-		$this->accountType = $accountType;
-	}
-
-	public function setCurrency(Currency $currency) : void{
-		$this->touchLocalModify();
-		$this->currency = $currency;
-	}
-
 	public function setBalance(float $balance) : void{
 		$this->touchLocalModify();
 		$this->balance = $balance;
