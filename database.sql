@@ -40,7 +40,8 @@ CREATE TABLE transactions (
 CREATE TABLE updates_feed (
 	updateId INT UNSIGNED PRIMARY KEY AUTO_INCREMENT, -- INT UNSIGNED can sustain 20 updates per second for 6 years and 8 months
 	uuid     CHAR(36), -- REFERENCES currencies(currencyId) OR accounts(accountId) OR transactions(transactionId)
-	time     TIMESTAMP                DEFAULT CURRENT_TIMESTAMP
+	time     TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
+	fromServer CHAR(36)
 );
 
 -- -------------------------------------------------------------------------------------------- --

@@ -26,20 +26,27 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon;
+namespace DHMO\XialotEcon\Player;
 
-use DHMO\XialotEcon\DataModel\DataModel;
-use DHMO\XialotEcon\DataModel\DataModelCache;
-use poggit\libasynql\DataConnector;
+use DHMO\XialotEcon\XialotEcon;
+use pocketmine\event\Listener;
 
-class Transaction extends DataModel{
-	public const DATUM_TYPE = "xialotecon.core.transaction";
+class PlayerModule implements Listener{
+	/** @var PlayerModule */
+	private static $instance;
 
-	protected function downloadChanges(DataModelCache $cache) : void{
-		// TODO: Implement downloadChanges() method.
+	private $plugin;
+
+	public function __construct(XialotEcon $plugin){
+		self::$instance = $this;
+		$this->plugin = $plugin;
+		$plugin->getServer()->getPluginManager()->registerEvents($this, $plugin);
+		$plugin->getServer()->getCommandMap()->registerAll("xialotecon", [
+			new PayOnlinePlayerCommand(),
+		]);
 	}
 
-	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
-		// TODO: Implement uploadChanges() method.
+	public static function getInstance() : PlayerModule{
+		return self::$instance;
 	}
 }

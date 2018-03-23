@@ -26,24 +26,21 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider;
+namespace DHMO\XialotEcon\Event\Account;
 
-interface DataProvider{
-	/**
-	 * @param GenericPreparedStatement[] $statements
-	 */
-	public function importStatements(array $statements) : void;
+use DHMO\XialotEcon\Account;
+use DHMO\XialotEcon\Event\XialotEconEvent;
 
-	public function init(ProvidedDatumMap$map) : void;
+class AccountEvent extends XialotEconEvent{
+	/** @var Account */
+	protected $account;
 
-	/**
-	 * @param string        $queryName
-	 * @param mixed[]       $args
-	 * @param callable|null $callback
-	 */
-	public function executeQuery(string $queryName, array $args = [], ?callable $callback = null) : void;
+	public function __construct(Account $account){
+		parent::__construct();
+		$this->account = $account;
+	}
 
-	public function cleanup() : void;
-
-	public function tick() : void;
+	public function getAccount() : Account{
+		return $this->account;
+	}
 }

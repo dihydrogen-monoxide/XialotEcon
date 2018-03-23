@@ -26,81 +26,85 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider;
+namespace DHMO\XialotEcon\DataModel;
 
 use DHMO\XialotEcon\Account;
 use DHMO\XialotEcon\Currency;
 use DHMO\XialotEcon\Transaction;
-use pocketmine\utils\UUID;
-use function assert;
+use InvalidArgumentException;
 use poggit\libasynql\DataConnector;
+use function assert;
 
-class ProvidedDatumMap{
+class DataModelCache{
 	/** @var DataConnector */
 	private $connector;
-	/** @var ProvidedDatum[] */
-	private $store = [];
 
-	public function __construct(DataConnector $provider){
-		$this->connector = $provider;
+	/** @var DataModel[] */
+	private $models = [];
+
+	public function __construct(DataConnector $connector){
+		$this->connector = $connector;
 	}
 
-	/**
-	 * @return DataConnector
-	 */
 	public function getConnector() : DataConnector{
 		return $this->connector;
 	}
 
-	public function onDatumLoaded(ProvidedDatum $datum) : void{
-		$this->store[$datum->getUUID()->toString()] = $datum;
+	public function onModelUpdated(string $uuid) : void{
+		if(isset($this->models[$uuid])){
+			$this->models[$uuid]->remoteInvalidate($this);
+		}
 	}
 
-	public function onUpdate(UUID $uuid) : void{
-		if(isset($this->store[$str = $uuid->toString()])){
-			$this->store[$str]->setOutdated();
+	public function trackModel(DataModel $model) : void{
+		if(isset($this->models[$model->getUuid()])){
+			throw new InvalidArgumentException("The data model $model is already being checked.");
 		}
+		$this->models[$model->getUuid()] = $model;
 	}
 
 	public function doCycle() : void{
-		foreach($this->store as $uuid => $datum){
-			if($datum->shouldGarbage()){
-				if($datum->isLocallyModified()){
-					$datum->store();
-				}
-				$datum->setGarbage();
-				unset($this->store[$uuid]);
-			}elseif($datum->shouldStore()){
-				$datum->store();
+		foreach($this->models as $model){
+			if($model->isGarbage()){
+				$model->markGarbage($this->connector);
+				unset($this->models[$model->getUuid()]);
+			}else{
+				$model->checkAutosave($this->connector);
 			}
 		}
 	}
 
-	public function clearAll() : void{
-		foreach($this->store as $uuid => $datum){
-			if($datum->isLocallyModified()){
-				$datum->store();
-			}
-			$datum->setGarbage();
+	public function close() : void{
+		foreach($this->models as $model){
+			$model->markGarbage($this->connector);
 		}
-		$this->store = [];
+		$this->models = [];
 	}
+
+	public function isTrackingModel(string $uuid) : bool{
+		return isset($this->models[$uuid]);
+	}
+
+	public function getModel(string $uuid) : ?DataModel{
+		return $this->models[$uuid] ?? null;
+	}
+
 
 	public function getCurrency(string $uuid) : Currency{
-		$currency = $this->store[$uuid];
+		$currency = $this->models[$uuid] ?? null;
 		assert($currency !== null, "Currency $uuid is non-existent");
 		assert($currency instanceof Currency, "UUID $uuid does not point to a Currency");
 		return $currency;
 	}
 
 	public function getAccount(string $uuid) : ?Account{
-		$account = $this->store[$uuid] ?? null;
+		$account = $this->models[$uuid] ?? null;
 		assert($account === null || $account instanceof Account, "UUID $uuid does not point to an Account");
 		return $account;
 	}
 
 	public function getTransaction(string $uuid) : ?Transaction{
-		$transaction = $this->store[$uuid] ?? null;
+		$transaction = $this->models[$uuid] ?? null;
 		assert($transaction === null || $transaction instanceof Transaction, "UUID $uuid does not point to a Transaction");
 		return $transaction;
 	}

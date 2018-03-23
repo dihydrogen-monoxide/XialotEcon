@@ -28,12 +28,12 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
-use DHMO\XialotEcon\Provider\DataProvider;
-use DHMO\XialotEcon\Provider\ProvidedDatum;
-use DHMO\XialotEcon\Provider\ProvidedDatumMap;
-use pocketmine\utils\UUID;
+use DHMO\XialotEcon\DataModel\DataModel;
+use DHMO\XialotEcon\DataModel\DataModelCache;
+use poggit\libasynql\DataConnector;
+use poggit\libasynql\result\SqlSelectResult;
 
-class Account extends ProvidedDatum{
+class Account extends DataModel{
 	public const DATUM_TYPE = "xialotecon.core.account";
 
 	/** @var string */
@@ -47,19 +47,31 @@ class Account extends ProvidedDatum{
 	/** @var float */
 	private $balance;
 
-	public static function load(ProvidedDatumMap $map, UUID $uuid, callable $consumer) : void{
-		$map->getProvider()->executeQuery("xialotecon.core.account.load.byUuid", ["uuid" => $uuid], function($rows) use($map, $uuid, $consumer){
-			$instance = new Account($map, $uuid, self::DATUM_TYPE, false);
-			$instance->applyRow($rows[0]);
+	public static function getByUuid(DataModelCache $cache, string $uuid, callable $consumer) : void{
+		if($cache->isTrackingModel($uuid)){
+			$consumer($cache->getAccount($uuid));
+			return;
+		}
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CORE_ACCOUNT_LOAD_BY_UUID, ["uuid" => $uuid], function(SqlSelectResult $result) use ($cache, $uuid, $consumer){
+			if($cache->isTrackingModel($uuid)){
+				$consumer($cache->getAccount($uuid));
+				return;
+			}
+			if(empty($result->getRows())){
+				$consumer(null);
+				return;
+			}
+			$instance = new Account($cache, $uuid, self::DATUM_TYPE, false);
+			$instance->applyRow($cache, $result->getRows()[0]);
 			$consumer($instance);
 		});
 	}
 
-	private function applyRow(array $row){
+	private function applyRow(DataModelCache $cache, array $row) : void{
 		$this->ownerType = $row["ownerType"];
 		$this->ownerName = $row["ownerName"];
 		$this->accountType = $row["accountType"];
-		$this->currency = $this->getDatumMap()->getCurrency($row["currency"]);
+		$this->currency = $cache->getCurrency($row["currency"]);
 		$this->balance = $row["balance"];
 	}
 
@@ -89,23 +101,23 @@ class Account extends ProvidedDatum{
 	}
 
 	public function setOwnerType(string $ownerType) : void{
-		$this->touchLocalModify();
+		$this->touchAutosave();
 		$this->ownerType = $ownerType;
 	}
 
 	public function setOwnerName(string $ownerName) : void{
-		$this->touchLocalModify();
+		$this->touchAutosave();
 		$this->ownerName = $ownerName;
 	}
 
 	public function setBalance(float $balance) : void{
-		$this->touchLocalModify();
+		$this->touchAutosave();
 		$this->balance = $balance;
 	}
 
-	protected function doStore() : void{
-		$this->getProvider()->executeQuery("xialotecon.core.account.update.hybrid", [
-			"uuid" => $this->uuid,
+	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
+		$connector->executeChange(Queries::XIALOTECON_CORE_ACCOUNT_UPDATE_HYBRID, [
+			"uuid" => $this->getUuid(),
 			"ownerType" => $this->ownerType,
 			"ownerName" => $this->ownerName,
 			"accountType" => $this->accountType,
@@ -114,10 +126,10 @@ class Account extends ProvidedDatum{
 		]);
 	}
 
-	protected function onOutdated() : void{
-		$this->getProvider()->executeQuery("xialotecon.core.account.load.byUuid", ["uuid" => $this->uuid], function($rows) {
-			$this->applyRow($rows[0]);
-			$this->onUpdated();
+	protected function downloadChanges(DataModelCache $cache) : void{
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CORE_ACCOUNT_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result) use ($cache){
+			$this->applyRow($cache, $result->getRows()[0]);
+			$this->onChangesDownloaded();
 		});
 	}
 }

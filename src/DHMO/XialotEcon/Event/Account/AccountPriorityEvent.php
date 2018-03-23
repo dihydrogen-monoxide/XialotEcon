@@ -26,20 +26,46 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon;
+namespace DHMO\XialotEcon\Event\Account;
 
-use DHMO\XialotEcon\DataModel\DataModel;
-use DHMO\XialotEcon\DataModel\DataModelCache;
-use poggit\libasynql\DataConnector;
+use DHMO\XialotEcon\Account;
+use DHMO\XialotEcon\Event\XialotEconEvent;
+use function uksort;
 
-class Transaction extends DataModel{
-	public const DATUM_TYPE = "xialotecon.core.transaction";
+class AccountPriorityEvent extends XialotEconEvent{
+	/** @var AccountContributionEvent */
+	private $event;
+	/** @var int[] */
+	private $priorities;
 
-	protected function downloadChanges(DataModelCache $cache) : void{
-		// TODO: Implement downloadChanges() method.
+	public function __construct(AccountContributionEvent $event){
+		parent::__construct();
+		$this->event = $event;
+		foreach($event->getAccounts() as $account){
+			$this->priorities[$account->getUUID()->toString()] = 0;
+		}
 	}
 
-	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
-		// TODO: Implement uploadChanges() method.
+	public function getEvent() : AccountContributionEvent{
+		return $this->event;
+	}
+
+	public function getAccounts() : array{
+		return $this->event->getAccounts();
+	}
+
+	public function applyPriority(string $uuid, int $modifier) : void{
+		$this->priorities[$uuid] += $modifier;
+	}
+
+	/**
+	 * @return Account[]
+	 */
+	public function sortResult() : array{
+		$accounts = $this->event->getAccounts();
+		uksort($accounts, function(string $u1, string $u2) : int{
+			return $this->priorities[$u2] <=> $this->priorities[$u1]; // descending order
+		});
+		return $accounts;
 	}
 }

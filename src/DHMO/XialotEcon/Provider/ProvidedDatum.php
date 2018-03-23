@@ -30,6 +30,7 @@ namespace DHMO\XialotEcon\Provider;
 
 use DHMO\XialotEcon\StringUtil;
 use InvalidStateException;
+use pocketmine\Server;
 use pocketmine\utils\UUID;
 use function crc32;
 use function hash;
@@ -58,6 +59,8 @@ abstract class ProvidedDatum{
 
 	/** @var int */
 	protected $outdated = 0;
+
+	protected $writeQueue = [];
 
 	public static function generateUUID(string $type) : UUID{
 		$prefix = hash("crc32b", $type, true);
@@ -147,7 +150,7 @@ abstract class ProvidedDatum{
 
 	public final function store() : void{
 		$this->doStore();
-		$this->datumMap->getProvider()->executeQuery("xialotecon.core.provider.feedDatumUpdate", ["uuid" => $this->uuid]);
+		$this->datumMap->getProvider()->executeQuery("xialotecon.core.provider.feedDatumUpdate", ["uuid" => $this->uuid, "server" => Server::getInstance()->getServerUniqueId()]);
 		$this->lastStore = microtime(true);
 	}
 
@@ -165,7 +168,22 @@ abstract class ProvidedDatum{
 
 	protected function onUpdated() : void{
 		--$this->outdated;
+		if($this->outdated === 0){
+			foreach($this->writeQueue as $writer){
+				$writer();
+			}
+			$this->writeQueue = [];
+		}
 	}
 
 	protected abstract function onOutdated() : void;
+
+
+	public function safeWrite(callable $writer) : void{
+		if($this->outdated > 0){
+			$this->writeQueue[] = $writer;
+		}else{
+			$writer();
+		}
+	}
 }

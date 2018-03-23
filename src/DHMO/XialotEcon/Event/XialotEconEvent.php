@@ -31,7 +31,7 @@ namespace DHMO\XialotEcon\Event;
 use DHMO\XialotEcon\XialotEcon;
 use pocketmine\event\plugin\PluginEvent;
 
-class XialotEconEvent extends PluginEvent{
+abstract class XialotEconEvent extends PluginEvent{
 	public function __construct(){
 		parent::__construct(XialotEcon::getInstance());
 	}

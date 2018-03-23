@@ -26,23 +26,20 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Provider;
+namespace DHMO\XialotEcon\DataModel;
 
+class DataModelTypeConfig{
+	/** @var string */
+	public $type;
+	/** @var float */
+	public $autoSavePeriod;
+	/** @var float */
+	public $garbageTimeout;
+	/** @var bool */
+	public $notifyChanges;
 
-interface SQLThread{
-	public function start();
-
-	public function join();
-
-	public function stopRunning() : void;
-
-	public function addQuery(int $queryId, string $query) : void;
-
-	public function readResults(array &$callbacks) : void;
-
-	public function connCreated() : bool;
-
-	public function hasConnError() : bool;
-
-	public function getConnError() : ?string;
+	public function __construct(string $type, array $config){
+		$this->type = $type;
+		$this->notifyChanges = $config["notify-changes"] ?? true;
+	}
 }

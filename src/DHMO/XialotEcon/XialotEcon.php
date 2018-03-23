@@ -28,15 +28,11 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
-use DHMO\XialotEcon\Provider\DataProvider;
-use DHMO\XialotEcon\Provider\GenericPreparedStatement;
-use DHMO\XialotEcon\Provider\Impl\SQLThread_mysqli;
-use DHMO\XialotEcon\Provider\ProvidedDatum;
-use DHMO\XialotEcon\Provider\ProvidedDatumMap;
-use DHMO\XialotEcon\Provider\AsyncDataProvider;
+use DHMO\XialotEcon\DataModel\DataModel;
+use DHMO\XialotEcon\DataModel\DataModelCache;
+use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
 use pocketmine\plugin\PluginBase;
-use pocketmine\scheduler\PluginTask;
-use RuntimeException;
+use poggit\libasynql\libasynql;
 use function mkdir;
 
 class XialotEcon extends PluginBase{
@@ -51,60 +47,32 @@ class XialotEcon extends PluginBase{
 		self::$instance = $this;
 	}
 
-	/** @var ProvidedDatumMap */
-	private $map;
-	/** @var DataProvider */
-	private $provider = null;
+	/** @var DataModelCache */
+	private $modelCache;
 
 	public function onEnable() : void{
 		//Make the faction config
 		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 
-		switch($providerName = strtolower($this->getConfig()->getNested("core.provider", "sqlite"))){
-			// TODO sqlite3
+		$connector = libasynql::create($this, $this->getConfig()->getNested("core.database"), [
+			"mysql" => "mysql.sql",
+			"sqlite" => "sqlite3.sql",
+		]);
+		$this->modelCache = new DataModelCache($connector);
 
-			case "mysql":
-				$provider = new AsyncDataProvider(new SQLThread_mysqli($this->getConfig()->getNested("core.mysql"))); // TODO check extensions and PDO
-				$provider->importStatements(GenericPreparedStatement::fromFile($this->getResource("mysql.sql")));
-				break;
-
-			default:
-				throw new RuntimeException("Unsupported data provider $providerName");
+		foreach($this->getConfig()->getNested("core.data-model") as $type => $modelConfig){
+			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
 		}
-
-		$this->setProvider($provider);
-
-		ProvidedDatum::$EXPIRY_CONFIG = $this->getConfig()->getNested("update-rate");
-
-		$this->getServer()->getScheduler()->scheduleRepeatingTask(new class($this) extends PluginTask{
-			public function onRun(int $currentTick) : void{
-				/** @var XialotEcon $plugin */
-				$plugin = $this->owner;
-				$plugin->getProvider()->tick();
-			}
-		}, 1);
 	}
 
 	public function onDisable() : void{
-		if($this->provider !== null){
-			$this->provider->cleanup();
+		if($this->modelCache !== null){
+			$this->modelCache->close();
 		}
 	}
 
-	/**
-	 * @return DataProvider
-	 */
-	public function getProvider() : DataProvider{
-		return $this->provider;
-	}
-
-	public function setProvider(DataProvider $provider) : void{
-		if($this->provider !== null){
-			$this->provider->cleanup();
-		}
-		$this->map = new ProvidedDatumMap($provider);
-		$provider->init($this->map);
-		$this->provider = $provider;
+	public function getModelCache() : DataModelCache{
+		return $this->modelCache;
 	}
 }
