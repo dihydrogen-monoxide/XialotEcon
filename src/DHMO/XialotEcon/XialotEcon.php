@@ -28,6 +28,9 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
+use function array_values;
+use DHMO\XialotEcon\Account\AccountContributionEvent;
+use DHMO\XialotEcon\Account\AccountPriorityEvent;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
@@ -74,5 +77,19 @@ class XialotEcon extends PluginBase{
 
 	public function getModelCache() : DataModelCache{
 		return $this->modelCache;
+	}
+
+	public function findAccount(AccountContributionEvent $event, callable $consumer, int $distinctionThreshold = null){
+		$this->getServer()->getPluginManager()->callAsyncEvent($event, function(AccountContributionEvent $event) use($distinctionThreshold, $consumer){
+			$priorityEvent = new AccountPriorityEvent($event);
+			$this->getServer()->getPluginManager()->callAsyncEvent($priorityEvent, function(AccountPriorityEvent $event) use($distinctionThreshold, $consumer){
+				$result = $event->sortResult($distinction);
+				if($distinction >= $distinctionThreshold){
+					$consumer(array_values($result)[0]);
+				}else{
+					// TODO select with forms
+				}
+			});
+		});
 	}
 }

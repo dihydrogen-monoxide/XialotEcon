@@ -26,7 +26,50 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Event\Account;
+namespace DHMO\XialotEcon;
 
-class AccountDescriptionEvent extends AccountEvent{
+use InvalidStateException;
+
+class JointPromise{
+	private $callables = [];
+	private $results = [];
+	private $remaining = 0;
+	private $thenCalled = false;
+
+	public static function create() : JointPromise{
+		return new JointPromise();
+	}
+
+	public static function build(array $tasks, callable $then) : void{
+		$promise = new JointPromise();
+		foreach($tasks as $key => $value){
+			$promise->do($key, $value);
+		}
+		$promise->then($then);
+	}
+
+	public function do(string $key, callable $callable) : JointPromise{
+		if($this->thenCalled){
+			throw new InvalidStateException("then() has already been called");
+		}
+		$this->callables[$key] = $callable;
+		++$this->remaining;
+		return $this;
+	}
+
+	public function then(callable $then) : void{
+		if($this->thenCalled){
+			throw new InvalidStateException("then() has already been called");
+		}
+		$this->thenCalled = true;
+		foreach($this->callables as $key => $c){
+			$c(function($result) use ($then, $key){
+				$this->results[$key] = $result;
+				--$this->remaining;
+				if($this->remaining === 0){
+					$then($this->results);
+				}
+			});
+		}
+	}
 }

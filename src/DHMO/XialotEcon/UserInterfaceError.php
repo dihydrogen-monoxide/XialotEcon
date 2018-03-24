@@ -26,24 +26,13 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\DataModel;
+namespace DHMO\XialotEcon;
 
-use DHMO\XialotEcon\StringUtil;
+use RuntimeException;
+use Throwable;
 
-class DataModelTypeConfig{
-	/** @var string */
-	public $type;
-	/** @var float */
-	public $autoSavePeriod;
-	/** @var float */
-	public $garbageTimeout;
-	/** @var bool */
-	public $notifyChanges;
-
-	public function __construct(string $type, array $config){
-		$this->type = $type;
-		$this->notifyChanges = $config["notify-changes"] ?? true;
-		$this->garbageTimeout = StringUtil::parseTime($config["garbage"]);
-		$this->autoSavePeriod = StringUtil::parseTime($config["store"]);
+class UserInterfaceError extends RuntimeException{
+	public function __construct(string $message, Throwable $previous = null){
+		parent::__construct($message, 1, $previous);
 	}
 }

@@ -26,24 +26,22 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\DataModel;
+namespace DHMO\XialotEcon\Player;
 
-use DHMO\XialotEcon\StringUtil;
+use DHMO\XialotEcon\UserInterfaceError;
+use DHMO\XialotEcon\XialotEconCommand;
+use pocketmine\command\CommandSender;
+use pocketmine\Player;
 
-class DataModelTypeConfig{
-	/** @var string */
-	public $type;
-	/** @var float */
-	public $autoSavePeriod;
-	/** @var float */
-	public $garbageTimeout;
-	/** @var bool */
-	public $notifyChanges;
+abstract class PlayerCommand extends XialotEconCommand{
+	protected function run(CommandSender $sender, array $args) : void{
+		parent::run($sender, $args);
+		if(!($sender instanceof Player)){
+			throw new UserInterfaceError("Please run this command in-game.");
+		}
+	}
 
-	public function __construct(string $type, array $config){
-		$this->type = $type;
-		$this->notifyChanges = $config["notify-changes"] ?? true;
-		$this->garbageTimeout = StringUtil::parseTime($config["garbage"]);
-		$this->autoSavePeriod = StringUtil::parseTime($config["store"]);
+	protected function throwWrongUsage() : void{
+		throw new UserInterfaceError("Usage: " . $this->getUsage());
 	}
 }

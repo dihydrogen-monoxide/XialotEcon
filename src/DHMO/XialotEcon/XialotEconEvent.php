@@ -26,21 +26,12 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Event\Account;
+namespace DHMO\XialotEcon;
 
-use DHMO\XialotEcon\Account;
-use DHMO\XialotEcon\Event\XialotEconEvent;
+use pocketmine\event\plugin\PluginEvent;
 
-class AccountEvent extends XialotEconEvent{
-	/** @var Account */
-	protected $account;
-
-	public function __construct(Account $account){
-		parent::__construct();
-		$this->account = $account;
-	}
-
-	public function getAccount() : Account{
-		return $this->account;
+abstract class XialotEconEvent extends PluginEvent{
+	public function __construct(){
+		parent::__construct(XialotEcon::getInstance());
 	}
 }

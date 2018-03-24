@@ -1,4 +1,4 @@
-main: DHMO\XialotEcon\MainClass
+main: DHMO\XialotEcon\XialotEcon
 api: [3.0.0-ALPHA10]
 
 name: XialotEcon

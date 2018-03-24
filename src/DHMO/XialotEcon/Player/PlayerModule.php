@@ -32,6 +32,8 @@ use DHMO\XialotEcon\XialotEcon;
 use pocketmine\event\Listener;
 
 class PlayerModule implements Listener{
+	public const OWNER_TYPE_PLAYER = "xialotecon.player.player";
+
 	/** @var PlayerModule */
 	private static $instance;
 
@@ -44,6 +46,10 @@ class PlayerModule implements Listener{
 		$plugin->getServer()->getCommandMap()->registerAll("xialotecon", [
 			new PayOnlinePlayerCommand(),
 		]);
+	}
+
+	public function getPlugin() : XialotEcon{
+		return $this->plugin;
 	}
 
 	public static function getInstance() : PlayerModule{

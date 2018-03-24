@@ -26,30 +26,47 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Event\Account;
+namespace DHMO\XialotEcon\Account;
 
 use DHMO\XialotEcon\Account;
-use DHMO\XialotEcon\Event\XialotEconEvent;
+use DHMO\XialotEcon\XialotEconEvent;
 
 class AccountContributionEvent extends XialotEconEvent{
-	public const FB_DEPOSIT = "xialotecon.core.account.isDeposit";
-	public const FF_AMOUNT = "xialotecon.core.account.amount";
-	public const FB_SELF_INITIATED = "xialotecon.core.account.initiator.self";
-	public const FB_OTHER_INITIATED = "xialotecon.core.account.initiator.other";
+	public const FB_WITHDRAWAL = "xialotecon.core.transaction.isWithdrawal";
+	public const FB_DEPOSIT = "xialotecon.core.transaction.isDeposit";
+	public const FF_AMOUNT = "xialotecon.core.transaction.amount";
+	public const FB_SELF_INITIATED = "xialotecon.core.transaction.initiator.self";
+	public const FB_OTHER_INITIATED = "xialotecon.core.transaction.initiator.other";
+	public const FS_OWNER_TYPE = "xialotecon.core.account.owner.type";
+	public const FS_OWNER_NAME = "xialotecon.core.account.owner.name";
 
 	/** @var bool[] */
-	private $booleanFlags = []; // an optional flag should set false as the neutral value
+	private $booleanFlags = [];
 	/** @var int[] */
-	private $intFlags = []; // an optional flag should set 0 as the neutral value
+	private $intFlags = [];
 	/** @var float[] */
-	private $floatFlags = []; // an optional flag should set 0.0 as the neutral value
+	private $floatFlags = [];
+	/** @var string[] */
+	private $stringFlags = [];
 
 	/** @var Account[] */
 	private $accounts = [];
 
+	public static function build() : AccountContributionEvent{
+		return new AccountContributionEvent();
+	}
+
+	private function __construct(){
+		parent::__construct();
+	}
+
 	public function flagBoolean(string $name, bool $value) : AccountContributionEvent{
 		$this->booleanFlags[$name] = $value;
 		return $this;
+	}
+
+	public function checkBoolean(string $name, bool $default = false) : bool{
+		return $this->booleanFlags[$name] ?? $default;
 	}
 
 	public function flagInt(string $name, int $value) : AccountContributionEvent{
@@ -57,13 +74,30 @@ class AccountContributionEvent extends XialotEconEvent{
 		return $this;
 	}
 
+	public function checkInt(string $name, int $default = 0) : int{
+		return $this->intFlags[$name] ?? $default;
+	}
+
 	public function flagFloat(string $name, float $value) : AccountContributionEvent{
 		$this->floatFlags[$name] = $value;
 		return $this;
 	}
 
+	public function checkFloat(string $name, float $default = 0.0) : float{
+		return $this->floatFlags[$name] ?? $default;
+	}
+
+	public function flagString(string $name, string $value) : AccountContributionEvent{
+		$this->floatFlags[$name] = $value;
+		return $this;
+	}
+
+	public function checkString(string $name, string $default = "") : string{
+		return $this->stringFlags[$name] ?? $default;
+	}
+
 	public function contributeAccount(Account $account) : void{
-		$this->accounts[$account->getUUID()->toString()] = $account;
+		$this->accounts[$account->getUuid()] = $account;
 	}
 
 	/**

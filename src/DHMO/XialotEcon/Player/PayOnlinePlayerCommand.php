@@ -28,15 +28,51 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Player;
 
-use DHMO\XialotEcon\XialotEconCommand;
+use DHMO\XialotEcon\Account;
+use DHMO\XialotEcon\Account\AccountContributionEvent;
+use DHMO\XialotEcon\JointPromise;
 use pocketmine\command\CommandSender;
 
-class PayOnlinePlayerCommand extends XialotEconCommand{
+class PayOnlinePlayerCommand extends PlayerCommand{
 	public function __construct(){
-		parent::__construct("pay", "Pay an amount of money to another player");
+		parent::__construct("pay", "Pay an amount of money to another player", "/pay <player> <amount>");
 	}
 
-	public function execute(CommandSender $sender, string $commandLabel, array $args){
-		// TODO: Implement execute() method.
+	protected function run(CommandSender $sender, array $args) : void{
+		parent::run($sender, $args);
+
+		if(!isset($args[1])){
+			$this->throwWrongUsage();
+		}
+
+		$target = (string) $args[0];
+		$amount = (float) $args[1];
+
+		JointPromise::create()
+			->do("from", function(callable $onComplete) use ($sender, $amount){
+				$this->getPlugin()->findAccount(AccountContributionEvent::build()
+					->flagBoolean(AccountContributionEvent::FB_SELF_INITIATED, true)
+					->flagBoolean(AccountContributionEvent::FB_WITHDRAWAL, true)
+					->flagFloat(AccountContributionEvent::FF_AMOUNT, $amount)
+					->flagString(AccountContributionEvent::FS_OWNER_TYPE, PlayerModule::OWNER_TYPE_PLAYER)
+					->flagString(AccountContributionEvent::FS_OWNER_NAME, $sender->getName())
+					, $onComplete);
+			})
+			->do("to", function(callable $onComplete) use ($amount, $target){
+				$this->getPlugin()->findAccount(AccountContributionEvent::build()
+					->flagBoolean(AccountContributionEvent::FB_OTHER_INITIATED, true)
+					->flagBoolean(AccountContributionEvent::FB_DEPOSIT, true)
+					->flagFloat(AccountContributionEvent::FF_AMOUNT, $amount)
+					->flagString(AccountContributionEvent::FS_OWNER_TYPE, PlayerModule::OWNER_TYPE_PLAYER)
+					->flagString(AccountContributionEvent::FS_OWNER_NAME, $target)
+					, $onComplete);
+			})
+			->then(function(array $result){
+				/** @var Account $from */
+				$from = $result["from"];
+				/** @var Account $to */
+				$to = $result["to"];
+				// TODO create transaction from $from to $to
+			});
 	}
 }

@@ -28,12 +28,45 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
+use LogicException;
 use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\plugin\Plugin;
+use pocketmine\utils\TextFormat;
+use function get_class;
 
 abstract class XialotEconCommand extends Command implements PluginIdentifiableCommand{
+	/** @var bool|void */
+	private $calledSuper;
+
+	/**
+	 * @return XialotEcon
+	 */
 	public function getPlugin() : Plugin{
 		return XialotEcon::getInstance();
+	}
+
+	public final function execute(CommandSender $sender, string $commandLabel, array $args) : bool{
+		$this->calledSuper = false;
+		try{
+			$this->run($sender, $args);
+			if(!$this->calledSuper){
+				throw new LogicException(get_class($this) . "->run() did not call parent::run()");
+			}
+			return true;
+		}catch(UserInterfaceError $e){
+			$sender->sendMessage(TextFormat::RED . $e->getMessage());
+			return false;
+		}
+	}
+
+	protected function run(
+		CommandSender $sender, /** @noinspection PhpUnusedParameterInspection */
+		array $args) : void{
+		$this->calledSuper = true;
+		if(!$this->testPermissionSilent($sender)){
+			throw new UserInterfaceError($this->getPermissionMessage());
+		}
 	}
 }

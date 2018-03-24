@@ -32,10 +32,6 @@ use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
-use function bin2hex;
-use function hash;
-use function random_bytes;
-use function substr;
 
 class Currency extends DataModel{
 	public const DATUM_TYPE = "xialotecon.core.currency";
