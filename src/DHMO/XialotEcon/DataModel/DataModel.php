@@ -28,13 +28,13 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\DataModel;
 
-use DHMO\XialotEcon\Queries;
 use InvalidStateException;
 use pocketmine\Server;
 use poggit\libasynql\DataConnector;
 use function assert;
 use function microtime;
 use function strlen;
+use function substr;
 
 /**
  * Represents an abstract data model.
@@ -57,12 +57,16 @@ abstract class DataModel{
 	public static function generateUuid(string $type) : string{
 		$crc32 = hash("crc32b", $type, true);
 		$prefix = substr($crc32, 0, 2) ^ substr($crc32, 2);
-		return bin2hex($prefix . random_bytes(14));
+		$hex = bin2hex($prefix . random_bytes(14));
+		return
+			substr($hex, 0, 4) . "-" .
+			substr($hex, 4, 14) . "-" .
+			substr($hex, 18, 14);
 	}
 
 	public function __construct(DataModelCache $cache, string $type, string $uuid, bool $needInsert){
 		$this->type = $type;
-		assert(strlen($uuid) === 32);
+		assert(strlen($uuid) === 34);
 		$this->uuid = $uuid;
 
 		$this->lastAccess = microtime(true);
@@ -86,7 +90,7 @@ abstract class DataModel{
 	/** @var bool */
 	private $markedGarbage = false;
 
-	protected function touchAccess() : void{
+	public function touchAccess() : void{
 		if($this->invalidated > 0){
 			throw new InvalidStateException("Cannot access invalidated data model. Warp your accessors with DataModel->onValid() to ensure that they are only executed when the data model is valid.");
 		}
@@ -160,7 +164,7 @@ abstract class DataModel{
 	/** @var bool */
 	protected $needAutosave = false;
 
-	protected function touchAutosave() : void{
+	public function touchAutosave() : void{
 		if($this->invalidated > 0){
 			throw new InvalidStateException("Cannot update invalidated data model. Warp your accessors with DataModel->onValid() to ensure that they are only executed when the data model is valid.");
 		}

@@ -26,7 +26,7 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon;
+namespace DHMO\XialotEcon\Util;
 
 use InvalidStateException;
 

@@ -7,13 +7,13 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon;
+namespace DHMO\XialotEcon\DataModel;
 
 interface Queries{
 	/**
 	 * <code>xialotecon.core.account.load.by_uuid</code>
 	 *
-	 * Defined in mysql.sql:53
+	 * Defined in mysql.sql:58
 	 *
 	 * Variables:
 	 * - <code>:uuid</code> string, required in mysql.sql
@@ -23,7 +23,7 @@ interface Queries{
 	/**
 	 * <code>xialotecon.core.account.update.hybrid</code>
 	 *
-	 * Defined in mysql.sql:71
+	 * Defined in mysql.sql:76
 	 *
 	 * Variables:
 	 * - <code>:accountType</code> string, required in mysql.sql
@@ -38,7 +38,7 @@ interface Queries{
 	/**
 	 * <code>xialotecon.core.currency.load.by_uuid</code>
 	 *
-	 * Defined in mysql.sql:26
+	 * Defined in mysql.sql:29
 	 *
 	 * Variables:
 	 * - <code>:uuid</code> string, required in mysql.sql
@@ -48,14 +48,14 @@ interface Queries{
 	/**
 	 * <code>xialotecon.core.currency.load_all</code>
 	 *
-	 * Defined in mysql.sql:15
+	 * Defined in mysql.sql:18
 	 */
 	public const XIALOTECON_CORE_CURRENCY_LOAD_ALL = "xialotecon.core.currency.load_all";
 
 	/**
 	 * <code>xialotecon.core.currency.update.hybrid</code>
 	 *
-	 * Defined in mysql.sql:40
+	 * Defined in mysql.sql:43
 	 *
 	 * Variables:
 	 * - <code>:symbolBefore</code> string, required in mysql.sql
@@ -68,12 +68,38 @@ interface Queries{
 	/**
 	 * <code>xialotecon.core.provider.feed_datum_update</code>
 	 *
-	 * Defined in mysql.sql:6
+	 * Defined in mysql.sql:8
 	 *
 	 * Variables:
 	 * - <code>:server</code> string, required in mysql.sql
 	 * - <code>:uuid</code> string, required in mysql.sql
 	 */
 	public const XIALOTECON_CORE_PROVIDER_FEED_DATUM_UPDATE = "xialotecon.core.provider.feed_datum_update";
+
+	/**
+	 * <code>xialotecon.core.transaction.load.by_uuid</code>
+	 *
+	 * Defined in mysql.sql:92
+	 *
+	 * Variables:
+	 * - <code>:uuid</code> string, required in mysql.sql
+	 */
+	public const XIALOTECON_CORE_TRANSACTION_LOAD_BY_UUID = "xialotecon.core.transaction.load.by_uuid";
+
+	/**
+	 * <code>xialotecon.core.transaction.update.hybrid</code>
+	 *
+	 * Defined in mysql.sql:112
+	 *
+	 * Variables:
+	 * - <code>:transactionType</code> string, required in mysql.sql
+	 * - <code>:sourceReduction</code> float, required in mysql.sql
+	 * - <code>:targetAddition</code> float, required in mysql.sql
+	 * - <code>:source</code> string, required in mysql.sql
+	 * - <code>:target</code> string, required in mysql.sql
+	 * - <code>:uuid</code> string, required in mysql.sql
+	 * - <code>:date</code> timestamp, required in mysql.sql
+	 */
+	public const XIALOTECON_CORE_TRANSACTION_UPDATE_HYBRID = "xialotecon.core.transaction.update.hybrid";
 
 }

@@ -28,9 +28,9 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\DataModel;
 
-use DHMO\XialotEcon\Account;
-use DHMO\XialotEcon\Currency;
-use DHMO\XialotEcon\Transaction;
+use DHMO\XialotEcon\Account\Account;
+use DHMO\XialotEcon\Currency\Currency;
+use DHMO\XialotEcon\Transaction\Transaction;
 use InvalidArgumentException;
 use poggit\libasynql\DataConnector;
 use function assert;
@@ -86,26 +86,33 @@ class DataModelCache{
 	}
 
 	public function getModel(string $uuid) : ?DataModel{
-		return $this->models[$uuid] ?? null;
+		if(isset($this->models[$uuid])){
+			$this->models[$uuid]->touchAccess();
+			unset($this->models[$uuid]);
+		}
+		return null;
 	}
 
 
 	public function getCurrency(string $uuid) : Currency{
 		$currency = $this->models[$uuid] ?? null;
-		assert($currency !== null, "Currency $uuid is non-existent");
+		assert($currency !== null, "Currency $uuid is not loaded");
 		assert($currency instanceof Currency, "UUID $uuid does not point to a Currency");
+		$currency->touchAccess();
 		return $currency;
 	}
 
 	public function getAccount(string $uuid) : ?Account{
 		$account = $this->models[$uuid] ?? null;
-		assert($account === null || $account instanceof Account, "UUID $uuid does not point to an Account");
+		assert($account === null || $account instanceof Account, "UUID $uuid is not loaded or does not point to an Account");
+		$account->touchAccess();
 		return $account;
 	}
 
 	public function getTransaction(string $uuid) : ?Transaction{
 		$transaction = $this->models[$uuid] ?? null;
-		assert($transaction === null || $transaction instanceof Transaction, "UUID $uuid does not point to a Transaction");
+		assert($transaction === null || $transaction instanceof Transaction, "UUID $uuid is not loaded or does not point to a Transaction");
+		$transaction->touchAccess();
 		return $transaction;
 	}
 }

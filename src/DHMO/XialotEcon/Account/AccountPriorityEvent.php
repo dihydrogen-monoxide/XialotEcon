@@ -28,7 +28,6 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Account;
 
-use DHMO\XialotEcon\Account;
 use DHMO\XialotEcon\XialotEconEvent;
 use function array_keys;
 use function uksort;

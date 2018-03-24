@@ -55,7 +55,7 @@ abstract class XialotEconCommand extends Command implements PluginIdentifiableCo
 				throw new LogicException(get_class($this) . "->run() did not call parent::run()");
 			}
 			return true;
-		}catch(UserInterfaceError $e){
+		}catch(UserException $e){
 			$sender->sendMessage(TextFormat::RED . $e->getMessage());
 			return false;
 		}
@@ -66,7 +66,7 @@ abstract class XialotEconCommand extends Command implements PluginIdentifiableCo
 		array $args) : void{
 		$this->calledSuper = true;
 		if(!$this->testPermissionSilent($sender)){
-			throw new UserInterfaceError($this->getPermissionMessage());
+			throw new UserException($this->getPermissionMessage());
 		}
 	}
 }

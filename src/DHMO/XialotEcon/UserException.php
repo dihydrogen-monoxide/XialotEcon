@@ -28,18 +28,11 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
-use DHMO\XialotEcon\DataModel\DataModel;
-use DHMO\XialotEcon\DataModel\DataModelCache;
-use poggit\libasynql\DataConnector;
+use RuntimeException;
+use Throwable;
 
-class Transaction extends DataModel{
-	public const DATUM_TYPE = "xialotecon.core.transaction";
-
-	protected function downloadChanges(DataModelCache $cache) : void{
-		// TODO: Implement downloadChanges() method.
-	}
-
-	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
-		// TODO: Implement uploadChanges() method.
+class UserException extends RuntimeException{
+	public function __construct(string $message, Throwable $previous = null){
+		parent::__construct($message, 1, $previous);
 	}
 }

@@ -26,10 +26,11 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon;
+namespace DHMO\XialotEcon\Currency;
 
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
+use DHMO\XialotEcon\DataModel\Queries;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
 

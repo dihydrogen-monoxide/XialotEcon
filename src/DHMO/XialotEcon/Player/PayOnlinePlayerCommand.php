@@ -28,12 +28,17 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Player;
 
-use DHMO\XialotEcon\Account;
+use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Account\AccountContributionEvent;
-use DHMO\XialotEcon\JointPromise;
+use DHMO\XialotEcon\Transaction\Transaction;
+use DHMO\XialotEcon\Transaction\TransactionCreationEvent;
+use DHMO\XialotEcon\Util\JointPromise;
 use pocketmine\command\CommandSender;
+use pocketmine\utils\TextFormat;
 
 class PayOnlinePlayerCommand extends PlayerCommand{
+	public const TRANSACTION_TYPE = "xialotecon.player.pay.direct";
+
 	public function __construct(){
 		parent::__construct("pay", "Pay an amount of money to another player", "/pay <player> <amount>");
 	}
@@ -67,12 +72,26 @@ class PayOnlinePlayerCommand extends PlayerCommand{
 					->flagString(AccountContributionEvent::FS_OWNER_NAME, $target)
 					, $onComplete);
 			})
-			->then(function(array $result){
+			->then(function(array $result) use($sender, $amount){
 				/** @var Account $from */
 				$from = $result["from"];
-				/** @var Account $to */
+				/** @var \DHMO\XialotEcon\Account\Account $to */
 				$to = $result["to"];
-				// TODO create transaction from $from to $to
+
+				if($from->getCurrency() !== $to->getCurrency()){
+					$sender->sendMessage(TextFormat::RED . "The accounts have incompatible currencies"); // TODO improve this logic
+					return;
+				}
+
+				$event = new TransactionCreationEvent($from, $to, $amount, $amount, self::TRANSACTION_TYPE);
+				$this->getPlugin()->getServer()->getPluginManager()->callEvent($event);
+				if($event->isCancelled()){
+					/** @noinspection NullPointerExceptionInspection */
+					$sender->sendMessage(TextFormat::RED . "Cannot execute transaction! " . $event->getCancellation()->getMessage());
+					return;
+				}
+				$transaction = Transaction::createNew($this->getPlugin()->getModelCache(), $event);
+				$sender->sendMessage(TextFormat::GREEN . "Transaction {$transaction->getUuid()} succeeded! Sent {$amount} from account {$from->getUuid()} to account {$to->getUuid()}");
 			});
 	}
 }

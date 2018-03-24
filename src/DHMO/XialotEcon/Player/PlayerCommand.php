@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Player;
 
-use DHMO\XialotEcon\UserInterfaceError;
+use DHMO\XialotEcon\UserException;
 use DHMO\XialotEcon\XialotEconCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
@@ -37,11 +37,11 @@ abstract class PlayerCommand extends XialotEconCommand{
 	protected function run(CommandSender $sender, array $args) : void{
 		parent::run($sender, $args);
 		if(!($sender instanceof Player)){
-			throw new UserInterfaceError("Please run this command in-game.");
+			throw new UserException("Please run this command in-game.");
 		}
 	}
 
 	protected function throwWrongUsage() : void{
-		throw new UserInterfaceError("Usage: " . $this->getUsage());
+		throw new UserException("Usage: " . $this->getUsage());
 	}
 }

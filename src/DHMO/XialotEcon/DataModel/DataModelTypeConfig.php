@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\DataModel;
 
-use DHMO\XialotEcon\StringUtil;
+use DHMO\XialotEcon\Util\StringUtil;
 
 class DataModelTypeConfig{
 	/** @var string */
