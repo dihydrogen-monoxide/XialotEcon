@@ -1,6 +1,5 @@
 projects:
   XialotEcon:
-    path: /
     libs:
       - src: poggit/libasynql/libasynql
         version: ^3.0
