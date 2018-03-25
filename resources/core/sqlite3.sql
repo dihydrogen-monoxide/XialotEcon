@@ -1,3 +1,0 @@
--- #!sqlite
--- #{xialotecon.core
--- #}

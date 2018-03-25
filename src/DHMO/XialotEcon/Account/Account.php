@@ -29,32 +29,32 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Account;
 
 use DHMO\XialotEcon\Currency\Currency;
+use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
-use DHMO\XialotEcon\DataModel\Queries;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
 
 class Account extends DataModel{
-	public const DATUM_TYPE = "xialotecon.core.account";
+	public const DATUM_TYPE = "xialotecon.account";
 
 	/** @var string */
-	private $ownerType;
+	protected $ownerType;
 	/** @var string */
-	private $ownerName;
+	protected $ownerName;
 	/** @var string */
-	private $accountType;
+	protected $accountType;
 	/** @var Currency */
-	private $currency;
+	protected $currency;
 	/** @var float */
-	private $balance;
+	protected $balance;
 
 	public static function getByUuid(DataModelCache $cache, string $uuid, callable $consumer) : void{
 		if($cache->isTrackingModel($uuid)){
 			$consumer($cache->getAccount($uuid));
 			return;
 		}
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CORE_ACCOUNT_LOAD_BY_UUID, ["uuid" => $uuid], function(SqlSelectResult $result) use ($cache, $uuid, $consumer){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_UUID, ["uuid" => $uuid], function(SqlSelectResult $result) use ($cache, $uuid, $consumer){
 			if($cache->isTrackingModel($uuid)){
 				$consumer($cache->getAccount($uuid));
 				return;
@@ -63,7 +63,7 @@ class Account extends DataModel{
 				$consumer(null);
 				return;
 			}
-			$instance = new Account($cache, $uuid, self::DATUM_TYPE, false);
+			$instance = new Account($cache, self::DATUM_TYPE, $uuid, false);
 			$instance->applyRow($cache, $result->getRows()[0]);
 			$consumer($instance);
 		});
@@ -118,7 +118,7 @@ class Account extends DataModel{
 	}
 
 	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
-		$connector->executeChange(Queries::XIALOTECON_CORE_ACCOUNT_UPDATE_HYBRID, [
+		$connector->executeChange(Queries::XIALOTECON_ACCOUNT_UPDATE_HYBRID, [
 			"uuid" => $this->getUuid(),
 			"ownerType" => $this->ownerType,
 			"ownerName" => $this->ownerName,
@@ -129,7 +129,7 @@ class Account extends DataModel{
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CORE_ACCOUNT_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result) use ($cache){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result) use ($cache){
 			$this->applyRow($cache, $result->getRows()[0]);
 			$this->onChangesDownloaded();
 		});

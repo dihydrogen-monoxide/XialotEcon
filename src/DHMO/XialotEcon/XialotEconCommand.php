@@ -39,12 +39,19 @@ use function get_class;
 abstract class XialotEconCommand extends Command implements PluginIdentifiableCommand{
 	/** @var bool|void */
 	private $calledSuper;
+	/** @var XialotEcon */
+	private $plugin;
+
+	public function __construct(string $name, string $description, string $usageMessage, $aliases = []){
+		$this->plugin = XialotEcon::getInstance();
+		parent::__construct($name, $description, $usageMessage, $aliases);
+	}
 
 	/**
 	 * @return XialotEcon
 	 */
 	public function getPlugin() : Plugin{
-		return XialotEcon::getInstance();
+		return $this->plugin;
 	}
 
 	public final function execute(CommandSender $sender, string $commandLabel, array $args) : bool{

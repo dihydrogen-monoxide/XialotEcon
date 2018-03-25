@@ -1,5 +1,5 @@
 -- #!mysql
--- #{xialotecon.core
+-- #{xialotecon
 
 -- #{ provider.feed_datum_update
 -- #    :uuid string

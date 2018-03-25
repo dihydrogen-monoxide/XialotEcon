@@ -28,14 +28,19 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
-use function array_values;
+use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Account\AccountContributionEvent;
 use DHMO\XialotEcon\Account\AccountPriorityEvent;
+use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
+use DHMO\XialotEcon\Debug\DebugModule;
+use DHMO\XialotEcon\Player\PlayerModule;
+use DHMO\XialotEcon\Transaction\Transaction;
 use pocketmine\plugin\PluginBase;
 use poggit\libasynql\libasynql;
+use function array_values;
 use function mkdir;
 
 class XialotEcon extends PluginBase{
@@ -53,20 +58,50 @@ class XialotEcon extends PluginBase{
 	/** @var DataModelCache */
 	private $modelCache;
 
+	/** @var PlayerModule */
+	private $playerModule;
+
 	public function onEnable() : void{
 		//Make the faction config
 		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 
-		$connector = libasynql::create($this, $this->getConfig()->getNested("core.database"), [
-			"mysql" => "mysql.sql",
-			"sqlite" => "sqlite3.sql",
-		]);
-		$this->modelCache = new DataModelCache($connector);
+		$connector = libasynql::create($this, $this->getConfig()->get("database"), [
+			"mysql" => [
+				"mysql/core.mysql.sql",
+				"mysql/player.mysql.sql",
+			],
+			"sqlite" => [
+				"sqlite/core.sqlite.sql",
+				"sqlite/player.sqlite.sql",
+			],
+		], !libasynql::isPackaged());
 
-		foreach($this->getConfig()->getNested("core.data-model") as $type => $modelConfig){
-			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
+		$this->modelCache = new DataModelCache($this, $connector);
+
+		$typeMap = [
+			"currency" => Currency::DATUM_TYPE,
+			"account" => Account::DATUM_TYPE,
+			"transaction" => Transaction::DATUM_TYPE,
+		];
+		foreach($this->getConfig()->get("data-model") as $type => $modelConfig){
+			DataModel::$CONFIG[$typeMap[$type]] = new DataModelTypeConfig($type, $modelConfig);
 		}
+
+		Currency::loadAll($this->modelCache, function(){
+			Currency::fillDefaults($this->modelCache, $this->getConfig()->getNested("currency.defaults"));
+			$this->onStartup();
+		});
+
+	}
+
+	private function onStartup() : void{
+		DebugModule::init($this);
+		$this->playerModule = new PlayerModule($this);
+	}
+
+	public function getPlayerModule() : PlayerModule{
+		return $this->playerModule;
 	}
 
 	public function onDisable() : void{
@@ -80,9 +115,9 @@ class XialotEcon extends PluginBase{
 	}
 
 	public function findAccount(AccountContributionEvent $event, callable $consumer, int $distinctionThreshold = null){
-		$this->getServer()->getPluginManager()->callAsyncEvent($event, function(AccountContributionEvent $event) use($distinctionThreshold, $consumer){
+		$this->getServer()->getPluginManager()->callAsyncEvent($event, function(AccountContributionEvent $event) use ($distinctionThreshold, $consumer){
 			$priorityEvent = new AccountPriorityEvent($event);
-			$this->getServer()->getPluginManager()->callAsyncEvent($priorityEvent, function(AccountPriorityEvent $event) use($distinctionThreshold, $consumer){
+			$this->getServer()->getPluginManager()->callAsyncEvent($priorityEvent, function(AccountPriorityEvent $event) use ($distinctionThreshold, $consumer){
 				$result = $event->sortResult($distinction);
 				if($distinction >= $distinctionThreshold){
 					$consumer(array_values($result)[0]);

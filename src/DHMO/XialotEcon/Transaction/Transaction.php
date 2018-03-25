@@ -28,28 +28,29 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Transaction;
 
+use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
-use DHMO\XialotEcon\DataModel\Queries;
 use InvalidStateException;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
 use function time;
 
 class Transaction extends DataModel{
-	public const DATUM_TYPE = "xialotecon.core.transaction";
+	public const DATUM_TYPE = "xialotecon.transaction";
 
 	/** @var string */
-	private $sourceUuid;
+	protected $sourceUuid;
 	/** @var string */
-	private $targetUuid;
+	protected $targetUuid;
 	/** @var float */
-	private $sourceReduction;
+	protected $sourceReduction;
 	/** @var float */
-	private $targetAddition;
+	protected $targetAddition;
 	/** @var string */
-	private $transactionType;
-	private $date;
+	protected $transactionType;
+	/** @var int */
+	protected $date;
 
 	public static function createNew(DataModelCache $cache, TransactionCreationEvent $event) : Transaction{
 		if($event->isCancelled()){
@@ -70,7 +71,7 @@ class Transaction extends DataModel{
 			$consumer($cache->getTransaction($uuid));
 			return;
 		}
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CORE_TRANSACTION_LOAD_BY_UUID, ["uuid" => $uuid], function(SqlSelectResult $result) use ($cache, $uuid, $consumer){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_UUID, ["uuid" => $uuid], function(SqlSelectResult $result) use ($cache, $uuid, $consumer){
 			if($cache->isTrackingModel($uuid)){
 				$consumer($cache->getAccount($uuid));
 				return;
@@ -79,7 +80,7 @@ class Transaction extends DataModel{
 				$consumer(null);
 				return;
 			}
-			$instance = new Transaction($cache, $uuid, self::DATUM_TYPE, false);
+			$instance = new Transaction($cache, self::DATUM_TYPE, $uuid, false);
 			$instance->applyRow($result->getRows()[0]);
 			$consumer($instance);
 		});
@@ -95,13 +96,13 @@ class Transaction extends DataModel{
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CORE_TRANSACTION_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result){
 			$this->applyRow($result->getRows()[0]);
 		});
 	}
 
 	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
-		$connector->executeInsert(Queries::XIALOTECON_CORE_TRANSACTION_UPDATE_HYBRID, [
+		$connector->executeInsert(Queries::XIALOTECON_TRANSACTION_UPDATE_HYBRID, [
 			"uuid" => $this->getUuid(),
 			"date" => $this->date,
 			"transactionType" => $this->transactionType,

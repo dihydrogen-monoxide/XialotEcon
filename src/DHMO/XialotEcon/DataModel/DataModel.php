@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\DataModel;
 
+use DHMO\XialotEcon\Database\Queries;
 use InvalidStateException;
 use pocketmine\Server;
 use poggit\libasynql\DataConnector;
@@ -71,6 +72,7 @@ abstract class DataModel{
 
 		$this->lastAccess = microtime(true);
 		$this->lastAutosave = $needInsert ? 0.0 : microtime(true);
+		$this->needAutosave = $needInsert;
 
 		$cache->trackModel($this);
 	}
@@ -162,7 +164,7 @@ abstract class DataModel{
 	/** @var float */
 	protected $lastAutosave;
 	/** @var bool */
-	protected $needAutosave = false;
+	protected $needAutosave;
 
 	public function touchAutosave() : void{
 		if($this->invalidated > 0){
@@ -185,8 +187,8 @@ abstract class DataModel{
 
 	private function mUploadChanges(DataConnector $connector, bool $insert) : void{
 		if(self::$CONFIG[$this->type]->notifyChanges){
-			$connector->executeInsert(Queries::XIALOTECON_CORE_PROVIDER_FEED_DATUM_UPDATE, [
-				"server" => Server::getInstance()->getServerUniqueId(),
+			$connector->executeInsert(Queries::XIALOTECON_PROVIDER_FEED_DATUM_UPDATE, [
+				"server" => Server::getInstance()->getServerUniqueId()->toString(),
 				"uuid" => $this->uuid
 			]);
 		}

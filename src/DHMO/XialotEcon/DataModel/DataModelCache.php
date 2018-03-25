@@ -31,6 +31,8 @@ namespace DHMO\XialotEcon\DataModel;
 use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Transaction\Transaction;
+use DHMO\XialotEcon\Util\CallbackTask;
+use DHMO\XialotEcon\XialotEcon;
 use InvalidArgumentException;
 use poggit\libasynql\DataConnector;
 use function assert;
@@ -42,8 +44,9 @@ class DataModelCache{
 	/** @var DataModel[] */
 	private $models = [];
 
-	public function __construct(DataConnector $connector){
+	public function __construct(XialotEcon $plugin, DataConnector $connector){
 		$this->connector = $connector;
+		$plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this, "doCycle"]), 20);
 	}
 
 	public function getConnector() : DataConnector{
@@ -114,5 +117,12 @@ class DataModelCache{
 		assert($transaction === null || $transaction instanceof Transaction, "UUID $uuid is not loaded or does not point to a Transaction");
 		$transaction->touchAccess();
 		return $transaction;
+	}
+
+	/**
+	 * @return DataModel[]
+	 */
+	public function getAll() : array{
+		return $this->models;
 	}
 }

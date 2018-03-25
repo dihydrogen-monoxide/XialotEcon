@@ -31,13 +31,13 @@ namespace DHMO\XialotEcon\Account;
 use DHMO\XialotEcon\XialotEconEvent;
 
 class AccountContributionEvent extends XialotEconEvent{
-	public const FB_WITHDRAWAL = "xialotecon.core.transaction.isWithdrawal";
-	public const FB_DEPOSIT = "xialotecon.core.transaction.isDeposit";
-	public const FF_AMOUNT = "xialotecon.core.transaction.amount";
-	public const FB_SELF_INITIATED = "xialotecon.core.transaction.initiator.self";
-	public const FB_OTHER_INITIATED = "xialotecon.core.transaction.initiator.other";
-	public const FS_OWNER_TYPE = "xialotecon.core.account.owner.type";
-	public const FS_OWNER_NAME = "xialotecon.core.account.owner.name";
+	public const FB_WITHDRAWAL = "xialotecon.transaction.isWithdrawal";
+	public const FB_DEPOSIT = "xialotecon.transaction.isDeposit";
+	public const FF_AMOUNT = "xialotecon.transaction.amount";
+	public const FB_SELF_INITIATED = "xialotecon.transaction.initiator.self";
+	public const FB_OTHER_INITIATED = "xialotecon.transaction.initiator.other";
+	public const FS_OWNER_TYPE = "xialotecon.account.owner.type";
+	public const FS_OWNER_NAME = "xialotecon.account.owner.name";
 
 	/** @var bool[] */
 	private $booleanFlags = [];

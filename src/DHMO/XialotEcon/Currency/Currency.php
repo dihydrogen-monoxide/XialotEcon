@@ -28,25 +28,30 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Currency;
 
+use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
-use DHMO\XialotEcon\DataModel\Queries;
+use DHMO\XialotEcon\XialotEcon;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
+use function sprintf;
 
 class Currency extends DataModel{
-	public const DATUM_TYPE = "xialotecon.core.currency";
+	public const DATUM_TYPE = "xialotecon.currency";
+
+	/** @var Currency[] */
+	protected static $byName;
 
 	/** @var string */
-	private $name;
+	protected $name;
 	/** @var string */
-	private $symbolBefore;
+	protected $symbolBefore;
 	/** @var string */
-	private $symbolAfter;
+	protected $symbolAfter;
 
 	public static function createNew(DataModelCache $cache, string $name, string $symbolBefore, string $symbolAfter) : Currency{
 		$uuid = self::generateUuid(self::DATUM_TYPE);
-		$instance = new Currency($cache, $uuid, self::DATUM_TYPE, true);
+		$instance = new Currency($cache, self::DATUM_TYPE, $uuid, true);
 		$instance->name = $name;
 		$instance->symbolBefore = $symbolBefore;
 		$instance->symbolAfter = $symbolAfter;
@@ -54,20 +59,42 @@ class Currency extends DataModel{
 	}
 
 	public static function loadAll(DataModelCache $cache, callable $consumer) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CORE_CURRENCY_LOAD_ALL, [], function(SqlSelectResult $result) use ($consumer, $cache){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CURRENCY_LOAD_ALL, [], function(SqlSelectResult $result) use ($consumer, $cache){
+			self::$byName = [];
 			$currencies = [];
 			foreach($result->getRows() as $row){
 				$uuid = $row["currencyId"];
 				if($cache->isTrackingModel($uuid)){
-					$currencies[] = $cache->getCurrency($uuid);
+					$currencies[] = $currency = $cache->getCurrency($uuid);
+					self::$byName[$currency->getName()] = $currency;
 				}else{
 					$instance = new Currency($cache, self::DATUM_TYPE, $uuid, false);
 					$instance->applyRow($row);
 					$currencies[] = $instance;
+					self::$byName[$instance->getName()] = $instance;
 				}
 			}
 			$consumer($currencies);
 		});
+	}
+
+	public static function getByName(string $name) : ?Currency{
+		return self::$byName[$name] ?? null;
+	}
+
+	public static function fillDefaults(DataModelCache $cache, $config) : void{
+		foreach($config as $name => $symbols){
+			if(!isset(self::$byName[$name])){
+				XialotEcon::getInstance()->getLogger()->info(sprintf('Registering new currency "%s" (e.g. %s)',
+					$name, ($symbols["prefix"] ?? "") . "123" . ($symbols["suffix"] ?? "")));
+				self::$byName[$name] = self::createNew($cache, $name, $symbols["prefix"] ?? "", $symbols["suffix"] ?? "");
+			}elseif(($symbols["prefix"] ?? "") !== self::$byName[$name]->symbolBefore ||
+				($symbols["suffix"] ?? "") !== self::$byName[$name]->symbolAfter){
+				XialotEcon::getInstance()->getLogger()->warning(sprintf(
+					'The registered currency "%s" has different units on the database (%s) and in your config (%s). The value in the database will be used.',
+					$name, self::$byName[$name]->symbolize(123), ($symbols["prefix"] ?? "") . "123" . ($symbols["suffix"] ?? "")));
+			}
+		}
 	}
 
 
@@ -107,9 +134,13 @@ class Currency extends DataModel{
 		$this->touchAutosave();
 	}
 
+	public function symbolize(float $amount) : string{
+		return $this->symbolBefore . $amount . $this->symbolAfter;
+	}
+
 
 	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
-		$connector->executeChange(Queries::XIALOTECON_CORE_CURRENCY_UPDATE_HYBRID, [
+		$connector->executeChange(Queries::XIALOTECON_CURRENCY_UPDATE_HYBRID, [
 			"uuid" => $this->getUuid(),
 			"name" => $this->name,
 			"symbolBefore" => $this->symbolBefore,
@@ -118,7 +149,7 @@ class Currency extends DataModel{
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CORE_CURRENCY_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CURRENCY_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result){
 			$this->applyRow($result->getRows()[0]);
 			$this->onChangesDownloaded();
 		});

@@ -75,7 +75,7 @@ class PayOnlinePlayerCommand extends PlayerCommand{
 			->then(function(array $result) use($sender, $amount){
 				/** @var Account $from */
 				$from = $result["from"];
-				/** @var \DHMO\XialotEcon\Account\Account $to */
+				/** @var Account $to */
 				$to = $result["to"];
 
 				if($from->getCurrency() !== $to->getCurrency()){

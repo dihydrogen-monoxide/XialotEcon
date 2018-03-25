@@ -1,5 +1,5 @@
 main: DHMO\XialotEcon\XialotEcon
-api: [3.0.0-ALPHA10]
+api: [3.0.0-ALPHA11]
 
 name: XialotEcon
 description: A next-gem economy plugin
@@ -8,19 +8,3 @@ author: DHMO Team
 authors:
 - Hittmana
 - SOFe
-
-commands:
-    XialotEcon:
-      description: Main XialotEcon command
-      usage: "/xe <subcommand>"
-      aliases: [xialotecon, xe]
-      permission: xialot
-
-permissions:
- xialot:
-  default: true
-  description: Allows access to basic functionality of XialotEcon
-  children:
-    xialot.command.*:
-        default: true
-        description: Allows use of all core XialotEcon commands
