@@ -53,6 +53,8 @@ data-model:
     notify-changes: true
 
 currency:
+  # If a currency is not in the database, it will be added.
+  # If a currency is already in the database but the values are different, this config will overwrite the settings in the database.
   defaults:
     dollar:
       prefix: "$"
@@ -60,6 +62,12 @@ currency:
       suffix: " coins"
 
 player:
+  # Default accounts to setup for the player.
+  # These accounts will only be created when the player joins this server (with XialotEcon installed) the first time. If the accounts have been deleted, they will not be recreated.
+  # "type" can be "cash" or "bank".
   defaults:
-    
+    - amount: 100
+      type: cash
+    - amount: 100
+      type: bank
 ...

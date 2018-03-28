@@ -26,54 +26,36 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Util;
+namespace DHMO\XialotEcon;
 
-use InvalidStateException;
+use DHMO\XialotEcon\Currency\Currency;
+use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Util\JointPromise;
 
-class JointPromise{
-	private $callables = [];
-	private $results = [];
-	private $remaining = 0;
-	private $thenCalled = false;
-
-	public static function create() : JointPromise{
-		return new JointPromise();
+class CoreModule extends XialotEconModule{
+	protected static function getName() : string{
+		return "core";
 	}
 
-	public static function build(array $tasks, callable $then) : void{
-		$promise = new JointPromise();
-		foreach($tasks as $key => $value){
-			$promise->do($key, $value);
-		}
-		$promise->then($then);
+	protected static function shouldConstruct(XialotEcon $plugin) : bool{
+		return true;
 	}
 
-	public function do(string $key, callable $callable) : JointPromise{
-		if($this->thenCalled){
-			throw new InvalidStateException("then() has already been called");
-		}
-		$this->callables[$key] = $callable;
-		++$this->remaining;
-		return $this;
-	}
-
-	public function then(callable $then) : void{
-		if($this->thenCalled){
-			throw new InvalidStateException("then() has already been called");
-		}
-		$this->thenCalled = true;
-		if(empty($this->callables)){
-			$then([]);
-		}else{
-			foreach($this->callables as $key => $c){
-				$c(function($result = null) use ($then, $key){
-					$this->results[$key] = $result;
-					--$this->remaining;
-					if($this->remaining === 0){
-						$then($this->results);
-					}
+	public function __construct(XialotEcon $plugin, callable $onComplete){
+		$this->plugin = $plugin;
+		$connector = $plugin->getConnector();
+		JointPromise::create()
+			->do("feed.init", function(callable $complete) use ($connector){
+				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_INIT_FEED, [], $complete);
+			})
+			->do("currency.init", function(callable $complete) use($connector, $plugin){
+				$connector->executeGeneric(Queries::XIALOTECON_CURRENCY_INIT_TABLE, [], function() use ($complete, $plugin){
+					Currency::loadAll($plugin->getModelCache(), function() use ($complete, $plugin){
+						Currency::fillDefaults($plugin->getModelCache(), $plugin->getConfig()->getNested("currency.defaults"));
+						$complete();
+					});
 				});
-			}
-		}
+			})
+			->then($onComplete);
 	}
 }

@@ -38,12 +38,21 @@ use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
 use DHMO\XialotEcon\Debug\DebugModule;
 use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Transaction\Transaction;
+use DHMO\XialotEcon\Util\JointPromise;
+use DHMO\XialotEcon\Util\StringUtil;
 use pocketmine\plugin\PluginBase;
+use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
 use function array_values;
 use function mkdir;
 
-class XialotEcon extends PluginBase{
+final class XialotEcon extends PluginBase{
+	private const MODULES = [
+		CoreModule::class,
+		DebugModule::class,
+		PlayerModule::class,
+	];
+
 	/** @var XialotEcon */
 	private static $instance;
 
@@ -51,15 +60,18 @@ class XialotEcon extends PluginBase{
 		return self::$instance;
 	}
 
-	public function onLoad() : void{
-		self::$instance = $this;
-	}
-
 	/** @var DataModelCache */
 	private $modelCache;
+	/** @var DataConnector */
+	private $connector;
 
-	/** @var PlayerModule */
-	private $playerModule;
+	/** @var XialotEconModule[] */
+	private $modules = [];
+
+	public function onLoad() : void{
+		self::$instance = $this;
+		StringUtil::init($this);
+	}
 
 	public function onEnable() : void{
 		//Make the faction config
@@ -78,6 +90,7 @@ class XialotEcon extends PluginBase{
 		], !libasynql::isPackaged());
 
 		$this->modelCache = new DataModelCache($this, $connector);
+		$this->connector = $connector;
 
 		$typeMap = [
 			"currency" => Currency::DATUM_TYPE,
@@ -88,23 +101,32 @@ class XialotEcon extends PluginBase{
 			DataModel::$CONFIG[$typeMap[$type]] = new DataModelTypeConfig($type, $modelConfig);
 		}
 
-		Currency::loadAll($this->modelCache, function(){
-			Currency::fillDefaults($this->modelCache, $this->getConfig()->getNested("currency.defaults"));
-			$this->onStartup();
+		$promise = JointPromise::create();
+		/** @var string|XialotEconModule $moduleName */
+		foreach(self::MODULES as $moduleName){
+			$promise->do($moduleName, function(callable $complete) use ($moduleName){
+				$module = $moduleName::init($this, $complete);
+				if($module !== null){
+					$this->modules[$moduleName] = $module;
+				}
+			});
+		}
+		$promise->then(function(){
+			$this->getLogger()->info("Async initialization completed");
+			foreach($this->modules as $module){
+				$module->onStartup();
+			}
 		});
-
-	}
-
-	private function onStartup() : void{
-		DebugModule::init($this);
-		$this->playerModule = new PlayerModule($this);
 	}
 
 	public function getPlayerModule() : PlayerModule{
-		return $this->playerModule;
+		return $this->modules[PlayerModule::class];
 	}
 
 	public function onDisable() : void{
+		foreach($this->modules as $module){
+			$module->onShutdown();
+		}
 		if($this->modelCache !== null){
 			$this->modelCache->close();
 		}
@@ -112,6 +134,10 @@ class XialotEcon extends PluginBase{
 
 	public function getModelCache() : DataModelCache{
 		return $this->modelCache;
+	}
+
+	public function getConnector() : DataConnector{
+		return $this->connector;
 	}
 
 	public function findAccount(AccountContributionEvent $event, callable $consumer, int $distinctionThreshold = null){

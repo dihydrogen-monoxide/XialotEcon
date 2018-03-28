@@ -26,54 +26,32 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Util;
+namespace DHMO\XialotEcon;
 
-use InvalidStateException;
+use function assert;
 
-class JointPromise{
-	private $callables = [];
-	private $results = [];
-	private $remaining = 0;
-	private $thenCalled = false;
+abstract class XialotEconModule{
+	/** @var XialotEcon */
+	protected $plugin;
 
-	public static function create() : JointPromise{
-		return new JointPromise();
+	public static function init(XialotEcon $plugin, callable $onComplete) : ?XialotEconModule{
+		assert(static::class !== XialotEconModule::class);
+		if(!static::shouldConstruct($plugin)){
+			return null;
+		}
+		$plugin->getLogger()->info("Asynchronously initializing " . static::getName() . " module...");
+		return new static($plugin, $onComplete);
 	}
 
-	public static function build(array $tasks, callable $then) : void{
-		$promise = new JointPromise();
-		foreach($tasks as $key => $value){
-			$promise->do($key, $value);
-		}
-		$promise->then($then);
+	protected static abstract function getName() : string;
+
+	protected static abstract function shouldConstruct(XialotEcon $plugin) : bool;
+
+	protected abstract function __construct(XialotEcon $plugin, callable $onComplete);
+
+	public function onStartup() : void{
 	}
 
-	public function do(string $key, callable $callable) : JointPromise{
-		if($this->thenCalled){
-			throw new InvalidStateException("then() has already been called");
-		}
-		$this->callables[$key] = $callable;
-		++$this->remaining;
-		return $this;
-	}
-
-	public function then(callable $then) : void{
-		if($this->thenCalled){
-			throw new InvalidStateException("then() has already been called");
-		}
-		$this->thenCalled = true;
-		if(empty($this->callables)){
-			$then([]);
-		}else{
-			foreach($this->callables as $key => $c){
-				$c(function($result = null) use ($then, $key){
-					$this->results[$key] = $result;
-					--$this->remaining;
-					if($this->remaining === 0){
-						$then($this->results);
-					}
-				});
-			}
-		}
+	public function onShutdown() : void{
 	}
 }

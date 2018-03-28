@@ -26,54 +26,27 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Util;
+namespace DHMO\XialotEcon\Account;
 
-use InvalidStateException;
+/**
+ * A simple data structure indicating an account owner, identified by type and name.
+ */
+class AccountOwner{
+	/** @var string */
+	private $type;
+	/** @var string */
+	private $name;
 
-class JointPromise{
-	private $callables = [];
-	private $results = [];
-	private $remaining = 0;
-	private $thenCalled = false;
-
-	public static function create() : JointPromise{
-		return new JointPromise();
+	public function __construct(string $type, string $name){
+		$this->type = $type;
+		$this->name = $name;
 	}
 
-	public static function build(array $tasks, callable $then) : void{
-		$promise = new JointPromise();
-		foreach($tasks as $key => $value){
-			$promise->do($key, $value);
-		}
-		$promise->then($then);
+	public function getType() : string{
+		return $this->type;
 	}
 
-	public function do(string $key, callable $callable) : JointPromise{
-		if($this->thenCalled){
-			throw new InvalidStateException("then() has already been called");
-		}
-		$this->callables[$key] = $callable;
-		++$this->remaining;
-		return $this;
-	}
-
-	public function then(callable $then) : void{
-		if($this->thenCalled){
-			throw new InvalidStateException("then() has already been called");
-		}
-		$this->thenCalled = true;
-		if(empty($this->callables)){
-			$then([]);
-		}else{
-			foreach($this->callables as $key => $c){
-				$c(function($result = null) use ($then, $key){
-					$this->results[$key] = $result;
-					--$this->remaining;
-					if($this->remaining === 0){
-						$then($this->results);
-					}
-				});
-			}
-		}
+	public function getName() : string{
+		return $this->name;
 	}
 }

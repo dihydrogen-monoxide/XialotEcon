@@ -30,23 +30,79 @@ namespace DHMO\XialotEcon\DataModel;
 
 use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Currency\Currency;
+use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Transaction\Transaction;
 use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\XialotEcon;
 use InvalidArgumentException;
 use poggit\libasynql\DataConnector;
+use poggit\libasynql\result\SqlSelectResult;
 use function assert;
 
 class DataModelCache{
+	/** @var XialotEcon */
+	private $plugin;
 	/** @var DataConnector */
 	private $connector;
 
 	/** @var DataModel[] */
 	private $models = [];
 
+	/** @var void|int */
+	private $lastUpdateTick;
+	/** @var void|int */
+	private $lastUpdateId;
+
+	private $fetchUpdateTask;
+	private $serverId;
+
 	public function __construct(XialotEcon $plugin, DataConnector $connector){
+		$this->plugin = $plugin;
 		$this->connector = $connector;
 		$plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this, "doCycle"]), 20);
+
+		$this->fetchUpdateTask = new CallbackTask([$this, "fetchUpdate"]);
+		$this->serverId = $this->plugin->getServer()->getServerUniqueId()->toString();
+		$this->scheduleUpdate();
+	}
+
+	private function scheduleUpdate() : void{
+		if(isset($this->lastUpdateId)){
+			$currentTick = $this->plugin->getServer()->getTick();
+			$remTicks = $this->lastUpdateTick + 20 - $currentTick;
+			if($remTicks <= 0){
+				$this->fetchUpdate();
+			}else{
+				$this->plugin->getServer()->getScheduler()->scheduleDelayedTask($this->fetchUpdateTask, $remTicks);
+			}
+		}else{
+			$this->lastUpdateTick = $this->plugin->getServer()->getTick();
+			$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FETCH_FIRST_UPDATE, [], function(SqlSelectResult $result){
+				$rows = $result->getRows();
+				$this->lastUpdateId = isset($rows[0]) ? $rows[0]["maxUpdateId"] : 0;
+				$this->scheduleUpdate();
+			});
+		}
+	}
+
+	public function fetchUpdate() : void{
+		$this->lastUpdateTick = $this->plugin->getServer()->getTick();
+		$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FETCH_NEXT_UPDATE, [
+			"lastMaxUpdate" => $this->lastUpdateId,
+			"server" => $this->serverId,
+		], function(SqlSelectResult $result){
+			$updates = [];
+			foreach($result->getRows() as $row){
+				if($this->lastUpdateId < $row["updateId"]){
+					$this->lastUpdateId = $row["updateId"];
+				}
+				$updates[] = $row["uuid"];
+			}
+			foreach($updates as $update){
+				$this->onModelUpdated($update);
+			}
+		});
+		$this->scheduleUpdate();
 	}
 
 	public function getConnector() : DataConnector{

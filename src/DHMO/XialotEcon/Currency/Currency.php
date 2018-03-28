@@ -91,8 +91,12 @@ class Currency extends DataModel{
 			}elseif(($symbols["prefix"] ?? "") !== self::$byName[$name]->symbolBefore ||
 				($symbols["suffix"] ?? "") !== self::$byName[$name]->symbolAfter){
 				XialotEcon::getInstance()->getLogger()->warning(sprintf(
-					'The registered currency "%s" has different units on the database (%s) and in your config (%s). The value in the database will be used.',
+					'The registered currency "%s" has different units in the database (%s) and in your config (%s). The value in your config will be used. The value in the database will be overwritten.',
 					$name, self::$byName[$name]->symbolize(123), ($symbols["prefix"] ?? "") . "123" . ($symbols["suffix"] ?? "")));
+				self::$byName[$name]->onValid(function(Currency $currency) use ($symbols){
+					$currency->setSymbolBefore($symbols["prefix"] ?? "");
+					$currency->setSymbolAfter($symbols["suffix"] ?? "");
+				});
 			}
 		}
 	}
@@ -120,18 +124,24 @@ class Currency extends DataModel{
 	}
 
 	public function setName(string $newName) : void{
-		$this->name = $newName;
-		$this->touchAutosave();
+		if($this->name !== $newName){
+			$this->name = $newName;
+			$this->touchAutosave();
+		}
 	}
 
 	public function setSymbolBefore(string $symbolBefore) : void{
-		$this->symbolBefore = $symbolBefore;
-		$this->touchAutosave();
+		if($this->symbolBefore !== $symbolBefore){
+			$this->symbolBefore = $symbolBefore;
+			$this->touchAutosave();
+		}
 	}
 
 	public function setSymbolAfter(string $symbolAfter) : void{
-		$this->symbolAfter = $symbolAfter;
-		$this->touchAutosave();
+		if($this->symbolAfter !== $symbolAfter){
+			$this->symbolAfter = $symbolAfter;
+			$this->touchAutosave();
+		}
 	}
 
 	public function symbolize(float $amount) : string{

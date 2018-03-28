@@ -33,7 +33,10 @@ use InvalidStateException;
 use pocketmine\Server;
 use poggit\libasynql\DataConnector;
 use function assert;
+use function bin2hex;
+use function hash;
 use function microtime;
+use function random_bytes;
 use function strlen;
 use function substr;
 
@@ -157,7 +160,7 @@ abstract class DataModel{
 		}
 	}
 
-	protected abstract function downloadChanges(DataModelCache $cache):void;
+	protected abstract function downloadChanges(DataModelCache $cache) : void;
 
 	// autosaving
 
@@ -187,7 +190,7 @@ abstract class DataModel{
 
 	private function mUploadChanges(DataConnector $connector, bool $insert) : void{
 		if(self::$CONFIG[$this->type]->notifyChanges){
-			$connector->executeInsert(Queries::XIALOTECON_PROVIDER_FEED_DATUM_UPDATE, [
+			$connector->executeInsert(Queries::XIALOTECON_DATA_MODEL_FEED_UPDATE, [
 				"server" => Server::getInstance()->getServerUniqueId()->toString(),
 				"uuid" => $this->uuid
 			]);
@@ -195,5 +198,5 @@ abstract class DataModel{
 		$this->uploadChanges($connector, $insert);
 	}
 
-	protected abstract function uploadChanges(DataConnector $connector, bool $insert):void;
+	protected abstract function uploadChanges(DataConnector $connector, bool $insert) : void;
 }

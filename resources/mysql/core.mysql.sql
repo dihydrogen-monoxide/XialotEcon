@@ -1,13 +1,46 @@
 -- #!mysql
 -- #{xialotecon
 
--- #{ provider.feed_datum_update
--- #    :uuid string
--- #    :server string
-INSERT INTO updates_feed (uuid, fromServer) VALUES (:uuid, :server);
+-- #{ data_model
+-- #    { init_feed
+CREATE TABLE IF NOT EXISTS updates_feed (
+	updateId   INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	uuid       CHAR(36),
+	time       TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
+	fromServer CHAR(36)
+)
+	AUTO_INCREMENT = 1;
+-- #    }
+-- #    { feed_update
+-- #        :uuid string
+-- #        :server string
+INSERT INTO updates_feed (uuid, fromServer)
+VALUES (:uuid, :server);
+-- #    }
+-- #    { fetch_first_update
+SELECT MAX(updateId) maxUpdateId
+FROM updates_feed;
+-- #    }
+-- #    { fetch_next_update
+-- #        :lastMaxUpdate int
+-- #        :server string
+SELECT
+	updateId,
+	uuid
+FROM updates_feed
+WHERE updateId > :lastMaxUpdate AND fromServer <> :server;
+-- #    }
 -- #}
 
 -- #{ currency
+-- #    { init_table
+CREATE TABLE IF NOT EXISTS currencies (
+	currencyId   CHAR(36) PRIMARY KEY,
+	name         VARCHAR(40),
+	symbolBefore VARCHAR(40),
+	symbolAfter  VARCHAR(40)
+);
+-- #    }
 -- #    { load_all
 SELECT
 	currencyId,

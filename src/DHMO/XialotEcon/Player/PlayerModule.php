@@ -28,24 +28,51 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Player;
 
+use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEcon;
+use DHMO\XialotEcon\XialotEconModule;
 use pocketmine\event\Listener;
 
-class PlayerModule implements Listener{
+final class PlayerModule extends XialotEconModule implements Listener{
 	public const OWNER_TYPE_PLAYER = "xialotecon.player.player";
+	public const ACCOUNT_TYPE_CASH = "xialotecon.player.cash";
+	public const ACCOUNT_TYPE_BANK = "xialotecon.player.bank";
 
 	/** @var PlayerModule */
 	private static $instance;
 
-	private $plugin;
+	private $config;
 
-	public function __construct(XialotEcon $plugin){
+	protected static function getName() : string{
+		return "player";
+	}
+
+	protected static function shouldConstruct(XialotEcon $plugin) : bool{
+		return true;
+	}
+
+	protected function __construct(XialotEcon $plugin, callable $onComplete){
 		self::$instance = $this;
 		$this->plugin = $plugin;
-		$plugin->getServer()->getPluginManager()->registerEvents($this, $plugin);
-		$plugin->getServer()->getCommandMap()->registerAll("xialotecon", [
+		JointPromise::create()
+			->do("login.init", function($complete){
+				$this->plugin->getConnector()->executeGeneric(Queries::XIALOTECON_PLAYER_LOGIN_INIT, [], $complete);
+			})
+			// TODO create other tables
+			->then($onComplete);
+	}
+
+	public function onStartup() : void{
+		$this->plugin->getServer()->getPluginManager()->registerEvents($this, $this->plugin);
+		$this->plugin->getServer()->getCommandMap()->registerAll("xialotecon", [
 			new PayOnlinePlayerCommand(),
 		]);
+		$this->config = $this->plugin->getConfig()->get("player");
+	}
+
+	public function getConfig() : array{
+		return $this->config;
 	}
 
 	public function getPlugin() : XialotEcon{

@@ -32,6 +32,9 @@ use DHMO\XialotEcon\XialotEconEvent;
 use function array_keys;
 use function uksort;
 
+/**
+ * Handlers should apply priority modifiers to selected accounts. Positive modifiers increase the priority of an account, while negative modifiers decrease the priority.
+ */
 class AccountPriorityEvent extends XialotEconEvent{
 	/** @var AccountContributionEvent */
 	private $event;
@@ -59,7 +62,7 @@ class AccountPriorityEvent extends XialotEconEvent{
 	}
 
 	/**
-	 * @param int  &$topDistinction
+	 * @param int &$topDistinction
 	 * @return Account[]
 	 */
 	public function sortResult(int &$topDistinction) : array{

@@ -28,60 +28,22 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Util;
 
+use DHMO\XialotEcon\XialotEcon;
+use function fclose;
+use function json_decode;
+use function mb_strlen;
+use function mb_strpos;
+use function mb_strtolower;
+use function mb_substr;
+use function stream_get_contents;
 use function strlen;
-use function strpos;
-use function strtolower;
 use const INF;
 
-class StringUtil{
-	public const TIME_UNITS = [
-		"ms" => 0.001,
-		"millisecond" => 0.001,
-		"milliseconds" => 0.001,
-		"s" => 1,
-		"sec" => 1,
-		"second" => 1,
-		"seconds" => 1,
-		"m" => 60,
-		"min" => 60,
-		"minute" => 60,
-		"minutes" => 60,
-		"h" => 3600,
-		"hr" => 3600,
-		"hrs" => 3600,
-		"hour" => 3600,
-		"hours" => 3600,
-		"d" => 86400,
-		"day" => 86400,
-		"days" => 86400,
-		"w" => 604800,
-		"wk" => 604800,
-		"wks" => 604800,
-		"week" => 604800,
-		"weeks" => 604800,
-		"fn" => 1209600,
-		"ftn" => 1209600,
-		"fortnight" => 1209600,
-		"month" => 2592000,
-		"months" => 2592000,
-		"season" => 7889184,
-		"y" => 31556736,
-		"yr" => 31556736,
-		"yrs" => 31556736,
-		"year" => 31556736,
-		"years" => 31556736,
-		"dec" => 315567360,
-		"decade" => 315567360,
-		"decades" => 315567360,
-		"cent" => 3155673600,
-		"century" => 3155673600,
-		"centuries" => 3155673600,
-		"millennium" => 31556736000,
-		"millenniums" => 31556736000,
-	];
+final class StringUtil{
+	public static $TIME_UNITS;
 
 	public static function parseTime(string $time, float $defaultUnit = 1.0) : float{
-		$time = strtolower($time);
+		$time = mb_strtolower($time);
 		if($time === "never"){
 			return INF;
 		}
@@ -91,17 +53,18 @@ class StringUtil{
 		$totalLength = 0.0;
 		$currentNumber = "";
 		/** @noinspection ForeachInvariantsInspection */
-		for($i = 0, $iMax = strlen($time); $i < $iMax; ++$i){
-			if($time{$i} === "." || ('0' <= $time{$i} && $time{$i} <= '9')){
-				$currentNumber .= $time{$i};
+		for($i = 0, $iMax = mb_strlen($time); $i < $iMax; ++$i){
+			$char = mb_substr($time, $i, 1);
+			if($char === "." || (strlen($char) === 1 && '0' <= $char && $char <= '9')){
+				$currentNumber .= $char;
 				continue;
 			}
 
-			foreach(self::TIME_UNITS as $unitName => $unit){
-				if(strpos($time, $unitName) === 0){
+			foreach(self::$TIME_UNITS as $unitName => $unit){
+				if(mb_strpos($time, $unitName, $i) === $i){
 					$totalLength += ((float) $currentNumber) * $unit;
 					$currentNumber = "";
-					$i += strlen($unitName) - 1;
+					$i += mb_strlen($unitName) - 1;
 					continue 2; // next word
 				}
 			}
@@ -110,5 +73,11 @@ class StringUtil{
 			$totalLength += ((float) $currentNumber) * $defaultUnit;
 		}
 		return $totalLength;
+	}
+
+	public static function init(XialotEcon $plugin) : void{
+		$resource = $plugin->getResource("time_units.json");
+		self::$TIME_UNITS = json_decode(stream_get_contents($resource), true);
+		fclose($resource);
 	}
 }

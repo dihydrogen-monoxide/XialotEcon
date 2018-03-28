@@ -9,11 +9,11 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Database;
 
-interface Queries{
+final class Queries{
 	/**
 	 * <code>xialotecon.account.load.by_uuid</code>
 	 *
-	 * Defined in core.mysql.sql:58
+	 * Defined in core.mysql.sql:91
 	 *
 	 * Variables:
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -23,7 +23,7 @@ interface Queries{
 	/**
 	 * <code>xialotecon.account.update.hybrid</code>
 	 *
-	 * Defined in core.mysql.sql:76
+	 * Defined in core.mysql.sql:109
 	 *
 	 * Variables:
 	 * - <code>:accountType</code> string, required in core.mysql.sql
@@ -36,9 +36,16 @@ interface Queries{
 	public const XIALOTECON_ACCOUNT_UPDATE_HYBRID = "xialotecon.account.update.hybrid";
 
 	/**
+	 * <code>xialotecon.currency.init_table</code>
+	 *
+	 * Defined in core.mysql.sql:43
+	 */
+	public const XIALOTECON_CURRENCY_INIT_TABLE = "xialotecon.currency.init_table";
+
+	/**
 	 * <code>xialotecon.currency.load.by_uuid</code>
 	 *
-	 * Defined in core.mysql.sql:29
+	 * Defined in core.mysql.sql:62
 	 *
 	 * Variables:
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -48,14 +55,14 @@ interface Queries{
 	/**
 	 * <code>xialotecon.currency.load_all</code>
 	 *
-	 * Defined in core.mysql.sql:18
+	 * Defined in core.mysql.sql:51
 	 */
 	public const XIALOTECON_CURRENCY_LOAD_ALL = "xialotecon.currency.load_all";
 
 	/**
 	 * <code>xialotecon.currency.update.hybrid</code>
 	 *
-	 * Defined in core.mysql.sql:43
+	 * Defined in core.mysql.sql:76
 	 *
 	 * Variables:
 	 * - <code>:symbolBefore</code> string, required in core.mysql.sql
@@ -66,20 +73,52 @@ interface Queries{
 	public const XIALOTECON_CURRENCY_UPDATE_HYBRID = "xialotecon.currency.update.hybrid";
 
 	/**
-	 * <code>xialotecon.provider.feed_datum_update</code>
+	 * <code>xialotecon.data_model.feed_update</code>
 	 *
-	 * Defined in core.mysql.sql:8
+	 * Defined in core.mysql.sql:19
 	 *
 	 * Variables:
 	 * - <code>:server</code> string, required in core.mysql.sql
 	 * - <code>:uuid</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_PROVIDER_FEED_DATUM_UPDATE = "xialotecon.provider.feed_datum_update";
+	public const XIALOTECON_DATA_MODEL_FEED_UPDATE = "xialotecon.data_model.feed_update";
+
+	/**
+	 * <code>xialotecon.data_model.fetch_first_update</code>
+	 *
+	 * Defined in core.mysql.sql:23
+	 */
+	public const XIALOTECON_DATA_MODEL_FETCH_FIRST_UPDATE = "xialotecon.data_model.fetch_first_update";
+
+	/**
+	 * <code>xialotecon.data_model.fetch_next_update</code>
+	 *
+	 * Defined in core.mysql.sql:32
+	 *
+	 * Variables:
+	 * - <code>:lastMaxUpdate</code> int, required in core.mysql.sql
+	 * - <code>:server</code> string, required in core.mysql.sql
+	 */
+	public const XIALOTECON_DATA_MODEL_FETCH_NEXT_UPDATE = "xialotecon.data_model.fetch_next_update";
+
+	/**
+	 * <code>xialotecon.data_model.init_feed</code>
+	 *
+	 * Defined in core.mysql.sql:13
+	 */
+	public const XIALOTECON_DATA_MODEL_INIT_FEED = "xialotecon.data_model.init_feed";
+
+	/**
+	 * <code>xialotecon.player.login.init</code>
+	 *
+	 * Defined in player.mysql.sql:9
+	 */
+	public const XIALOTECON_PLAYER_LOGIN_INIT = "xialotecon.player.login.init";
 
 	/**
 	 * <code>xialotecon.transaction.load.by_uuid</code>
 	 *
-	 * Defined in core.mysql.sql:92
+	 * Defined in core.mysql.sql:125
 	 *
 	 * Variables:
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -89,7 +128,7 @@ interface Queries{
 	/**
 	 * <code>xialotecon.transaction.update.hybrid</code>
 	 *
-	 * Defined in core.mysql.sql:112
+	 * Defined in core.mysql.sql:145
 	 *
 	 * Variables:
 	 * - <code>:transactionType</code> string, required in core.mysql.sql

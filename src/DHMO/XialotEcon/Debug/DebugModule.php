@@ -29,15 +29,25 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Debug;
 
 use DHMO\XialotEcon\XialotEcon;
+use DHMO\XialotEcon\XialotEconModule;
 use poggit\libasynql\libasynql;
 
-class DebugModule{
-	public static function init(XialotEcon $plugin):?DebugModule{
-		return libasynql::isPackaged() ? null : new DebugModule($plugin);
+class DebugModule extends XialotEconModule{
+	protected static function getName() : string{
+		return "debug";
 	}
 
-	public function __construct(XialotEcon $plugin){
-		$plugin->getServer()->getCommandMap()->registerAll("xialotecon_debug", [
+	public static function shouldConstruct(XialotEcon $plugin) : bool{
+		return !libasynql::isPackaged();
+	}
+
+	protected function __construct(XialotEcon $plugin, callable $onComplete){
+		$this->plugin = $plugin;
+		$onComplete();
+	}
+
+	public function onStartup() : void{
+		$this->plugin->getServer()->getCommandMap()->registerAll("xialotecon_debug", [
 			new ListCacheCommand("list-cache", "List DataModel cache", "/list-cache"),
 		]);
 	}

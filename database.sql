@@ -41,7 +41,8 @@ CREATE TABLE updates_feed (
 	uuid     CHAR(36), -- REFERENCES currencies(currencyId) OR accounts(accountId) OR transactions(transactionId)
 	time     TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
 	fromServer CHAR(36)
-);
+)
+	AUTO_INCREMENT = 1;
 
 -- -------------------------------------------------------------------------------------------- --
 -- Below are some tables that may or may not be related to this plugin but useful for reference --

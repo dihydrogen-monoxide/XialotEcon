@@ -72,7 +72,7 @@ class PayOnlinePlayerCommand extends PlayerCommand{
 					->flagString(AccountContributionEvent::FS_OWNER_NAME, $target)
 					, $onComplete);
 			})
-			->then(function(array $result) use($sender, $amount){
+			->then(function(array $result) use ($sender, $amount){
 				/** @var Account $from */
 				$from = $result["from"];
 				/** @var Account $to */

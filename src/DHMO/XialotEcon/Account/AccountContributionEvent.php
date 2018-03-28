@@ -30,6 +30,9 @@ namespace DHMO\XialotEcon\Account;
 
 use DHMO\XialotEcon\XialotEconEvent;
 
+/**
+ * Handlers should call the contributeAccount() method to contribute accounts that can be used.
+ */
 class AccountContributionEvent extends XialotEconEvent{
 	public const FB_WITHDRAWAL = "xialotecon.transaction.isWithdrawal";
 	public const FB_DEPOSIT = "xialotecon.transaction.isDeposit";
