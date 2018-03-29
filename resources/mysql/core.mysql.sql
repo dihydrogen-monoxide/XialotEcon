@@ -38,7 +38,7 @@ WHERE updateId > :lastMaxUpdate AND fromServer <> :server;
 -- #    { init_table
 CREATE TABLE IF NOT EXISTS currencies (
 	currencyId   CHAR(34) PRIMARY KEY,
-	name         VARCHAR(40),
+	name         VARCHAR(40) UNIQUE,
 	symbolBefore VARCHAR(40),
 	symbolAfter  VARCHAR(40)
 );
@@ -102,6 +102,12 @@ SELECT
 	balance
 FROM accounts
 WHERE accountId = :uuid;
+-- #    }
+-- #    { list_ids.by_owner_and_type
+-- #        :ownerType string
+-- #        :ownerName string
+-- #        :accountTypes list:string
+SELECT accountId FROM accounts WHERE ownerType = :ownerType AND ownerName = :ownerName AND accountType IN :accountTypes;
 -- #    }
 
 -- #    { update.hybrid

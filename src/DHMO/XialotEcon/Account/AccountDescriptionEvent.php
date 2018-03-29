@@ -29,4 +29,18 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Account;
 
 class AccountDescriptionEvent extends AccountEvent{
+	private $description;
+
+	public function __construct(Account $account){
+		parent::__construct($account);
+		$this->description = "Unknown account ({$account->getAccountType()}";
+	}
+
+	public function getDescription() : string{
+		return $this->description;
+	}
+
+	public function setDescription(string $description) : void{
+		$this->description = $description;
+	}
 }

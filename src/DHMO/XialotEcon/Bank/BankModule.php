@@ -114,15 +114,15 @@ class BankModule extends XialotEconModule implements Listener{
 	public function e_modelRetrieved(DataModelRetrievedEvent $event) : void{
 		$account = $event->getDataModel();
 		if($account instanceof Account){
-			ConstantRatioBankInterest::forAccount($this->plugin->getModelCache(), $account, function($accounts){
-				JointPromise::build(array_map(function(Account $account){
-				}, $accounts), function(){
-
+			ConstantRatioBankInterest::forAccount($this->plugin->getModelCache(), $account, function($interests) use ($account){
+				JointPromise::build(array_map(function(ConstantRatioBankInterest $interest){
+					return [$interest, "ensureApplyInterest"];
+				}, $interests), function() use ($account){
+					// only load constant-diff after all constant-ratio have been applied
+					ConstantDiffBankInterest::forAccount($this->plugin->getModelCache(), $account, function($interests){
+					});
 				});
 			});
-
-			// TODO download interests, then apply them
-			// NOTE apply ratio first, then apply diff
 		}
 	}
 }

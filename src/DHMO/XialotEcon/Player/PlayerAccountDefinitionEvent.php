@@ -74,7 +74,7 @@ class PlayerAccountDefinitionEvent extends XialotEconEvent implements Cancellabl
 		$this->postCreation = $postCreation;
 	}
 
-	public function onPostCreation(Account $account){
+	public function onPostCreation(Account $account) : void{
 		if($this->postCreation !== null){
 			($this->postCreation)($account);
 		}

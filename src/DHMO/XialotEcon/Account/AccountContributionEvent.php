@@ -42,6 +42,7 @@ class AccountContributionEvent extends XialotEconEvent{
 	public const FB_SCHEDULED = "xialotecon.transaction.initiator.clock";
 	public const FS_OWNER_TYPE = "xialotecon.account.owner.type";
 	public const FS_OWNER_NAME = "xialotecon.account.owner.name";
+	public const FS_CURRENCY = "xialotecon.currency.id";
 
 	/** @var bool[] */
 	private $booleanFlags = [];

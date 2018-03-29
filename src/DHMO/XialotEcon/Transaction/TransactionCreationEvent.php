@@ -85,7 +85,7 @@ class TransactionCreationEvent extends XialotEconEvent implements Cancellable{
 		parent::setCancelled(false);
 	}
 
-	public function cancel(UserException $cancellation){
+	public function cancel(UserException $cancellation) : void{
 		$this->cancellation = $cancellation;
 		parent::setCancelled();
 	}

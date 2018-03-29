@@ -33,6 +33,7 @@ use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
+use function time;
 
 class ConstantRatioBankInterest extends OfflineBankInterest{
 	public const DATUM_TYPE = "xialotecon.bank.interest.constant.ratio";
@@ -53,7 +54,7 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 		return $interest;
 	}
 
-	public static function forAccount(DataModelCache $cache, Account $account, callable $consumer){
+	public static function forAccount(DataModelCache $cache, Account $account, callable $consumer) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_RATIO, [
 			"accountId" => $account->getUuid()
 		], function(SqlSelectResult $result) use ($consumer, $cache, $account){

@@ -18,6 +18,18 @@ final class Queries{
 	public const XIALOTECON_ACCOUNT_INIT_TABLE = "xialotecon.account.init_table";
 
 	/**
+	 * <code>xialotecon.account.list_ids.by_owner_and_type</code>
+	 *
+	 * Defined in core.mysql.sql:111
+	 *
+	 * Variables:
+	 * - <code>:accountTypes</code> string non-empty list, required in core.mysql.sql
+	 * - <code>:ownerType</code> string, required in core.mysql.sql
+	 * - <code>:ownerName</code> string, required in core.mysql.sql
+	 */
+	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_AND_TYPE = "xialotecon.account.list_ids.by_owner_and_type";
+
+	/**
 	 * <code>xialotecon.account.load.by_uuid</code>
 	 *
 	 * Defined in core.mysql.sql:105
@@ -30,7 +42,7 @@ final class Queries{
 	/**
 	 * <code>xialotecon.account.touch</code>
 	 *
-	 * Defined in core.mysql.sql:130
+	 * Defined in core.mysql.sql:136
 	 *
 	 * Variables:
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -40,7 +52,7 @@ final class Queries{
 	/**
 	 * <code>xialotecon.account.update.hybrid</code>
 	 *
-	 * Defined in core.mysql.sql:123
+	 * Defined in core.mysql.sql:129
 	 *
 	 * Variables:
 	 * - <code>:accountType</code> string, required in core.mysql.sql
@@ -270,16 +282,26 @@ final class Queries{
 	public const XIALOTECON_PLAYER_LOGIN_WHEN = "xialotecon.player.login.when";
 
 	/**
+	 * <code>xialotecon.player.stats.balance.grouped_sum</code>
+	 *
+	 * Defined in player.mysql.sql:36
+	 *
+	 * Variables:
+	 * - <code>:accountIds</code> string non-empty list, required in player.mysql.sql
+	 */
+	public const XIALOTECON_PLAYER_STATS_BALANCE_GROUPED_SUM = "xialotecon.player.stats.balance.grouped_sum";
+
+	/**
 	 * <code>xialotecon.transaction.init_table</code>
 	 *
-	 * Defined in core.mysql.sql:145
+	 * Defined in core.mysql.sql:151
 	 */
 	public const XIALOTECON_TRANSACTION_INIT_TABLE = "xialotecon.transaction.init_table";
 
 	/**
 	 * <code>xialotecon.transaction.load.by_uuid</code>
 	 *
-	 * Defined in core.mysql.sql:158
+	 * Defined in core.mysql.sql:164
 	 *
 	 * Variables:
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -289,7 +311,7 @@ final class Queries{
 	/**
 	 * <code>xialotecon.transaction.update.hybrid</code>
 	 *
-	 * Defined in core.mysql.sql:177
+	 * Defined in core.mysql.sql:183
 	 *
 	 * Variables:
 	 * - <code>:transactionType</code> string, required in core.mysql.sql

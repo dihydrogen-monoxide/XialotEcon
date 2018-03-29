@@ -29,6 +29,8 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Player;
 
 use DHMO\XialotEcon\Account\Account;
+use DHMO\XialotEcon\Account\AccountDescriptionEvent;
+use DHMO\XialotEcon\Account\AccountSearchEvent;
 use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Util\JointPromise;
@@ -77,7 +79,8 @@ final class PlayerModule extends XialotEconModule implements Listener{
 	public function onStartup() : void{
 		$this->plugin->getServer()->getPluginManager()->registerEvents($this, $this->plugin);
 		$this->plugin->getServer()->getCommandMap()->registerAll("xialotecon", [
-			new PayOnlinePlayerCommand(),
+			new PayOfflinePlayerCommand(),
+			new MyBalanceCommand(),
 		]);
 		$this->config = $this->plugin->getConfig()->get("player");
 	}
@@ -148,5 +151,28 @@ final class PlayerModule extends XialotEconModule implements Listener{
 		if($event->getTypeDef() === "cash"){
 			$event->setType(self::ACCOUNT_TYPE_CASH);
 		}
+	}
+
+	public function e_accountDesc(AccountDescriptionEvent $event) : void{
+		if($event->getAccount()->getAccountType() === self::ACCOUNT_TYPE_CASH){
+			$event->setDescription($event->getAccount()->getOwnerName() . "'s cash account");
+		}
+		if($event->getAccount()->getAccountType() === self::ACCOUNT_TYPE_BANK){
+			$event->setDescription($event->getAccount()->getOwnerName() . "'s bank account");
+		}
+	}
+
+	public function e_accountSearch(AccountSearchEvent $event) : void{
+		$event->pause();
+		$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_AND_TYPE, [
+			"ownerType" => self::OWNER_TYPE_PLAYER,
+			"ownerName" => $event->getPlayer()->getName(),
+			"accountTypes" => [self::ACCOUNT_TYPE_CASH, self::ACCOUNT_TYPE_BANK],
+		], function(SqlSelectResult $result) use ($event){
+			foreach($result->getRows() as $row){
+				$event->addAccountId($row["accountId"], 0);
+			}
+			$event->continue();
+		});
 	}
 }

@@ -28,17 +28,14 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
-use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Account\AccountContributionEvent;
 use DHMO\XialotEcon\Account\AccountPriorityEvent;
 use DHMO\XialotEcon\Bank\BankModule;
-use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
 use DHMO\XialotEcon\Debug\DebugModule;
 use DHMO\XialotEcon\Player\PlayerModule;
-use DHMO\XialotEcon\Transaction\Transaction;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
 use pocketmine\plugin\PluginBase;
@@ -145,7 +142,7 @@ final class XialotEcon extends PluginBase{
 		return $this->connector;
 	}
 
-	public function findAccount(AccountContributionEvent $event, callable $consumer, int $distinctionThreshold = null){
+	public function findAccount(AccountContributionEvent $event, callable $consumer, int $distinctionThreshold = null) : void{
 		$this->getServer()->getPluginManager()->callAsyncEvent($event, function(AccountContributionEvent $event) use ($distinctionThreshold, $consumer){
 			$priorityEvent = new AccountPriorityEvent($event);
 			$this->getServer()->getPluginManager()->callAsyncEvent($priorityEvent, function(AccountPriorityEvent $event) use ($distinctionThreshold, $consumer){

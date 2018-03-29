@@ -26,54 +26,47 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Util;
+namespace DHMO\XialotEcon\Account;
 
-use InvalidStateException;
+use DHMO\XialotEcon\XialotEconEvent;
+use pocketmine\Player;
+use function implode;
 
-class JointPromise{
-	private $callables = [];
-	private $results = [];
-	private $remaining = 0;
-	private $thenCalled = false;
+class AccountSearchEvent extends XialotEconEvent{
+	public const FLAG_SHARED = 2;
+	public const FLAG_LOAN = 4;
 
-	public static function create() : JointPromise{
-		return new JointPromise();
+	public static function flagToString(int $flags) : string{
+		$adj = [];
+		if($flags & self::FLAG_SHARED){
+			$adj[] = "shared";
+		}
+		if($flags & self::FLAG_LOAN){
+			$adj[] = "loan";
+		}
+		return empty($adj) ? "personal" : implode(" ", $adj);
 	}
 
-	public static function build(array $tasks, callable $then) : void{
-		$promise = new JointPromise();
-		foreach($tasks as $key => $value){
-			$promise->do($key, $value);
-		}
-		$promise->then($then);
+	/** @var Player */
+	private $player;
+
+	/** @var string[] */
+	private $accountIds = [];
+
+	public function __construct(Player $player){
+		parent::__construct();
+		$this->player = $player;
 	}
 
-	public function do($key, callable $callable) : JointPromise{
-		if($this->thenCalled){
-			throw new InvalidStateException("then() has already been called");
-		}
-		$this->callables[$key] = $callable;
-		++$this->remaining;
-		return $this;
+	public function getPlayer() : Player{
+		return $this->player;
 	}
 
-	public function then(callable $then) : void{
-		if($this->thenCalled){
-			throw new InvalidStateException("then() has already been called");
-		}
-		$this->thenCalled = true;
-		if(empty($this->callables)){
-			$then([]);
-		}else{
-			foreach($this->callables as $key => $c){
-				$c(function($result = null) use ($then, $key){
-					$this->results[$key] = $result;
-					--$this->remaining;
-					if($this->remaining === 0){
-						$then($this->results);
-					}
-				});
-			}
-		}
+	public function addAccountId(string $accountId, int $flags) : void{
+		$this->accountIds[$flags][] = $accountId;
+	}
+
+	public function getAccountIds() : array{
+		return $this->accountIds;
 	}
 }

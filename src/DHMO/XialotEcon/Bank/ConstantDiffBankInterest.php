@@ -54,7 +54,7 @@ class ConstantDiffBankInterest extends OfflineBankInterest{
 		return $interest;
 	}
 
-	public static function forAccount(DataModelCache $cache, Account $account, callable $consumer){
+	public static function forAccount(DataModelCache $cache, Account $account, callable $consumer) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_DIFF, [
 			"accountId" => $account->getUuid()
 		], function(SqlSelectResult $result) use ($consumer, $cache, $account){

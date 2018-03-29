@@ -28,4 +28,13 @@ WHERE name = :name;
 -- #    }
 -- #}
 
+-- #{ stats
+-- #    { balance
+-- #        { grouped_sum
+-- #            :accountIds list:string
+SELECT currency, SUM(balance) sum FROM accounts WHERE accountId IN :accountIds GROUP BY currency;
+-- #        }
+-- #    }
+-- #}
+
 -- #}
