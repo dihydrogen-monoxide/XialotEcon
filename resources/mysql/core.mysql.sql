@@ -5,7 +5,8 @@
 -- #    { init_feed
 CREATE TABLE IF NOT EXISTS updates_feed (
 	updateId   INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	uuid       CHAR(36),
+	uuid       CHAR(34),
+	type       VARCHAR(100),
 	time       TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
 	fromServer CHAR(36)
 )
@@ -13,9 +14,10 @@ CREATE TABLE IF NOT EXISTS updates_feed (
 -- #    }
 -- #    { feed_update
 -- #        :uuid string
+-- #        :type string
 -- #        :server string
-INSERT INTO updates_feed (uuid, fromServer)
-VALUES (:uuid, :server);
+INSERT INTO updates_feed (uuid, type, fromServer)
+VALUES (:uuid, :type, :server);
 -- #    }
 -- #    { fetch_first_update
 SELECT MAX(updateId) maxUpdateId
@@ -35,7 +37,7 @@ WHERE updateId > :lastMaxUpdate AND fromServer <> :server;
 -- #{ currency
 -- #    { init_table
 CREATE TABLE IF NOT EXISTS currencies (
-	currencyId   CHAR(36) PRIMARY KEY,
+	currencyId   CHAR(34) PRIMARY KEY,
 	name         VARCHAR(40),
 	symbolBefore VARCHAR(40),
 	symbolAfter  VARCHAR(40)
@@ -77,6 +79,18 @@ ON DUPLICATE KEY UPDATE
 -- #}
 
 -- #{ account
+-- #    { init_table
+CREATE TABLE IF NOT EXISTS accounts (
+	accountId   CHAR(34) PRIMARY KEY,
+	ownerType   VARCHAR(100),
+	ownerName   VARCHAR(100),
+	accountType VARCHAR(100),
+	currency    CHAR(36) REFERENCES currencies (currencyId),
+	balance     DECIMAL(35, 5),
+	touch       TIMESTAMP,
+	KEY (accountType)
+);
+-- #    }
 -- #    { load.by_uuid
 -- #        :uuid string
 SELECT
@@ -107,9 +121,28 @@ ON DUPLICATE KEY UPDATE
 	currency    = VALUES(currency),
 	balance     = VALUES(balance);
 -- #    }
+
+-- #    { touch
+-- #        :uuid string
+UPDATE accounts
+SET touch = CURRENT_TIMESTAMP
+WHERE accountId = :uuid;
+-- #    }
 -- #}
 
 -- #{ transaction
+-- #    { init_table
+CREATE TABLE IF NOT EXISTS transactions (
+	transactionId   CHAR(34) PRIMARY KEY,
+	source          CHAR(36) REFERENCES accounts (accountId),
+	target          CHAR(36) REFERENCES accounts (accountId),
+	date            TIMESTAMP,
+	sourceReduction DECIMAL(35, 5),
+	targetAddition  DECIMAL(35, 5),
+	transactionType VARCHAR(100), -- transaction types with namespaces used for quick filtering. do not store data here; if you need to store transaction-specific data, create a "peer table". this should not be used as an identifier.
+	KEY (transactionType)
+);
+-- #    }
 -- #    { load.by_uuid
 -- #        :uuid string
 SELECT
@@ -135,13 +168,12 @@ INSERT INTO transactions
 (transactionId, source, target, date, sourceReduction, targetAddition, transactionType)
 VALUES (:uuid, :source, :target, :date, :sourceReduction, :targetAddition, :transactionType)
 ON DUPLICATE KEY UPDATE
-	source = VALUES(source),
-	target = VALUES(target),
-	date = VALUES(date),
+	source          = VALUES(source),
+	target          = VALUES(target),
+	date            = VALUES(date),
 	sourceReduction = VALUES(sourceReduction),
-	targetAddition = VALUES(targetAddition),
-	transactionType = VALUES(transactionType)
-;
+	targetAddition  = VALUES(targetAddition),
+	transactionType = VALUES(transactionType);
 -- #    }
 -- #}
 

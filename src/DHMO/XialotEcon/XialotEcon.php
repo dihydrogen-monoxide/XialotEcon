@@ -31,6 +31,7 @@ namespace DHMO\XialotEcon;
 use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Account\AccountContributionEvent;
 use DHMO\XialotEcon\Account\AccountPriorityEvent;
+use DHMO\XialotEcon\Bank\BankModule;
 use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
@@ -51,6 +52,7 @@ final class XialotEcon extends PluginBase{
 		CoreModule::class,
 		DebugModule::class,
 		PlayerModule::class,
+		BankModule::class,
 	];
 
 	/** @var XialotEcon */
@@ -82,10 +84,12 @@ final class XialotEcon extends PluginBase{
 			"mysql" => [
 				"mysql/core.mysql.sql",
 				"mysql/player.mysql.sql",
+				"mysql/bank.mysql.sql",
 			],
 			"sqlite" => [
 				"sqlite/core.sqlite.sql",
 				"sqlite/player.sqlite.sql",
+				"sqlite/bank.sqlite.sql",
 			],
 		], !libasynql::isPackaged());
 
@@ -115,6 +119,12 @@ final class XialotEcon extends PluginBase{
 			$this->getLogger()->info("Async initialization completed");
 			foreach($this->modules as $module){
 				$module->onStartup();
+			}
+
+			// init players after all listeners have been registered.
+			// dirty hack. Any better solution?
+			foreach($this->getServer()->getOnlinePlayers() as $player){
+				$this->getPlayerModule()->onJoin($player);
 			}
 		});
 	}

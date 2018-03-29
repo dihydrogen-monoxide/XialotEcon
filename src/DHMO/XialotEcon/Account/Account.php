@@ -49,6 +49,16 @@ class Account extends DataModel{
 	/** @var float */
 	protected $balance;
 
+	public static function create(DataModelCache $cache, string $type, string $ownerType, string $ownerName, Currency $currency, float $balance) : Account{
+		$account = new Account($cache, self::DATUM_TYPE, self::generateUuid(self::DATUM_TYPE), true);
+		$account->accountType = $type;
+		$account->ownerType = $ownerType;
+		$account->ownerName = $ownerName;
+		$account->currency = $currency;
+		$account->balance = $balance;
+		return $account;
+	}
+
 	public static function getByUuid(DataModelCache $cache, string $uuid, callable $consumer) : void{
 		if($cache->isTrackingModel($uuid)){
 			$consumer($cache->getAccount($uuid));
@@ -63,6 +73,7 @@ class Account extends DataModel{
 				$consumer(null);
 				return;
 			}
+			$cache->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_TOUCH, ["uuid" => $uuid]);
 			$instance = new Account($cache, self::DATUM_TYPE, $uuid, false);
 			$instance->applyRow($cache, $result->getRows()[0]);
 			$consumer($instance);
@@ -112,20 +123,25 @@ class Account extends DataModel{
 		$this->ownerName = $ownerName;
 	}
 
+	public function setAccountType(string $accountType) : void{
+		$this->touchAutosave();
+		$this->accountType = $accountType;
+	}
+
 	public function setBalance(float $balance) : void{
 		$this->touchAutosave();
 		$this->balance = $balance;
 	}
 
-	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
+	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeChange(Queries::XIALOTECON_ACCOUNT_UPDATE_HYBRID, [
 			"uuid" => $this->getUuid(),
 			"ownerType" => $this->ownerType,
 			"ownerName" => $this->ownerName,
 			"accountType" => $this->accountType,
-			"currency" => $this->currency,
+			"currency" => $this->currency->getUuid(),
 			"balance" => $this->balance,
-		]);
+		], $onComplete);
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{

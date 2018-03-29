@@ -64,10 +64,14 @@ currency:
 player:
   # Default accounts to setup for the player.
   # These accounts will only be created when the player joins this server (with XialotEcon installed) the first time. If the accounts have been deleted, they will not be recreated.
+  # "amount" is the initial balance.
   # "type" can be "cash" or "bank".
   defaults:
     - amount: 100
+      currency: dollar
       type: cash
     - amount: 100
+      currency: dollar
       type: bank
+      interest: ratio 0.01
 ...

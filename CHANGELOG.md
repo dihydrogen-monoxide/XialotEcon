@@ -8,6 +8,7 @@ XialotEcon Changelog
     - AccountContributionEvent to find potentially appropriate accounts for a transaction
     - AccountPriorityEvent to determine which account should be used
     - AccountDescriptionEvent to display an account to a player
+    - Account is touched whenever instance is downloaded, to track obsolete accounts
   - Currency
     - Auto-sync among servers
   - Database connection: powered by libasynql
@@ -15,6 +16,7 @@ XialotEcon Changelog
   - Debug
     - Added /list-cache command
   - Player
+    - Auto init accounts
   - Transaction
   - Util
     - Config parses time durations in given units

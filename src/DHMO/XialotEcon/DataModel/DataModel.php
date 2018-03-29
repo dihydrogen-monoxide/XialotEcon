@@ -168,6 +168,8 @@ abstract class DataModel{
 	protected $lastAutosave;
 	/** @var bool */
 	protected $needAutosave;
+	/** @var callable[] */
+	protected $afterNextUpload = [];
 
 	public function touchAutosave() : void{
 		if($this->invalidated > 0){
@@ -188,15 +190,26 @@ abstract class DataModel{
 		}
 	}
 
+	public function executeAfterNextUpload(callable $callable) : void{
+		$this->afterNextUpload[] = $callable;
+	}
+
 	private function mUploadChanges(DataConnector $connector, bool $insert) : void{
 		if(self::$CONFIG[$this->type]->notifyChanges){
 			$connector->executeInsert(Queries::XIALOTECON_DATA_MODEL_FEED_UPDATE, [
 				"server" => Server::getInstance()->getServerUniqueId()->toString(),
-				"uuid" => $this->uuid
+				"uuid" => $this->uuid,
+				"type" => $this->type,
 			]);
 		}
-		$this->uploadChanges($connector, $insert);
+		$this->uploadChanges($connector, $insert, function(){
+			foreach($this->afterNextUpload as $c){
+				$c();
+			}
+			$this->afterNextUpload = [];
+		});
+
 	}
 
-	protected abstract function uploadChanges(DataConnector $connector, bool $insert) : void;
+	protected abstract function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void;
 }

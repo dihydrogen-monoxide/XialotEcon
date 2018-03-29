@@ -149,13 +149,13 @@ class Currency extends DataModel{
 	}
 
 
-	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
+	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeChange(Queries::XIALOTECON_CURRENCY_UPDATE_HYBRID, [
 			"uuid" => $this->getUuid(),
 			"name" => $this->name,
 			"symbolBefore" => $this->symbolBefore,
 			"symbolAfter" => $this->symbolAfter,
-		]);
+		], $onComplete);
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{

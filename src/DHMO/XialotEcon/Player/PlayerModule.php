@@ -28,11 +28,18 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Player;
 
+use DHMO\XialotEcon\Account\Account;
+use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\Player;
+use poggit\libasynql\ConfigException;
+use poggit\libasynql\result\SqlSelectResult;
 
 final class PlayerModule extends XialotEconModule implements Listener{
 	public const OWNER_TYPE_PLAYER = "xialotecon.player.player";
@@ -41,6 +48,10 @@ final class PlayerModule extends XialotEconModule implements Listener{
 
 	/** @var PlayerModule */
 	private static $instance;
+
+	public static function getInstance() : PlayerModule{
+		return self::$instance;
+	}
 
 	private $config;
 
@@ -71,15 +82,71 @@ final class PlayerModule extends XialotEconModule implements Listener{
 		$this->config = $this->plugin->getConfig()->get("player");
 	}
 
+	public function onShutdown() : void{
+		foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+			$this->onQuit($player);
+		}
+	}
+
 	public function getConfig() : array{
 		return $this->config;
 	}
 
-	public function getPlugin() : XialotEcon{
-		return $this->plugin;
+	public function e_join(PlayerJoinEvent $event) : void{
+		$this->onJoin($event->getPlayer());
 	}
 
-	public static function getInstance() : PlayerModule{
-		return self::$instance;
+	public function onJoin(Player $player) : void{
+		$conn = $this->plugin->getConnector();
+		$conn->executeSelect(Queries::XIALOTECON_PLAYER_LOGIN_WHEN, ["name" => $player->getName()], function(SqlSelectResult $result) use ($conn, $player){
+			$rows = $result->getRows();
+			if(empty($rows)){
+				$this->initAccounts($player);
+				$conn->executeChange(Queries::XIALOTECON_PLAYER_LOGIN_TOUCH_INSERT, ["name" => $player->getName()]);
+			}else{
+				// TODO check if account patches are needed
+				$conn->executeChange(Queries::XIALOTECON_PLAYER_LOGIN_TOUCH_UPDATE, ["name" => $player->getName()]);
+			}
+		});
+	}
+
+	public function initAccounts(Player $player) : void{
+		foreach($this->config["defaults"] as $i => $def){
+			if(!isset($def["currency"])){
+				throw new ConfigException("Missing \"currency\" in player.defaults.$i");
+			}
+			$currencyDef = $def["currency"];
+			$currency = Currency::getByName($currencyDef);
+			if($currency === null){
+				throw new ConfigException("Unknown currency \"$currencyDef\" in player.defaults.$i");
+			}
+			$amount = (float) ($def["amount"] ?? 0);
+
+			$this->plugin->getServer()->getPluginManager()->callEvent($ev = new PlayerAccountDefinitionEvent($player, $def));
+			if($ev->getType() === null){
+				throw new ConfigException("Unknown account type in player.defaults.$i");
+			}
+
+			$account = Account::create($this->plugin->getModelCache(), $ev->getType(), self::OWNER_TYPE_PLAYER, $player->getName(), $currency, $amount);
+			$ev->onPostCreation($account);
+		}
+	}
+
+	public function e_quit(PlayerQuitEvent $event) : void{
+		$this->onQuit($event->getPlayer());
+	}
+
+	private function onQuit(Player $player) : void{
+	}
+
+	/**
+	 * @param PlayerAccountDefinitionEvent $event
+	 * @priority        LOW
+	 * @ignoreCancelled true
+	 */
+	public function e_accountDef(PlayerAccountDefinitionEvent $event) : void{
+		if($event->getTypeDef() === "cash"){
+			$event->setType(self::ACCOUNT_TYPE_CASH);
+		}
 	}
 }

@@ -59,14 +59,12 @@ class DataModelCache{
 	public function __construct(XialotEcon $plugin, DataConnector $connector){
 		$this->plugin = $plugin;
 		$this->connector = $connector;
-		$plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this, "doCycle"]), 20);
 
 		$this->fetchUpdateTask = new CallbackTask([$this, "fetchUpdate"]);
 		$this->serverId = $this->plugin->getServer()->getServerUniqueId()->toString();
-		$this->scheduleUpdate();
 	}
 
-	private function scheduleUpdate() : void{
+	public function scheduleUpdate() : void{
 		if(isset($this->lastUpdateId)){
 			$currentTick = $this->plugin->getServer()->getTick();
 			$remTicks = $this->lastUpdateTick + 20 - $currentTick;

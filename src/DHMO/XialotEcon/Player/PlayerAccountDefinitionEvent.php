@@ -26,36 +26,57 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon;
+namespace DHMO\XialotEcon\Player;
 
-use function assert;
+use DHMO\XialotEcon\Account\Account;
+use DHMO\XialotEcon\XialotEconEvent;
+use pocketmine\event\Cancellable;
+use pocketmine\Player;
 
-abstract class XialotEconModule{
-	/** @var XialotEcon */
-	protected $plugin;
+class PlayerAccountDefinitionEvent extends XialotEconEvent implements Cancellable{
+	/** @var array */
+	private $config;
+	/** @var Player */
+	private $player;
+	/** @var string|null */
+	private $type = null;
+	/** @var callable|null */
+	private $postCreation = null;
 
-	public static function init(XialotEcon $plugin, callable $onComplete) : ?XialotEconModule{
-		assert(static::class !== XialotEconModule::class);
-		if(!static::shouldConstruct($plugin)){
-			return null;
+	public function __construct(Player $player, array $config){
+		parent::__construct();
+		$this->player = $player;
+		$this->config = $config;
+	}
+
+	public function getPlayer() : Player{
+		return $this->player;
+	}
+
+	public function getConfig() : array{
+		return $this->config;
+	}
+
+	public function getTypeDef() : string{
+		return $this->config["type"] ?? "cash";
+	}
+
+	public function getType() : ?string{
+		return $this->type;
+	}
+
+	public function setType(string $type) : void{
+		$this->type = $type;
+		$this->setCancelled();
+	}
+
+	public function setPostCreation(callable $postCreation) : void{
+		$this->postCreation = $postCreation;
+	}
+
+	public function onPostCreation(Account $account){
+		if($this->postCreation !== null){
+			($this->postCreation)($account);
 		}
-		$plugin->getLogger()->info("Asynchronously initializing " . static::getName() . " module...");
-		return new static($plugin, $onComplete);
-	}
-
-	protected static abstract function getName() : string;
-
-	protected static abstract function shouldConstruct(XialotEcon $plugin) : bool;
-
-	protected abstract function __construct(XialotEcon $plugin, callable $onComplete);
-
-	public function getPlugin() : XialotEcon{
-		return $this->plugin;
-	}
-
-	public function onStartup() : void{
-	}
-
-	public function onShutdown() : void{
 	}
 }

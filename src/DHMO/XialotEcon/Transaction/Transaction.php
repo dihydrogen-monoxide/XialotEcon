@@ -101,7 +101,7 @@ class Transaction extends DataModel{
 		});
 	}
 
-	protected function uploadChanges(DataConnector $connector, bool $insert) : void{
+	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeInsert(Queries::XIALOTECON_TRANSACTION_UPDATE_HYBRID, [
 			"uuid" => $this->getUuid(),
 			"date" => $this->date,
@@ -110,6 +110,6 @@ class Transaction extends DataModel{
 			"targetAddition" => $this->targetAddition,
 			"source" => $this->sourceUuid,
 			"target" => $this->targetUuid,
-		]);
+		], $onComplete);
 	}
 }

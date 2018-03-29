@@ -30,6 +30,7 @@ namespace DHMO\XialotEcon;
 
 use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\JointPromise;
 
 class CoreModule extends XialotEconModule{
@@ -46,16 +47,25 @@ class CoreModule extends XialotEconModule{
 		$connector = $plugin->getConnector();
 		JointPromise::create()
 			->do("feed.init", function(callable $complete) use ($connector){
-				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_INIT_FEED, [], $complete);
-			})
-			->do("currency.init", function(callable $complete) use($connector, $plugin){
-				$connector->executeGeneric(Queries::XIALOTECON_CURRENCY_INIT_TABLE, [], function() use ($complete, $plugin){
-					Currency::loadAll($plugin->getModelCache(), function() use ($complete, $plugin){
-						Currency::fillDefaults($plugin->getModelCache(), $plugin->getConfig()->getNested("currency.defaults"));
-						$complete();
-					});
+				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_INIT_FEED, [], function() use ($complete){
+					$this->plugin->getModelCache()->scheduleUpdate();
+					$complete();
 				});
 			})
+			->do("currency.init", function(callable $complete) use ($connector, $plugin){
+				$connector->executeGeneric(Queries::XIALOTECON_CURRENCY_INIT_TABLE, [], function() use ($complete, $plugin){
+					Currency::loadAll($plugin->getModelCache(), $complete);
+				});
+			})
+			->do("account.init", function(callable $complete) use ($connector){
+				$connector->executeGeneric(Queries::XIALOTECON_ACCOUNT_INIT_TABLE, [], $complete);
+			})
 			->then($onComplete);
+	}
+
+	public function onStartup() : void{
+		$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this->plugin->getModelCache(), "doCycle"]), 20);
+
+		Currency::fillDefaults($this->plugin->getModelCache(), $this->plugin->getConfig()->getNested("currency.defaults"));
 	}
 }

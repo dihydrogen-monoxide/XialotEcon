@@ -39,6 +39,7 @@ class AccountContributionEvent extends XialotEconEvent{
 	public const FF_AMOUNT = "xialotecon.transaction.amount";
 	public const FB_SELF_INITIATED = "xialotecon.transaction.initiator.self";
 	public const FB_OTHER_INITIATED = "xialotecon.transaction.initiator.other";
+	public const FB_SCHEDULED = "xialotecon.transaction.initiator.clock";
 	public const FS_OWNER_TYPE = "xialotecon.account.owner.type";
 	public const FS_OWNER_NAME = "xialotecon.account.owner.name";
 
