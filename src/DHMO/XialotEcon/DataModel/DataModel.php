@@ -85,6 +85,7 @@ abstract class DataModel{
 	}
 
 	public function getUuid() : string{
+		$this->touchAccess();
 		return $this->uuid;
 	}
 
@@ -179,9 +180,10 @@ abstract class DataModel{
 			throw new InvalidStateException("Cannot update garbage data model. Access the data model via the DataModelCache layer.");
 		}
 		$this->needAutosave = true;
+		$this->lastAccess = microtime(true);
 	}
 
-	public function checkAutosave(DataConnector $connector) : void{
+	public function tickCheck(DataConnector $connector) : void{
 		if($this->needAutosave && microtime(true) - $this->lastAutosave > self::$CONFIG[$this->type]->autoSavePeriod){
 			$insert = $this->lastAutosave === 0.0;
 			$this->lastAutosave = microtime(true);
@@ -195,20 +197,20 @@ abstract class DataModel{
 	}
 
 	private function mUploadChanges(DataConnector $connector, bool $insert) : void{
-		if(self::$CONFIG[$this->type]->notifyChanges){
-			$connector->executeInsert(Queries::XIALOTECON_DATA_MODEL_FEED_UPDATE, [
-				"server" => Server::getInstance()->getServerUniqueId()->toString(),
-				"uuid" => $this->uuid,
-				"type" => $this->type,
-			]);
-		}
-		$this->uploadChanges($connector, $insert, function(){
+		$this->uploadChanges($connector, $insert, function() use ($connector){
+			if(self::$CONFIG[$this->type]->notifyChanges){
+				$connector->executeInsert(Queries::XIALOTECON_DATA_MODEL_FEED_UPDATE, [
+					"server" => Server::getInstance()->getServerUniqueId()->toString(),
+					"uuid" => $this->uuid,
+					"type" => $this->type,
+				]);
+			}
 			foreach($this->afterNextUpload as $c){
 				$c();
 			}
+			// NOTE Potential concurrency issue with afterNextUpload
 			$this->afterNextUpload = [];
 		});
-
 	}
 
 	protected abstract function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void;

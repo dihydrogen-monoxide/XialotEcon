@@ -96,13 +96,8 @@ final class XialotEcon extends PluginBase{
 		$this->modelCache = new DataModelCache($this, $connector);
 		$this->connector = $connector;
 
-		$typeMap = [
-			"currency" => Currency::DATUM_TYPE,
-			"account" => Account::DATUM_TYPE,
-			"transaction" => Transaction::DATUM_TYPE,
-		];
 		foreach($this->getConfig()->get("data-model") as $type => $modelConfig){
-			DataModel::$CONFIG[$typeMap[$type]] = new DataModelTypeConfig($type, $modelConfig);
+			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
 		}
 
 		$promise = JointPromise::create();

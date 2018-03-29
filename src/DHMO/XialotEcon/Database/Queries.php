@@ -53,42 +53,110 @@ final class Queries{
 	public const XIALOTECON_ACCOUNT_UPDATE_HYBRID = "xialotecon.account.update.hybrid";
 
 	/**
-	 * <code>xialotecon.bank.interest.add.constant_diff</code>
+	 * <code>xialotecon.bank.interest.find.by_account.constant_diff</code>
 	 *
-	 * Defined in bank.mysql.sql:41
+	 * Defined in bank.mysql.sql:87
 	 *
 	 * Variables:
 	 * - <code>:accountId</code> string, required in bank.mysql.sql
-	 * - <code>:period</code> float, required in bank.mysql.sql
-	 * - <code>:value</code> float, required in bank.mysql.sql
 	 */
-	public const XIALOTECON_BANK_INTEREST_ADD_CONSTANT_DIFF = "xialotecon.bank.interest.add.constant_diff";
+	public const XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_DIFF = "xialotecon.bank.interest.find.by_account.constant_diff";
 
 	/**
-	 * <code>xialotecon.bank.interest.add.constant_ratio</code>
+	 * <code>xialotecon.bank.interest.find.by_account.constant_ratio</code>
 	 *
-	 * Defined in bank.mysql.sql:35
+	 * Defined in bank.mysql.sql:77
 	 *
 	 * Variables:
 	 * - <code>:accountId</code> string, required in bank.mysql.sql
-	 * - <code>:period</code> float, required in bank.mysql.sql
-	 * - <code>:value</code> float, required in bank.mysql.sql
 	 */
-	public const XIALOTECON_BANK_INTEREST_ADD_CONSTANT_RATIO = "xialotecon.bank.interest.add.constant_ratio";
+	public const XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_RATIO = "xialotecon.bank.interest.find.by_account.constant_ratio";
+
+	/**
+	 * <code>xialotecon.bank.interest.find.by_uuid.constant_diff</code>
+	 *
+	 * Defined in bank.mysql.sql:109
+	 *
+	 * Variables:
+	 * - <code>:interestId</code> string, required in bank.mysql.sql
+	 */
+	public const XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_DIFF = "xialotecon.bank.interest.find.by_uuid.constant_diff";
+
+	/**
+	 * <code>xialotecon.bank.interest.find.by_uuid.constant_ratio</code>
+	 *
+	 * Defined in bank.mysql.sql:99
+	 *
+	 * Variables:
+	 * - <code>:interestId</code> string, required in bank.mysql.sql
+	 */
+	public const XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_RATIO = "xialotecon.bank.interest.find.by_uuid.constant_ratio";
 
 	/**
 	 * <code>xialotecon.bank.interest.init.constant_diff</code>
 	 *
-	 * Defined in bank.mysql.sql:27
+	 * Defined in bank.mysql.sql:29
 	 */
 	public const XIALOTECON_BANK_INTEREST_INIT_CONSTANT_DIFF = "xialotecon.bank.interest.init.constant_diff";
 
 	/**
 	 * <code>xialotecon.bank.interest.init.constant_ratio</code>
 	 *
-	 * Defined in bank.mysql.sql:16
+	 * Defined in bank.mysql.sql:17
 	 */
 	public const XIALOTECON_BANK_INTEREST_INIT_CONSTANT_RATIO = "xialotecon.bank.interest.init.constant_ratio";
+
+	/**
+	 * <code>xialotecon.bank.interest.insert.constant_diff</code>
+	 *
+	 * Defined in bank.mysql.sql:45
+	 *
+	 * Variables:
+	 * - <code>:interestId</code> string, required in bank.mysql.sql
+	 * - <code>:accountId</code> string, required in bank.mysql.sql
+	 * - <code>:period</code> float, required in bank.mysql.sql
+	 * - <code>:diff</code> float, required in bank.mysql.sql
+	 */
+	public const XIALOTECON_BANK_INTEREST_INSERT_CONSTANT_DIFF = "xialotecon.bank.interest.insert.constant_diff";
+
+	/**
+	 * <code>xialotecon.bank.interest.insert.constant_ratio</code>
+	 *
+	 * Defined in bank.mysql.sql:38
+	 *
+	 * Variables:
+	 * - <code>:interestId</code> string, required in bank.mysql.sql
+	 * - <code>:accountId</code> string, required in bank.mysql.sql
+	 * - <code>:period</code> float, required in bank.mysql.sql
+	 * - <code>:ratio</code> float, required in bank.mysql.sql
+	 */
+	public const XIALOTECON_BANK_INTEREST_INSERT_CONSTANT_RATIO = "xialotecon.bank.interest.insert.constant_ratio";
+
+	/**
+	 * <code>xialotecon.bank.interest.update.constant_diff</code>
+	 *
+	 * Defined in bank.mysql.sql:65
+	 *
+	 * Variables:
+	 * - <code>:lastApplied</code> timestamp, required in bank.mysql.sql
+	 * - <code>:interestId</code> string, required in bank.mysql.sql
+	 * - <code>:period</code> float, required in bank.mysql.sql
+	 * - <code>:diff</code> float, required in bank.mysql.sql
+	 */
+	public const XIALOTECON_BANK_INTEREST_UPDATE_CONSTANT_DIFF = "xialotecon.bank.interest.update.constant_diff";
+
+	/**
+	 * <code>xialotecon.bank.interest.update.constant_ratio</code>
+	 *
+	 * Defined in bank.mysql.sql:56
+	 *
+	 * Variables:
+	 * - <code>:lastApplied</code> timestamp, required in bank.mysql.sql
+	 * - <code>:interestId</code> string, required in bank.mysql.sql
+	 * - <code>:period</code> float, required in bank.mysql.sql
+	 * - <code>:ratio</code> float, required in bank.mysql.sql
+	 */
+	public const XIALOTECON_BANK_INTEREST_UPDATE_CONSTANT_RATIO = "xialotecon.bank.interest.update.constant_ratio";
 
 	/**
 	 * <code>xialotecon.currency.init_table</code>

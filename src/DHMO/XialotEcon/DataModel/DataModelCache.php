@@ -118,6 +118,8 @@ class DataModelCache{
 			throw new InvalidArgumentException("The data model $model is already being checked.");
 		}
 		$this->models[$model->getUuid()] = $model;
+
+		$this->plugin->getServer()->getPluginManager()->callEvent(new DataModelRetrievedEvent($model));
 	}
 
 	public function doCycle() : void{
@@ -126,7 +128,7 @@ class DataModelCache{
 				$model->markGarbage($this->connector);
 				unset($this->models[$model->getUuid()]);
 			}else{
-				$model->checkAutosave($this->connector);
+				$model->tickCheck($this->connector);
 			}
 		}
 	}

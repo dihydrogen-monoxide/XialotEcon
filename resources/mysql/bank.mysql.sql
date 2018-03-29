@@ -5,6 +5,7 @@
 -- #    { init
 -- #        { constant_ratio
 CREATE TABLE IF NOT EXISTS bank_interest_constant_ratio (
+	interestId  CHAR(34) PRIMARY KEY,
 	accountId   CHAR(34),
 	ratio       DOUBLE,
 	period      DOUBLE,
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS bank_interest_constant_ratio (
 -- #            }
 -- #            { constant_diff
 CREATE TABLE IF NOT EXISTS bank_interest_constant_diff (
+	interestId  CHAR(34) PRIMARY KEY,
 	accountId   CHAR(34),
 	diff        DECIMAL(35, 5),
 	period      DOUBLE,
@@ -26,18 +28,84 @@ CREATE TABLE IF NOT EXISTS bank_interest_constant_diff (
 );
 -- #        }
 -- #    }
--- #    { add
+-- #    { insert
+-- #        { constant_ratio
+-- #            :interestId string
+-- #            :accountId string
+-- #            :ratio     float
+-- #            :period    float
+INSERT INTO bank_interest_constant_ratio (interestId, accountId, ratio, period) VALUES (:interestId, :accountId, :ratio, :period);
+-- #        }
+-- #        { constant_diff
+-- #            :interestId string
+-- #            :accountId string
+-- #            :diff      float
+-- #            :period    float
+INSERT INTO bank_interest_constant_diff (interestId, accountId, diff, period) VALUES (:interestId, :accountId, :diff, :period);
+-- #        }
+-- #    }
+-- #    { update
+-- #        { constant_ratio
+-- #            :interestId string
+-- #            :ratio float
+-- #            :period float
+-- #            :lastApplied timestamp
+UPDATE bank_interest_constant_ratio
+SET ratio = :ratio, period = :period, lastApplied = :lastApplied
+WHERE interestId = :interestId;
+-- #        }
+-- #        { constant_diff
+-- #            :interestId string
+-- #            :diff float
+-- #            :period float
+-- #            :lastApplied timestamp
+UPDATE bank_interest_constant_diff
+SET diff = :diff, period = :period, lastApplied = :lastApplied
+WHERE interestId = :interestId;
+-- #        }
+-- #    }
+-- #    { find.by_account
 -- #        { constant_ratio
 -- #            :accountId string
--- #            :value     float
--- #            :period    float
-INSERT INTO bank_interest_constant_ratio (accountId, ratio, period) VALUES (:accountId, :value, :period);
+SELECT
+	interestId,
+	ratio,
+	period,
+	lastApplied
+FROM bank_interest_constant_ratio
+WHERE accountId = :accountId;
 -- #        }
 -- #        { constant_diff
 -- #            :accountId string
--- #            :value     float
--- #            :period    float
-INSERT INTO bank_interest_constant_diff (accountId, diff, period) VALUES (:accountId, :value, :period);
+SELECT
+	interestId,
+	diff,
+	period,
+	lastApplied
+FROM bank_interest_constant_diff
+WHERE accountId = :accountId;
+-- #        }
+-- #    }
+-- #    { find.by_uuid
+-- #        { constant_ratio
+-- #            :interestId string
+SELECT
+	accountId,
+	ratio,
+	period,
+	lastApplied
+FROM bank_interest_constant_ratio
+WHERE interestId = :interestId;
+-- #        }
+-- #        { constant_diff
+-- #            :interestId string
+SELECT
+	accountId,
+	diff,
+	period,
+	lastApplied
+FROM bank_interest_constant_diff
+WHERE interestId = :interestId;
 -- #        }
 -- #    }
 -- #}

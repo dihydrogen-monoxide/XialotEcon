@@ -39,16 +39,24 @@ database:
 #     "3s" if the data may be frequently changed, and it has a long garbage time on other servers
 #       e.g. account has a long garbage time, and it is frequently changed (if the player pays/receives money), and the account may be accessed from other servers
 data-model:
-  currency:
+  xialotecon.currency:
     garbage: never
     store: 1s
     notify-changes: true
-  account:
+  xialotecon.account:
     garbage: 10min
     store: 3s
     notify-changes: true
-  transaction:
+  xialotecon.transaction:
     garbage: 30s
+    store: 1s
+    notify-changes: true
+  xialotecon.bank.interest.constant.ratio:
+    garbage: 10min
+    store: 1s
+    notify-changes: true
+  xialotecon.bank.interest.constant.diff:
+    garbage: 10min
     store: 1s
     notify-changes: true
 

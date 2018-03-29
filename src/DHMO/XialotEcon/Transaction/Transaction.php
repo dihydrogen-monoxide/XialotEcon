@@ -98,6 +98,7 @@ class Transaction extends DataModel{
 	protected function downloadChanges(DataModelCache $cache) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result){
 			$this->applyRow($result->getRows()[0]);
+			$this->onChangesDownloaded();
 		});
 	}
 

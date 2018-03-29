@@ -30,18 +30,18 @@ namespace DHMO\XialotEcon\Bank;
 
 use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\DataModel\DataModelRetrievedEvent;
 use DHMO\XialotEcon\Player\PlayerAccountDefinitionEvent;
 use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
-use Exception;
 use pocketmine\event\Listener;
 use poggit\libasynql\ConfigException;
-use function array_keys;
+use function array_map;
 use function array_shift;
-use function implode;
+use function in_array;
 use function is_numeric;
 
 class BankModule extends XialotEconModule implements Listener{
@@ -70,7 +70,7 @@ class BankModule extends XialotEconModule implements Listener{
 		$this->plugin->getServer()->getPluginManager()->registerEvents($this, $this->plugin);
 	}
 
-	public function e_accountDef(PlayerAccountDefinitionEvent $event):void{
+	public function e_accountDef(PlayerAccountDefinitionEvent $event) : void{
 		$config = $event->getConfig();
 		if($event->getTypeDef() !== "bank"){
 			return;
@@ -82,17 +82,12 @@ class BankModule extends XialotEconModule implements Listener{
 			if(isset($config["interest"])){
 				$interest = explode(" ", $config["interest"]);
 
-				$interestQuery = Queries::XIALOTECON_BANK_INTEREST_ADD_CONSTANT_RATIO;
+				$interestType = "ratio";
 				if(!is_numeric($interest[0])){
 					$interestType = array_shift($interest);
-					static $interestTypeMapping = [
-						"ratio" => Queries::XIALOTECON_BANK_INTEREST_ADD_CONSTANT_RATIO,
-						"diff" => Queries::XIALOTECON_BANK_INTEREST_ADD_CONSTANT_DIFF,
-					];
-					if(!isset($interestTypeMapping[$interestType])){
-						throw new ConfigException("Unsupported interest type \"$interestType\"! Supported types: " . implode(", ", array_keys($interestTypeMapping)));
+					if(!in_array($interestType, ["ratio", "diff"], true)){
+						throw new ConfigException("Unsupported interest type \"$interestType\"! Supported types: ratio, diff");
 					}
-					$interestQuery = $interestTypeMapping[$interestType];
 				}
 				if(!is_numeric($interest[0])){
 					throw new ConfigException("Wrong format for interest (\"{$config["interest"]}\")! Correct format: [type = ratio] <amount> [period = 1d]");
@@ -105,14 +100,29 @@ class BankModule extends XialotEconModule implements Listener{
 					$interestPeriod = StringUtil::parseTime(array_shift($interest), 86400);
 				}
 
-				$account->executeAfterNextUpload(function() use ($interestPeriod, $interestValue, $interestQuery, $account){
-					$this->plugin->getConnector()->executeChange($interestQuery, [
-						"accountId" => $account->getUuid(),
-						"value" => $interestValue,
-						"period" => $interestPeriod
-					]);
+				$account->executeAfterNextUpload(function() use ($interestType, $interestPeriod, $interestValue, $account){
+					if($interestType === "ratio"){
+						ConstantRatioBankInterest::createNew($this->plugin->getModelCache(), $account, $interestValue, $interestPeriod);
+					}elseif($interestType === "diff"){
+						ConstantDiffBankInterest::createNew($this->plugin->getModelCache(), $account, $interestValue, $interestPeriod);
+					}
 				});
 			}
 		});
+	}
+
+	public function e_modelRetrieved(DataModelRetrievedEvent $event) : void{
+		$account = $event->getDataModel();
+		if($account instanceof Account){
+			ConstantRatioBankInterest::forAccount($this->plugin->getModelCache(), $account, function($accounts){
+				JointPromise::build(array_map(function(Account $account){
+				}, $accounts), function(){
+
+				});
+			});
+
+			// TODO download interests, then apply them
+			// NOTE apply ratio first, then apply diff
+		}
 	}
 }
