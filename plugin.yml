@@ -1,6 +1,7 @@
+---
 main: DHMO\XialotEcon\XialotEcon
-api: [3.0.0-ALPHA11]
-
+api:
+- 3.0.0-ALPHA11
 name: XialotEcon
 description: A next-gem economy plugin
 version: 0.0.1
@@ -8,3 +9,45 @@ author: DHMO Team
 authors:
 - Hittmana
 - SOFe
+permissions:
+  xialotecon:
+    default: op
+    children:
+      xialotecon.player:
+        default: op
+        children:
+          xialotecon.player.cash:
+            default: op
+            children:
+              xialotecon.player.cash.deposit:
+                default: true
+                description: Allows depositing money into cash account directly
+              xialotecon.player.cash.withdraw:
+                default: true
+                description: Allows spending money from cash account directly
+          xialotecon.player.bank:
+            default: op
+            children:
+              xialotecon.player.bank.deposit:
+                default: true
+                description: Allows depositing money into bank account directly
+              xialotecon.player.bank.withdraw:
+                default: true
+                description: Allows spending money from bank account directly
+          xialotecon.player.transaction:
+            default: op
+            children:
+              xialotecon.player.transaction.pay:
+                default: true
+                description: Allows paying money to another player through the /pay
+                  command
+              xialotecon.player.transaction.bank:
+                default: op
+                children:
+                  xialotecon.player.transaction.bank.deposit:
+                    default: true
+                    description: Allows depositing money from cash to bank
+                  xialotecon.player.transaction.bank.withdrawal:
+                    default: true
+                    description: Allows withdrawing money from bank to cash
+...

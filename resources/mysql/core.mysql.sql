@@ -103,11 +103,39 @@ SELECT
 FROM accounts
 WHERE accountId = :uuid;
 -- #    }
--- #    { list_ids.by_owner_and_type
--- #        :ownerType string
--- #        :ownerName string
--- #        :accountTypes list:string
-SELECT accountId FROM accounts WHERE ownerType = :ownerType AND ownerName = :ownerName AND accountType IN :accountTypes;
+-- #    { list_ids
+-- #        { by_owner
+-- #            :ownerType string
+-- #            :ownerName string
+SELECT accountId, ownerType, ownerName, accountType, currency, balance
+FROM accounts
+WHERE ownerType = :ownerType AND ownerName = :ownerName;
+-- #        }
+-- #        { by_owner_type
+-- #            :ownerType string
+-- #            :ownerName string
+-- #            :accountTypes list:string
+SELECT accountId, ownerType, ownerName, accountType, currency, balance
+FROM accounts
+WHERE ownerType = :ownerType AND ownerName = :ownerName AND accountType IN :accountTypes;
+-- #        }
+-- #        { by_owner_currency
+-- #            :ownerType string
+-- #            :ownerName string
+-- #            :currency string
+SELECT accountId, ownerType, ownerName, accountType, currency, balance
+FROM accounts
+WHERE ownerType = :ownerType AND ownerName = :ownerName ANd currency = :currency;
+-- #        }
+-- #        { by_owner_currency_type
+-- #            :ownerType string
+-- #            :ownerName string
+-- #            :currency string
+-- #            :accountTypes list:string
+SELECT accountId, ownerType, ownerName, accountType, currency, balance
+FROM accounts
+WHERE ownerType = :ownerType AND ownerName = :ownerName AND currency = :currency AND accountType IN :accountTypes;
+-- #        }
 -- #    }
 
 -- #    { update.hybrid

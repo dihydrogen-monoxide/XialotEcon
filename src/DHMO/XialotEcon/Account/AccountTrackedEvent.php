@@ -28,25 +28,16 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Account;
 
-/**
- * A simple data structure indicating an account owner, identified by type and name.
- */
-class AccountOwner{
-	/** @var string */
-	private $type;
-	/** @var string */
-	private $name;
+class AccountTrackedEvent extends AccountEvent{
+	/** @var bool */
+	private $new;
 
-	public function __construct(string $type, string $name){
-		$this->type = $type;
-		$this->name = $name;
+	public function __construct(Account $account, bool $new){
+		parent::__construct($account);
+		$this->new = $new;
 	}
 
-	public function getType() : string{
-		return $this->type;
-	}
-
-	public function getName() : string{
-		return $this->name;
+	public function isNew() : bool{
+		return $this->new;
 	}
 }

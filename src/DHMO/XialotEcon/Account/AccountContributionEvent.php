@@ -56,6 +56,9 @@ class AccountContributionEvent extends XialotEconEvent{
 	/** @var Account[] */
 	private $accounts = [];
 
+	/** @var string[] */
+	private $negativeSuggestions = [];
+
 	public static function build() : AccountContributionEvent{
 		return new AccountContributionEvent();
 	}
@@ -96,12 +99,16 @@ class AccountContributionEvent extends XialotEconEvent{
 		return $this;
 	}
 
-	public function checkString(string $name, string $default = "") : string{
+	public function checkString(string $name, ?string $default = "") : ?string{
 		return $this->stringFlags[$name] ?? $default;
 	}
 
 	public function contributeAccount(Account $account) : void{
 		$this->accounts[$account->getUuid()] = $account;
+	}
+
+	public function suggestNegative(string $negativeSuggestion) : void{
+		$this->negativeSuggestions[] = $negativeSuggestion;
 	}
 
 	/**

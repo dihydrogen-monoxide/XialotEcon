@@ -32,8 +32,10 @@ use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
+use DHMO\XialotEcon\Util\JointPromise;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
+use function array_map;
 
 class Account extends DataModel{
 	public const DATUM_TYPE = "xialotecon.account";
@@ -49,14 +51,17 @@ class Account extends DataModel{
 	/** @var float */
 	protected $balance;
 
-	public static function create(DataModelCache $cache, string $type, string $ownerType, string $ownerName, Currency $currency, float $balance) : Account{
+	public static function create(DataModelCache $cache, string $type, string $ownerType, string $ownerName, Currency $currency, float $balance, callable $onComplete) : void{
 		$account = new Account($cache, self::DATUM_TYPE, self::generateUuid(self::DATUM_TYPE), true);
 		$account->accountType = $type;
 		$account->ownerType = $ownerType;
 		$account->ownerName = $ownerName;
 		$account->currency = $currency;
 		$account->balance = $balance;
-		return $account;
+
+		$cache->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountTrackedEvent($account, true), function() use ($onComplete, $account){
+			$onComplete($account);
+		});
 	}
 
 	public static function getByUuid(DataModelCache $cache, string $uuid, callable $consumer) : void{
@@ -76,7 +81,39 @@ class Account extends DataModel{
 			$cache->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_TOUCH, ["uuid" => $uuid]);
 			$instance = new Account($cache, self::DATUM_TYPE, $uuid, false);
 			$instance->applyRow($cache, $result->getRows()[0]);
-			$consumer($instance);
+			$cache->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountTrackedEvent($instance, false), function() use ($consumer, $instance){
+				$consumer($instance);
+			});
+		});
+	}
+
+	public static function getForOwner(DataModelCache $cache, string $ownerType, string $ownerName, ?string $currency, ?array $accountTypes, callable $consumer){
+		if($accountTypes === []){
+			$consumer([]);
+			return;
+		}
+		$query = $accountTypes !== null ?
+			($currency !== null ? Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_CURRENCY_TYPE : Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_TYPE) :
+			($currency !== null ? Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_CURRENCY : Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER);
+		$cache->getConnector()->executeSelect($query, [
+			"ownerType" => $ownerType,
+			"ownerName" => $ownerName,
+			"currency" => $currency,
+			"accountTypes" => $accountTypes,
+		], function(SqlSelectResult $result) use ($cache, $consumer){
+			$accounts = [];
+			foreach($result->getRows() as $row){
+				$account = new Account($cache, self::DATUM_TYPE, $row["accountId"], false);
+				$account->applyRow($cache, $row);
+				$accounts[] = $accounts;
+			}
+			JointPromise::build(array_map(function(Account $account) use ($cache){
+				return function(callable $complete) use ($cache, $account){
+					$cache->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountTrackedEvent($account, false), $complete);
+				};
+			}, $accounts), function() use($consumer, $accounts){
+				$consumer($accounts);
+			});
 		});
 	}
 

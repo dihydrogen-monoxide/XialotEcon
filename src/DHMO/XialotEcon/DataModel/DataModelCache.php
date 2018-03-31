@@ -64,6 +64,10 @@ class DataModelCache{
 		$this->serverId = $this->plugin->getServer()->getServerUniqueId()->toString();
 	}
 
+	public function getPlugin() : XialotEcon{
+		return $this->plugin;
+	}
+
 	public function scheduleUpdate() : void{
 		if(isset($this->lastUpdateId)){
 			$currentTick = $this->plugin->getServer()->getTick();
@@ -117,9 +121,8 @@ class DataModelCache{
 		if(isset($this->models[$model->getUuid()])){
 			throw new InvalidArgumentException("The data model $model is already being checked.");
 		}
-		$this->models[$model->getUuid()] = $model;
 
-		$this->plugin->getServer()->getPluginManager()->callEvent(new DataModelRetrievedEvent($model));
+		$this->models[$model->getUuid()] = $model;
 	}
 
 	public function doCycle() : void{

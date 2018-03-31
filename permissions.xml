@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xialotecon>
+	<player>
+		<cash>
+			<deposit default="true">Allows depositing money into cash account directly</deposit>
+			<withdraw default="true">Allows spending money from cash account directly</withdraw>
+		</cash>
+		<bank>
+			<deposit default="true">Allows depositing money into bank account directly</deposit>
+			<withdraw default="true">Allows spending money from bank account directly</withdraw>
+		</bank>
+		<transaction>
+			<pay default="true">Allows paying money to another player through the /pay command</pay>
+			<bank>
+				<deposit default="true">Allows depositing money from cash to bank</deposit>
+				<withdrawal default="true">Allows withdrawing money from bank to cash</withdrawal>
+			</bank>
+		</transaction>
+	</player>
+</xialotecon>

@@ -11,50 +11,78 @@ namespace DHMO\XialotEcon\Database;
 
 final class Queries{
 	/**
-	 * <code>xialotecon.account.init_table</code>
-	 *
-	 * Defined in core.mysql.sql:93
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:93
 	 */
 	public const XIALOTECON_ACCOUNT_INIT_TABLE = "xialotecon.account.init_table";
 
 	/**
-	 * <code>xialotecon.account.list_ids.by_owner_and_type</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:113
 	 *
-	 * Defined in core.mysql.sql:111
+	 * <h3>Variables</h3>
+	 * - <code>:ownerType</code> string, required in core.mysql.sql
+	 * - <code>:ownerName</code> string, required in core.mysql.sql
+	 */
+	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER = "xialotecon.account.list_ids.by_owner";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:129
 	 *
-	 * Variables:
+	 * <h3>Variables</h3>
+	 * - <code>:ownerType</code> string, required in core.mysql.sql
+	 * - <code>:ownerName</code> string, required in core.mysql.sql
+	 * - <code>:currency</code> string, required in core.mysql.sql
+	 */
+	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_CURRENCY = "xialotecon.account.list_ids.by_owner_currency";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:138
+	 *
+	 * <h3>Variables</h3>
+	 * - <code>:accountTypes</code> string non-empty list, required in core.mysql.sql
+	 * - <code>:ownerType</code> string, required in core.mysql.sql
+	 * - <code>:ownerName</code> string, required in core.mysql.sql
+	 * - <code>:currency</code> string, required in core.mysql.sql
+	 */
+	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_CURRENCY_TYPE = "xialotecon.account.list_ids.by_owner_currency_type";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:121
+	 *
+	 * <h3>Variables</h3>
 	 * - <code>:accountTypes</code> string non-empty list, required in core.mysql.sql
 	 * - <code>:ownerType</code> string, required in core.mysql.sql
 	 * - <code>:ownerName</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_AND_TYPE = "xialotecon.account.list_ids.by_owner_and_type";
+	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_TYPE = "xialotecon.account.list_ids.by_owner_type";
 
 	/**
-	 * <code>xialotecon.account.load.by_uuid</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:105
 	 *
-	 * Defined in core.mysql.sql:105
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:uuid</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_ACCOUNT_LOAD_BY_UUID = "xialotecon.account.load.by_uuid";
 
 	/**
-	 * <code>xialotecon.account.touch</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:164
 	 *
-	 * Defined in core.mysql.sql:136
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:uuid</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_ACCOUNT_TOUCH = "xialotecon.account.touch";
 
 	/**
-	 * <code>xialotecon.account.update.hybrid</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:157
 	 *
-	 * Defined in core.mysql.sql:129
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:accountType</code> string, required in core.mysql.sql
 	 * - <code>:ownerType</code> string, required in core.mysql.sql
 	 * - <code>:ownerName</code> string, required in core.mysql.sql
@@ -65,65 +93,58 @@ final class Queries{
 	public const XIALOTECON_ACCOUNT_UPDATE_HYBRID = "xialotecon.account.update.hybrid";
 
 	/**
-	 * <code>xialotecon.bank.interest.find.by_account.constant_diff</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:87
 	 *
-	 * Defined in bank.mysql.sql:87
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:accountId</code> string, required in bank.mysql.sql
 	 */
 	public const XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_DIFF = "xialotecon.bank.interest.find.by_account.constant_diff";
 
 	/**
-	 * <code>xialotecon.bank.interest.find.by_account.constant_ratio</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:77
 	 *
-	 * Defined in bank.mysql.sql:77
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:accountId</code> string, required in bank.mysql.sql
 	 */
 	public const XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_RATIO = "xialotecon.bank.interest.find.by_account.constant_ratio";
 
 	/**
-	 * <code>xialotecon.bank.interest.find.by_uuid.constant_diff</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:109
 	 *
-	 * Defined in bank.mysql.sql:109
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:interestId</code> string, required in bank.mysql.sql
 	 */
 	public const XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_DIFF = "xialotecon.bank.interest.find.by_uuid.constant_diff";
 
 	/**
-	 * <code>xialotecon.bank.interest.find.by_uuid.constant_ratio</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:99
 	 *
-	 * Defined in bank.mysql.sql:99
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:interestId</code> string, required in bank.mysql.sql
 	 */
 	public const XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_RATIO = "xialotecon.bank.interest.find.by_uuid.constant_ratio";
 
 	/**
-	 * <code>xialotecon.bank.interest.init.constant_diff</code>
-	 *
-	 * Defined in bank.mysql.sql:29
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:29
 	 */
 	public const XIALOTECON_BANK_INTEREST_INIT_CONSTANT_DIFF = "xialotecon.bank.interest.init.constant_diff";
 
 	/**
-	 * <code>xialotecon.bank.interest.init.constant_ratio</code>
-	 *
-	 * Defined in bank.mysql.sql:17
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:17
 	 */
 	public const XIALOTECON_BANK_INTEREST_INIT_CONSTANT_RATIO = "xialotecon.bank.interest.init.constant_ratio";
 
 	/**
-	 * <code>xialotecon.bank.interest.insert.constant_diff</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:45
 	 *
-	 * Defined in bank.mysql.sql:45
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:interestId</code> string, required in bank.mysql.sql
 	 * - <code>:accountId</code> string, required in bank.mysql.sql
 	 * - <code>:period</code> float, required in bank.mysql.sql
@@ -132,11 +153,10 @@ final class Queries{
 	public const XIALOTECON_BANK_INTEREST_INSERT_CONSTANT_DIFF = "xialotecon.bank.interest.insert.constant_diff";
 
 	/**
-	 * <code>xialotecon.bank.interest.insert.constant_ratio</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:38
 	 *
-	 * Defined in bank.mysql.sql:38
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:interestId</code> string, required in bank.mysql.sql
 	 * - <code>:accountId</code> string, required in bank.mysql.sql
 	 * - <code>:period</code> float, required in bank.mysql.sql
@@ -145,11 +165,10 @@ final class Queries{
 	public const XIALOTECON_BANK_INTEREST_INSERT_CONSTANT_RATIO = "xialotecon.bank.interest.insert.constant_ratio";
 
 	/**
-	 * <code>xialotecon.bank.interest.update.constant_diff</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:65
 	 *
-	 * Defined in bank.mysql.sql:65
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:lastApplied</code> timestamp, required in bank.mysql.sql
 	 * - <code>:interestId</code> string, required in bank.mysql.sql
 	 * - <code>:period</code> float, required in bank.mysql.sql
@@ -158,11 +177,10 @@ final class Queries{
 	public const XIALOTECON_BANK_INTEREST_UPDATE_CONSTANT_DIFF = "xialotecon.bank.interest.update.constant_diff";
 
 	/**
-	 * <code>xialotecon.bank.interest.update.constant_ratio</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/bank.mysql.sql:56
 	 *
-	 * Defined in bank.mysql.sql:56
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:lastApplied</code> timestamp, required in bank.mysql.sql
 	 * - <code>:interestId</code> string, required in bank.mysql.sql
 	 * - <code>:period</code> float, required in bank.mysql.sql
@@ -171,35 +189,31 @@ final class Queries{
 	public const XIALOTECON_BANK_INTEREST_UPDATE_CONSTANT_RATIO = "xialotecon.bank.interest.update.constant_ratio";
 
 	/**
-	 * <code>xialotecon.currency.init_table</code>
-	 *
-	 * Defined in core.mysql.sql:45
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:45
 	 */
 	public const XIALOTECON_CURRENCY_INIT_TABLE = "xialotecon.currency.init_table";
 
 	/**
-	 * <code>xialotecon.currency.load.by_uuid</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:64
 	 *
-	 * Defined in core.mysql.sql:64
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:uuid</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_CURRENCY_LOAD_BY_UUID = "xialotecon.currency.load.by_uuid";
 
 	/**
-	 * <code>xialotecon.currency.load_all</code>
-	 *
-	 * Defined in core.mysql.sql:53
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:53
 	 */
 	public const XIALOTECON_CURRENCY_LOAD_ALL = "xialotecon.currency.load_all";
 
 	/**
-	 * <code>xialotecon.currency.update.hybrid</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:78
 	 *
-	 * Defined in core.mysql.sql:78
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:symbolBefore</code> string, required in core.mysql.sql
 	 * - <code>:symbolAfter</code> string, required in core.mysql.sql
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -208,11 +222,10 @@ final class Queries{
 	public const XIALOTECON_CURRENCY_UPDATE_HYBRID = "xialotecon.currency.update.hybrid";
 
 	/**
-	 * <code>xialotecon.data_model.feed_update</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:21
 	 *
-	 * Defined in core.mysql.sql:21
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:server</code> string, required in core.mysql.sql
 	 * - <code>:uuid</code> string, required in core.mysql.sql
 	 * - <code>:type</code> string, required in core.mysql.sql
@@ -220,100 +233,89 @@ final class Queries{
 	public const XIALOTECON_DATA_MODEL_FEED_UPDATE = "xialotecon.data_model.feed_update";
 
 	/**
-	 * <code>xialotecon.data_model.fetch_first_update</code>
-	 *
-	 * Defined in core.mysql.sql:25
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:25
 	 */
 	public const XIALOTECON_DATA_MODEL_FETCH_FIRST_UPDATE = "xialotecon.data_model.fetch_first_update";
 
 	/**
-	 * <code>xialotecon.data_model.fetch_next_update</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:34
 	 *
-	 * Defined in core.mysql.sql:34
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:lastMaxUpdate</code> int, required in core.mysql.sql
 	 * - <code>:server</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_DATA_MODEL_FETCH_NEXT_UPDATE = "xialotecon.data_model.fetch_next_update";
 
 	/**
-	 * <code>xialotecon.data_model.init_feed</code>
-	 *
-	 * Defined in core.mysql.sql:14
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:14
 	 */
 	public const XIALOTECON_DATA_MODEL_INIT_FEED = "xialotecon.data_model.init_feed";
 
 	/**
-	 * <code>xialotecon.player.login.init</code>
-	 *
-	 * Defined in player.mysql.sql:10
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/player.mysql.sql:10
 	 */
 	public const XIALOTECON_PLAYER_LOGIN_INIT = "xialotecon.player.login.init";
 
 	/**
-	 * <code>xialotecon.player.login.touch.insert</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/player.mysql.sql:15
 	 *
-	 * Defined in player.mysql.sql:15
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:name</code> string, required in player.mysql.sql
 	 */
 	public const XIALOTECON_PLAYER_LOGIN_TOUCH_INSERT = "xialotecon.player.login.touch.insert";
 
 	/**
-	 * <code>xialotecon.player.login.touch.update</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/player.mysql.sql:21
 	 *
-	 * Defined in player.mysql.sql:21
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:name</code> string, required in player.mysql.sql
 	 */
 	public const XIALOTECON_PLAYER_LOGIN_TOUCH_UPDATE = "xialotecon.player.login.touch.update";
 
 	/**
-	 * <code>xialotecon.player.login.when</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/player.mysql.sql:28
 	 *
-	 * Defined in player.mysql.sql:28
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:name</code> string, required in player.mysql.sql
 	 */
 	public const XIALOTECON_PLAYER_LOGIN_WHEN = "xialotecon.player.login.when";
 
 	/**
-	 * <code>xialotecon.player.stats.balance.grouped_sum</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/player.mysql.sql:36
 	 *
-	 * Defined in player.mysql.sql:36
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:accountIds</code> string non-empty list, required in player.mysql.sql
 	 */
 	public const XIALOTECON_PLAYER_STATS_BALANCE_GROUPED_SUM = "xialotecon.player.stats.balance.grouped_sum";
 
 	/**
-	 * <code>xialotecon.transaction.init_table</code>
-	 *
-	 * Defined in core.mysql.sql:151
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:179
 	 */
 	public const XIALOTECON_TRANSACTION_INIT_TABLE = "xialotecon.transaction.init_table";
 
 	/**
-	 * <code>xialotecon.transaction.load.by_uuid</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:192
 	 *
-	 * Defined in core.mysql.sql:164
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:uuid</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_TRANSACTION_LOAD_BY_UUID = "xialotecon.transaction.load.by_uuid";
 
 	/**
-	 * <code>xialotecon.transaction.update.hybrid</code>
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:211
 	 *
-	 * Defined in core.mysql.sql:183
-	 *
-	 * Variables:
+	 * <h3>Variables</h3>
 	 * - <code>:transactionType</code> string, required in core.mysql.sql
 	 * - <code>:sourceReduction</code> float, required in core.mysql.sql
 	 * - <code>:targetAddition</code> float, required in core.mysql.sql

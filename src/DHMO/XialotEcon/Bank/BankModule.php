@@ -29,10 +29,9 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Bank;
 
 use DHMO\XialotEcon\Account\Account;
+use DHMO\XialotEcon\Account\AccountTrackedEvent;
 use DHMO\XialotEcon\Database\Queries;
-use DHMO\XialotEcon\DataModel\DataModelRetrievedEvent;
 use DHMO\XialotEcon\Player\PlayerAccountDefinitionEvent;
-use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
 use DHMO\XialotEcon\XialotEcon;
@@ -70,16 +69,15 @@ class BankModule extends XialotEconModule implements Listener{
 		$this->plugin->getServer()->getPluginManager()->registerEvents($this, $this->plugin);
 	}
 
+	/**
+	 * @param PlayerAccountDefinitionEvent $event
+	 * @ignoreCancelled false
+	 */
 	public function e_accountDef(PlayerAccountDefinitionEvent $event) : void{
 		$config = $event->getConfig();
-		if($event->getTypeDef() !== "bank"){
-			return;
-		}
 
-		$event->setType(PlayerModule::ACCOUNT_TYPE_BANK);
-
-		$event->setPostCreation(function(Account $account) use ($config){
-			if(isset($config["interest"])){
+		if(isset($config["interest"])){
+			$event->setPostCreation(function(Account $account) use ($config){
 				$interest = explode(" ", $config["interest"]);
 
 				$interestType = "ratio";
@@ -107,22 +105,29 @@ class BankModule extends XialotEconModule implements Listener{
 						ConstantDiffBankInterest::createNew($this->plugin->getModelCache(), $account, $interestValue, $interestPeriod);
 					}
 				});
-			}
-		});
+			});
+		}
 	}
 
-	public function e_modelRetrieved(DataModelRetrievedEvent $event) : void{
-		$account = $event->getDataModel();
-		if($account instanceof Account){
-			ConstantRatioBankInterest::forAccount($this->plugin->getModelCache(), $account, function($interests) use ($account){
-				JointPromise::build(array_map(function(ConstantRatioBankInterest $interest){
-					return [$interest, "ensureApplyInterest"];
-				}, $interests), function() use ($account){
-					// only load constant-diff after all constant-ratio have been applied
-					ConstantDiffBankInterest::forAccount($this->plugin->getModelCache(), $account, function($interests){
+	public function e_modelRetrieved(AccountTrackedEvent $event) : void{
+		if($event->isNew()){
+			return;
+		}
+
+		$event->pause();
+		ConstantRatioBankInterest::forAccount($this->plugin->getModelCache(), $event->getAccount(), function($interests) use ($event){
+			JointPromise::build(array_map(function(ConstantRatioBankInterest $interest){
+				return [$interest, "ensureApplyInterest"];
+			}, $interests), function() use ($event){
+				// only load constant-diff after all constant-ratio have been applied
+				ConstantDiffBankInterest::forAccount($this->plugin->getModelCache(), $event->getAccount(), function($interests) use ($event){
+					JointPromise::build(array_map(function(ConstantDiffBankInterest $interest){
+						return [$interest, "ensureApplyInterest"];
+					}, $interests), function() use ($event){
+						$event->continue();
 					});
 				});
 			});
-		}
+		});
 	}
 }

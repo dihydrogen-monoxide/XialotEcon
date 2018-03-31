@@ -29,10 +29,12 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Player;
 
 use DHMO\XialotEcon\Account\Account;
+use DHMO\XialotEcon\Account\AccountContributionEvent;
 use DHMO\XialotEcon\Account\AccountDescriptionEvent;
 use DHMO\XialotEcon\Account\AccountSearchEvent;
 use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Permissions;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
@@ -79,7 +81,7 @@ final class PlayerModule extends XialotEconModule implements Listener{
 	public function onStartup() : void{
 		$this->plugin->getServer()->getPluginManager()->registerEvents($this, $this->plugin);
 		$this->plugin->getServer()->getCommandMap()->registerAll("xialotecon", [
-			new PayOfflinePlayerCommand(),
+			new PayOnlinePlayerCommand(),
 			new MyBalanceCommand(),
 		]);
 		$this->config = $this->plugin->getConfig()->get("player");
@@ -130,8 +132,7 @@ final class PlayerModule extends XialotEconModule implements Listener{
 				throw new ConfigException("Unknown account type in player.defaults.$i");
 			}
 
-			$account = Account::create($this->plugin->getModelCache(), $ev->getType(), self::OWNER_TYPE_PLAYER, $player->getName(), $currency, $amount);
-			$ev->onPostCreation($account);
+			Account::create($this->plugin->getModelCache(), $ev->getType(), self::OWNER_TYPE_PLAYER, $player->getName(), $currency, $amount, [$ev, "onPostCreation"]);
 		}
 	}
 
@@ -148,8 +149,13 @@ final class PlayerModule extends XialotEconModule implements Listener{
 	 * @ignoreCancelled true
 	 */
 	public function e_accountDef(PlayerAccountDefinitionEvent $event) : void{
-		if($event->getTypeDef() === "cash"){
-			$event->setType(self::ACCOUNT_TYPE_CASH);
+		switch($event->getTypeDef()){
+			case "cash":
+				$event->setType(self::ACCOUNT_TYPE_CASH);
+				break;
+			case "bank":
+				$event->setType(self::ACCOUNT_TYPE_BANK);
+				break;
 		}
 	}
 
@@ -164,7 +170,7 @@ final class PlayerModule extends XialotEconModule implements Listener{
 
 	public function e_accountSearch(AccountSearchEvent $event) : void{
 		$event->pause();
-		$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_AND_TYPE, [
+		$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_TYPE, [
 			"ownerType" => self::OWNER_TYPE_PLAYER,
 			"ownerName" => $event->getPlayer()->getName(),
 			"accountTypes" => [self::ACCOUNT_TYPE_CASH, self::ACCOUNT_TYPE_BANK],
@@ -174,5 +180,35 @@ final class PlayerModule extends XialotEconModule implements Listener{
 			}
 			$event->continue();
 		});
+	}
+
+	public function e_accountContribute(AccountContributionEvent $event) : void{
+		if($event->checkString(AccountContributionEvent::FS_OWNER_TYPE) === self::OWNER_TYPE_PLAYER){
+			$player = $this->plugin->getServer()->getPlayerExact($event->checkString(AccountContributionEvent::FS_OWNER_NAME));
+			if($player !== null){
+				$types = [];
+				if($event->checkBoolean(AccountContributionEvent::FB_DEPOSIT)){
+					if($player->hasPermission(Permissions::PLAYER_CASH_DEPOSIT)){
+						$types[] = self::ACCOUNT_TYPE_CASH;
+					}
+					if($player->hasPermission(Permissions::PLAYER_BANK_DEPOSIT)){
+						$types[] = self::ACCOUNT_TYPE_BANK;
+					}
+				}
+				$event->pause();
+				Account::getForOwner($this->plugin->getModelCache(),
+					self::OWNER_TYPE_PLAYER,
+					$event->checkString(AccountContributionEvent::FS_OWNER_NAME),
+					$event->checkString(AccountContributionEvent::FS_CURRENCY, null),
+					$types,
+					function(array $accounts) use ($event){
+						/** @var Account $account */
+						foreach($accounts as $account){
+							$event->contributeAccount($account);
+						}
+						$event->continue();
+					});
+			}
+		}
 	}
 }

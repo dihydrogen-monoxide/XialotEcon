@@ -64,16 +64,17 @@ class JointPromise{
 		$this->thenCalled = true;
 		if(empty($this->callables)){
 			$then([]);
-		}else{
-			foreach($this->callables as $key => $c){
-				$c(function($result = null) use ($then, $key){
-					$this->results[$key] = $result;
-					--$this->remaining;
-					if($this->remaining === 0){
-						$then($this->results);
-					}
-				});
-			}
+			return;
+		}
+
+		foreach($this->callables as $key => $c){
+			$c(function($result = null) use ($then, $key){
+				$this->results[$key] = $result;
+				--$this->remaining;
+				if($this->remaining === 0){
+					$then($this->results);
+				}
+			});
 		}
 	}
 }

@@ -37,7 +37,7 @@ use DHMO\XialotEcon\Util\JointPromise;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
 
-class PayOfflinePlayerCommand extends PlayerCommand{
+class PayOnlinePlayerCommand extends PlayerCommand{
 	public const TRANSACTION_TYPE = "xialotecon.player.pay.direct";
 
 	public function __construct(){
