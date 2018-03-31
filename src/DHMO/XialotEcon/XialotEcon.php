@@ -29,13 +29,16 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon;
 
 use DHMO\XialotEcon\Account\AccountContributionEvent;
+use DHMO\XialotEcon\Account\AccountModule;
 use DHMO\XialotEcon\Account\AccountPriorityEvent;
 use DHMO\XialotEcon\Bank\BankModule;
+use DHMO\XialotEcon\Currency\CurrencyModule;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
 use DHMO\XialotEcon\Debug\DebugModule;
 use DHMO\XialotEcon\Player\PlayerModule;
+use DHMO\XialotEcon\Transaction\TransactionModule;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
 use pocketmine\plugin\PluginBase;
@@ -46,10 +49,15 @@ use function mkdir;
 
 final class XialotEcon extends PluginBase{
 	private const MODULES = [
-		CoreModule::class,
-		DebugModule::class,
-		PlayerModule::class,
-		BankModule::class,
+		CoreModule::class => [],
+		CurrencyModule::class => [
+			AccountModule::class => [
+				TransactionModule::class => [],
+				BankModule::class => [],
+			],
+		],
+		PlayerModule::class => [],
+		DebugModule::class => [],
 	];
 
 	/** @var XialotEcon */
@@ -93,21 +101,11 @@ final class XialotEcon extends PluginBase{
 		$this->modelCache = new DataModelCache($this, $connector);
 		$this->connector = $connector;
 
-		foreach($this->getConfig()->get("data-model") as $type => $modelConfig){
+		foreach($this->getConfig()->get("data-model")["types"] as $type => $modelConfig){
 			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
 		}
 
-		$promise = JointPromise::create();
-		/** @var string|XialotEconModule $moduleName */
-		foreach(self::MODULES as $moduleName){
-			$promise->do($moduleName, function(callable $complete) use ($moduleName){
-				$module = $moduleName::init($this, $complete);
-				if($module !== null){
-					$this->modules[$moduleName] = $module;
-				}
-			});
-		}
-		$promise->then(function(){
+		$this->recurseModules(self::MODULES)->then(function(){
 			$this->getLogger()->info("Async initialization completed");
 			foreach($this->modules as $module){
 				$module->onStartup();
@@ -119,6 +117,25 @@ final class XialotEcon extends PluginBase{
 				$this->getPlayerModule()->onJoin($player);
 			}
 		});
+	}
+
+	private function recurseModules(array $modules) : JointPromise{
+		$promise = JointPromise::create();
+		/**
+		 * @var string|XialotEconModule $name
+		 * @var array                   $submodules
+		 */
+		foreach($modules as $name => $submodules){
+			$promise->do($name, function(callable $complete) use ($name, $submodules){
+				$module = $name::init($this, function() use ($submodules, $complete){
+					$this->recurseModules($submodules)->then($complete);
+				});
+				if($module !== null){
+					$this->modules[$name] = $module;
+				}
+			});
+		}
+		return $promise;
 	}
 
 	public function getPlayerModule() : PlayerModule{

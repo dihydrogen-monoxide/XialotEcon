@@ -170,7 +170,7 @@ final class PlayerModule extends XialotEconModule implements Listener{
 
 	public function e_accountSearch(AccountSearchEvent $event) : void{
 		$event->pause();
-		$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_TYPE, [
+		$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_OWNER_TYPE, [
 			"ownerType" => self::OWNER_TYPE_PLAYER,
 			"ownerName" => $event->getPlayer()->getName(),
 			"accountTypes" => [self::ACCOUNT_TYPE_CASH, self::ACCOUNT_TYPE_BANK],

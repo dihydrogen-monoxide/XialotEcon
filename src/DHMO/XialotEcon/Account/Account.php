@@ -93,8 +93,8 @@ class Account extends DataModel{
 			return;
 		}
 		$query = $accountTypes !== null ?
-			($currency !== null ? Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_CURRENCY_TYPE : Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_TYPE) :
-			($currency !== null ? Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_CURRENCY : Queries::XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER);
+			($currency !== null ? Queries::XIALOTECON_ACCOUNT_LOAD_BY_OWNER_CURRENCY_TYPE : Queries::XIALOTECON_ACCOUNT_LOAD_BY_OWNER_TYPE) :
+			($currency !== null ? Queries::XIALOTECON_ACCOUNT_LOAD_BY_OWNER_CURRENCY : Queries::XIALOTECON_ACCOUNT_LOAD_BY_OWNER);
 		$cache->getConnector()->executeSelect($query, [
 			"ownerType" => $ownerType,
 			"ownerName" => $ownerName,
@@ -111,7 +111,7 @@ class Account extends DataModel{
 				return function(callable $complete) use ($cache, $account){
 					$cache->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountTrackedEvent($account, false), $complete);
 				};
-			}, $accounts), function() use($consumer, $accounts){
+			}, $accounts), function() use ($consumer, $accounts){
 				$consumer($accounts);
 			});
 		});

@@ -32,6 +32,11 @@ SELECT
 FROM updates_feed
 WHERE updateId > :lastMaxUpdate AND fromServer <> :server;
 -- #    }
+-- #    { clear_feed
+-- #        :persistence float
+DELETE FROM updates_feed
+WHERE UNIX_TIMESTAMP() - UNIX_TIMESTAMP(time) > :persistence;
+-- #    }
 -- #}
 
 -- #{ currency
@@ -91,8 +96,9 @@ CREATE TABLE IF NOT EXISTS accounts (
 	KEY (accountType)
 );
 -- #    }
--- #    { load.by_uuid
--- #        :uuid string
+-- #    { load
+-- #        {by_uuid
+-- #            :uuid string
 SELECT
 	accountId,
 	ownerType,
@@ -102,8 +108,7 @@ SELECT
 	balance
 FROM accounts
 WHERE accountId = :uuid;
--- #    }
--- #    { list_ids
+-- #        }
 -- #        { by_owner
 -- #            :ownerType string
 -- #            :ownerName string
@@ -135,6 +140,31 @@ WHERE ownerType = :ownerType AND ownerName = :ownerName ANd currency = :currency
 SELECT accountId, ownerType, ownerName, accountType, currency, balance
 FROM accounts
 WHERE ownerType = :ownerType AND ownerName = :ownerName AND currency = :currency AND accountType IN :accountTypes;
+-- #        }
+-- #    }
+
+-- #    { obsolete
+-- #        { find
+-- #            :time float
+SELECT accountId
+FROM accounts
+WHERE UNIX_TIMESTAMP() - UNIX_TIMESTAMP(touch) >= :time;
+-- #        }
+-- #        { delete
+-- #            { limited
+-- #                :time float
+-- #                :limit int
+DELETE FROM accounts
+WHERE UNIX_TIMESTAMP() - UNIX_TIMESTAMP(touch) >= :time
+ORDER BY touch ASC
+LIMIT :limit;
+-- #            }
+-- #            { unlimited
+-- #                :time float
+DELETE FROM accounts
+WHERE UNIX_TIMESTAMP() - UNIX_TIMESTAMP(touch) >= :time
+ORDER BY touch ASC;
+-- #            }
 -- #        }
 -- #    }
 

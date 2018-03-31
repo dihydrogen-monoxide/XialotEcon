@@ -26,17 +26,16 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon;
+namespace DHMO\XialotEcon\Currency;
 
 use DHMO\XialotEcon\Database\Queries;
-use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\JointPromise;
-use DHMO\XialotEcon\Util\StringUtil;
-use const INF;
+use DHMO\XialotEcon\XialotEcon;
+use DHMO\XialotEcon\XialotEconModule;
 
-class CoreModule extends XialotEconModule{
+class CurrencyModule extends XialotEconModule{
 	protected static function getName() : string{
-		return "core";
+		return "currency";
 	}
 
 	protected static function shouldConstruct(XialotEcon $plugin) : bool{
@@ -45,25 +44,17 @@ class CoreModule extends XialotEconModule{
 
 	public function __construct(XialotEcon $plugin, callable $onComplete){
 		$this->plugin = $plugin;
-		$connector = $plugin->getConnector();
+
 		JointPromise::create()
-			->do("feed.init", function(callable $complete) use ($connector){
-				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_INIT_FEED, [], function() use ($complete){
-					$this->plugin->getModelCache()->scheduleUpdate();
-					$complete();
+			->do("currency.init", function(callable $complete){
+				$this->plugin->getConnector()->executeGeneric(Queries::XIALOTECON_CURRENCY_INIT_TABLE, [], function() use ($complete){
+					Currency::loadAll($this->plugin->getModelCache(), $complete);
 				});
 			})
 			->then($onComplete);
 	}
 
 	public function onStartup() : void{
-		$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this->plugin->getModelCache(), "doCycle"]), 20);
-
-		$persistTime = StringUtil::parseTime($this->plugin->getConfig()->get("data-model")["feed-persistence"]);
-		if($persistTime < INF && $persistTime >= 0){
-			$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask(function() use ($persistTime){
-				$this->plugin->getConnector()->executeChange(Queries::XIALOTECON_DATA_MODEL_CLEAR_FEED, ["persistence" => $persistTime]);
-			}), 600);
-		}
+		Currency::fillDefaults($this->plugin->getModelCache(), $this->plugin->getConfig()->getNested("currency.defaults"));
 	}
 }

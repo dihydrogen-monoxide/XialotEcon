@@ -34,7 +34,7 @@ abstract class XialotEconModule{
 	/** @var XialotEcon */
 	protected $plugin;
 
-	public static function init(XialotEcon $plugin, callable $onComplete) : ?XialotEconModule{
+	public final static function init(XialotEcon $plugin, callable $onComplete) : ?XialotEconModule{
 		assert(static::class !== XialotEconModule::class);
 		if(!static::shouldConstruct($plugin)){
 			return null;

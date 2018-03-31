@@ -96,7 +96,7 @@ foreach($tokens as $token){
 }
 
 $plugin = yaml_parse_file($yml);
-$plugin["permissions"] =  [$root->name => $root->toArray()];
+$plugin["permissions"] = [$root->name => $root->toArray()];
 yaml_emit_file($yml, $plugin);
 
 $file = $src . "/" . implode("/", $fqn) . ".php";

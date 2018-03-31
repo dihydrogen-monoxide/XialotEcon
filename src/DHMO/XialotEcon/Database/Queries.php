@@ -12,34 +12,34 @@ namespace DHMO\XialotEcon\Database;
 final class Queries{
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:93
+	 * - resources/mysql/core.mysql.sql:98
 	 */
 	public const XIALOTECON_ACCOUNT_INIT_TABLE = "xialotecon.account.init_table";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:113
+	 * - resources/mysql/core.mysql.sql:118
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:ownerType</code> string, required in core.mysql.sql
 	 * - <code>:ownerName</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER = "xialotecon.account.list_ids.by_owner";
+	public const XIALOTECON_ACCOUNT_LOAD_BY_OWNER = "xialotecon.account.load.by_owner";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:129
+	 * - resources/mysql/core.mysql.sql:134
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:ownerType</code> string, required in core.mysql.sql
 	 * - <code>:ownerName</code> string, required in core.mysql.sql
 	 * - <code>:currency</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_CURRENCY = "xialotecon.account.list_ids.by_owner_currency";
+	public const XIALOTECON_ACCOUNT_LOAD_BY_OWNER_CURRENCY = "xialotecon.account.load.by_owner_currency";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:138
+	 * - resources/mysql/core.mysql.sql:143
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:accountTypes</code> string non-empty list, required in core.mysql.sql
@@ -47,22 +47,22 @@ final class Queries{
 	 * - <code>:ownerName</code> string, required in core.mysql.sql
 	 * - <code>:currency</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_CURRENCY_TYPE = "xialotecon.account.list_ids.by_owner_currency_type";
+	public const XIALOTECON_ACCOUNT_LOAD_BY_OWNER_CURRENCY_TYPE = "xialotecon.account.load.by_owner_currency_type";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:121
+	 * - resources/mysql/core.mysql.sql:126
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:accountTypes</code> string non-empty list, required in core.mysql.sql
 	 * - <code>:ownerType</code> string, required in core.mysql.sql
 	 * - <code>:ownerName</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_ACCOUNT_LIST_IDS_BY_OWNER_TYPE = "xialotecon.account.list_ids.by_owner_type";
+	public const XIALOTECON_ACCOUNT_LOAD_BY_OWNER_TYPE = "xialotecon.account.load.by_owner_type";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:105
+	 * - resources/mysql/core.mysql.sql:111
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -71,7 +71,35 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:164
+	 * - resources/mysql/core.mysql.sql:161
+	 *
+	 * <h3>Variables</h3>
+	 * - <code>:limit</code> int, required in core.mysql.sql
+	 * - <code>:time</code> float, required in core.mysql.sql
+	 */
+	public const XIALOTECON_ACCOUNT_OBSOLETE_DELETE_LIMITED = "xialotecon.account.obsolete.delete.limited";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:167
+	 *
+	 * <h3>Variables</h3>
+	 * - <code>:time</code> float, required in core.mysql.sql
+	 */
+	public const XIALOTECON_ACCOUNT_OBSOLETE_DELETE_UNLIMITED = "xialotecon.account.obsolete.delete.unlimited";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:152
+	 *
+	 * <h3>Variables</h3>
+	 * - <code>:time</code> float, required in core.mysql.sql
+	 */
+	public const XIALOTECON_ACCOUNT_OBSOLETE_FIND = "xialotecon.account.obsolete.find";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:194
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -80,7 +108,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:157
+	 * - resources/mysql/core.mysql.sql:187
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:accountType</code> string, required in core.mysql.sql
@@ -190,13 +218,13 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:45
+	 * - resources/mysql/core.mysql.sql:50
 	 */
 	public const XIALOTECON_CURRENCY_INIT_TABLE = "xialotecon.currency.init_table";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:64
+	 * - resources/mysql/core.mysql.sql:69
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -205,13 +233,13 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:53
+	 * - resources/mysql/core.mysql.sql:58
 	 */
 	public const XIALOTECON_CURRENCY_LOAD_ALL = "xialotecon.currency.load_all";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:78
+	 * - resources/mysql/core.mysql.sql:83
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:symbolBefore</code> string, required in core.mysql.sql
@@ -220,6 +248,15 @@ final class Queries{
 	 * - <code>:name</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_CURRENCY_UPDATE_HYBRID = "xialotecon.currency.update.hybrid";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/core.mysql.sql:39
+	 *
+	 * <h3>Variables</h3>
+	 * - <code>:persistence</code> float, required in core.mysql.sql
+	 */
+	public const XIALOTECON_DATA_MODEL_CLEAR_FEED = "xialotecon.data_model.clear_feed";
 
 	/**
 	 * <h4>Declared in:</h4>
@@ -298,13 +335,13 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:179
+	 * - resources/mysql/core.mysql.sql:209
 	 */
 	public const XIALOTECON_TRANSACTION_INIT_TABLE = "xialotecon.transaction.init_table";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:192
+	 * - resources/mysql/core.mysql.sql:222
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:uuid</code> string, required in core.mysql.sql
@@ -313,7 +350,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:211
+	 * - resources/mysql/core.mysql.sql:241
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:transactionType</code> string, required in core.mysql.sql

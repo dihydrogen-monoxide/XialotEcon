@@ -1,5 +1,5 @@
 -- This is the MySQL database definition.
--- UUID type: CHAR(36)
+-- UUID type: CHAR(34)
 -- Money type: DECIMAL(35, 5)
 -- Generic namespace type: VARCHAR(100)
 CREATE TABLE xialotecon_version (
