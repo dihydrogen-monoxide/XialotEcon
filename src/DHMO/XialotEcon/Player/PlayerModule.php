@@ -44,6 +44,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\Player;
 use poggit\libasynql\ConfigException;
 use poggit\libasynql\result\SqlSelectResult;
+use function var_dump;
 
 final class PlayerModule extends XialotEconModule implements Listener{
 	public const OWNER_TYPE_PLAYER = "xialotecon.player.player";
@@ -192,6 +193,13 @@ final class PlayerModule extends XialotEconModule implements Listener{
 						$types[] = self::ACCOUNT_TYPE_CASH;
 					}
 					if($player->hasPermission(Permissions::PLAYER_BANK_DEPOSIT)){
+						$types[] = self::ACCOUNT_TYPE_BANK;
+					}
+				}elseif($event->checkBoolean(AccountContributionEvent::FB_WITHDRAWAL)){
+					if($player->hasPermission(Permissions::PLAYER_CASH_WITHDRAW)){
+						$types[] = self::ACCOUNT_TYPE_CASH;
+					}
+					if($player->hasPermission(Permissions::PLAYER_BANK_WITHDRAW)){
 						$types[] = self::ACCOUNT_TYPE_BANK;
 					}
 				}

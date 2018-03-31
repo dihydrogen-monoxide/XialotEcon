@@ -60,8 +60,13 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 		], function(SqlSelectResult $result) use ($consumer, $cache, $account){
 			$interests = [];
 			foreach($result->getRows() as $row){
-				$interests[] = $interest = new ConstantRatioBankInterest($cache, self::DATUM_TYPE, $row["interestId"], false);
-				$interest->applyRow($account, $row);
+				if($cache->isTrackingModel($row["interestId"])){
+					$interests[] = $cache->getModel($row["interestId"]);
+				}else{
+					$interest = new ConstantRatioBankInterest($cache, self::DATUM_TYPE, $row["interestId"], false);
+					$interest->applyRow($account, $row);
+					$interests[] = $interest;
+				}
 			}
 			$consumer($interests);
 		});

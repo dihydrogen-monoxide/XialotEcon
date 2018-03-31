@@ -33,6 +33,8 @@ use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\Util\JointPromise;
+use Exception;
+use pocketmine\utils\MainLogger;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
 use function array_map;
@@ -103,9 +105,13 @@ class Account extends DataModel{
 		], function(SqlSelectResult $result) use ($cache, $consumer){
 			$accounts = [];
 			foreach($result->getRows() as $row){
-				$account = new Account($cache, self::DATUM_TYPE, $row["accountId"], false);
-				$account->applyRow($cache, $row);
-				$accounts[] = $accounts;
+				if($cache->isTrackingModel($row["accountId"])){
+					$accounts[] = $cache->getAccount($row["accountId"]);
+				}else{
+					$account = new Account($cache, self::DATUM_TYPE, $row["accountId"], false);
+					$account->applyRow($cache, $row);
+					$accounts[] = $account;
+				}
 			}
 			JointPromise::build(array_map(function(Account $account) use ($cache){
 				return function(callable $complete) use ($cache, $account){

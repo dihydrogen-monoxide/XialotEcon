@@ -76,41 +76,35 @@ class PayOnlinePlayerCommand extends PlayerCommand{
 				->flagString(AccountContributionEvent::FS_CURRENCY, $currency->getUuid())
 				, function(?Account $to) use ($target, $amount, $sender, $from, $currency){
 					if($to === null){
-						$sender->sendMessage(TextFormat::RED . "You don't have an account to receive money with");
+						$sender->sendMessage(TextFormat::RED . "$target doesn't have an account to receive money with");
 						return;
 					}
 
-					$event = new TransactionCreationEvent($from, $to, $amount, $amount, self::TRANSACTION_TYPE);
-					$this->getPlugin()->getServer()->getPluginManager()->callEvent($event);
-					if($event->isCancelled()){
-						/** @noinspection NullPointerExceptionInspection */
-						$sender->sendMessage(TextFormat::RED . "Cannot execute transaction! " . $event->getCancellation()->getMessage());
-						return;
-					}
+					Transaction::call($this->getPlugin()->getModelCache(), $from, $amount, $to, $amount, self::TRANSACTION_TYPE, function(Transaction $transaction) use ($sender, $amount, $currency, $target, $to, $from){
+						JointPromise::create()
+							->do("from.name", function(callable $complete) use ($from){
+								$this->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountDescriptionEvent($from), function(AccountDescriptionEvent $event) use ($complete){
+									$complete($event->getDescription());
+								});
+							})
+							->do("to.name", function(callable $complete) use ($to){
+								$this->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountDescriptionEvent($to), function(AccountDescriptionEvent $event) use ($complete){
+									$complete($event->getDescription());
+								});
+							})
+							->then(function(array $result) use ($target, $currency, $amount, $sender, $transaction){
+								$sender->sendMessage(TextFormat::GREEN . "Sent {$currency->symbolize($amount)} from {$result["from.name"]} to {$result["to.name"]}.");
+								$sender->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getUuid());
 
-					$transaction = Transaction::createNew($this->getPlugin()->getModelCache(), $event);
-
-					JointPromise::create()
-						->do("from.name", function(callable $complete) use ($from){
-							$this->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountDescriptionEvent($from), function(AccountDescriptionEvent $event) use ($complete){
-								$complete($event->getDescription());
+								$targetPlayer = $this->getPlugin()->getServer()->getPlayerExact($target);
+								if($targetPlayer !== null){
+									$targetPlayer->sendMessage("Received {$currency->symbolize($amount)} from {$result["from.name"]} to {$result["to.name"]}.");
+									$targetPlayer->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getUuid());
+								}
 							});
-						})
-						->do("to.name", function(callable $complete) use ($to){
-							$this->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountDescriptionEvent($to), function(AccountDescriptionEvent $event) use ($complete){
-								$complete($event->getDescription());
-							});
-						})
-						->then(function(array $result) use ($target, $currency, $amount, $sender, $transaction){
-							$sender->sendMessage(TextFormat::GREEN . "Sent {$currency->symbolize($amount)} from account {$result["from.name"]} to account {$result["to.name"]}.");
-							$sender->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getUuid());
-
-							$targetPlayer = $this->getPlugin()->getServer()->getPlayerExact($target);
-							if($targetPlayer !== null){
-								$targetPlayer->sendMessage("Received {$currency->symbolize($amount)} from account {$result["from.name"]} to account {$result["to.name"]}.");
-								$targetPlayer->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getUuid());
-							}
-						});
+					}, function(string $message) use($sender){
+						$sender->sendMessage(TextFormat::RED . "Cannot execute transaction! " . $message);
+					});
 				});
 		});
 	}

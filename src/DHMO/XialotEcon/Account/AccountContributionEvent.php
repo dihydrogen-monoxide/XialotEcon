@@ -95,7 +95,7 @@ class AccountContributionEvent extends XialotEconEvent{
 	}
 
 	public function flagString(string $name, string $value) : AccountContributionEvent{
-		$this->floatFlags[$name] = $value;
+		$this->stringFlags[$name] = $value;
 		return $this;
 	}
 

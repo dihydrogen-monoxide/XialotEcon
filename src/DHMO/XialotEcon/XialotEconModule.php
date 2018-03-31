@@ -39,7 +39,7 @@ abstract class XialotEconModule{
 		if(!static::shouldConstruct($plugin)){
 			return null;
 		}
-		$plugin->getLogger()->info("Asynchronously initializing " . static::getName() . " module...");
+		$plugin->getLogger()->info("Initializing " . static::getName() . " module...");
 		return new static($plugin, $onComplete);
 	}
 

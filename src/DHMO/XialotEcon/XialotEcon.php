@@ -96,7 +96,7 @@ final class XialotEcon extends PluginBase{
 				"sqlite/player.sqlite.sql",
 				"sqlite/bank.sqlite.sql",
 			],
-		], !libasynql::isPackaged());
+		]);
 
 		$this->modelCache = new DataModelCache($this, $connector);
 		$this->connector = $connector;
@@ -161,8 +161,13 @@ final class XialotEcon extends PluginBase{
 
 	public function findAccount(AccountContributionEvent $event, callable $consumer, int $distinctionThreshold = null) : void{
 		$this->getServer()->getPluginManager()->callAsyncEvent($event, function(AccountContributionEvent $event) use ($distinctionThreshold, $consumer){
+			if(empty($event->getAccounts())){
+				$consumer(null);
+				return;
+			}
 			$priorityEvent = new AccountPriorityEvent($event);
 			$this->getServer()->getPluginManager()->callAsyncEvent($priorityEvent, function(AccountPriorityEvent $event) use ($distinctionThreshold, $consumer){
+				$distinction = 0;
 				$result = $event->sortResult($distinction);
 				if($distinction >= $distinctionThreshold){
 					$consumer(array_values($result)[0]);
@@ -171,5 +176,10 @@ final class XialotEcon extends PluginBase{
 				}
 			});
 		});
+	}
+
+
+	public function __debugInfo(){
+		return [];
 	}
 }

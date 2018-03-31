@@ -30,6 +30,7 @@ namespace DHMO\XialotEcon\Account;
 
 use DHMO\XialotEcon\XialotEconEvent;
 use function array_keys;
+use InvalidArgumentException;
 use function uksort;
 
 /**
@@ -44,6 +45,9 @@ class AccountPriorityEvent extends XialotEconEvent{
 	public function __construct(AccountContributionEvent $event){
 		parent::__construct();
 		$this->event = $event;
+		if(empty($event->getAccounts())){
+			throw new InvalidArgumentException("No accounts to sort");
+		}
 		foreach($event->getAccounts() as $account){
 			$this->priorities[$account->getUuid()] = 0;
 		}
@@ -65,7 +69,7 @@ class AccountPriorityEvent extends XialotEconEvent{
 	 * @param int &$topDistinction
 	 * @return Account[]
 	 */
-	public function sortResult(int &$topDistinction) : array{
+	public function sortResult(&$topDistinction) : array{
 		$accounts = $this->event->getAccounts();
 		uksort($accounts, function(string $u1, string $u2) : int{
 			return $this->priorities[$u2] <=> $this->priorities[$u1]; // descending order

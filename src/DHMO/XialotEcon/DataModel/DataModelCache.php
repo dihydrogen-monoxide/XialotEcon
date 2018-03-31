@@ -36,6 +36,7 @@ use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\XialotEcon;
 use InvalidArgumentException;
 use poggit\libasynql\DataConnector;
+use poggit\libasynql\libasynql;
 use poggit\libasynql\result\SqlSelectResult;
 use function assert;
 
@@ -89,6 +90,7 @@ class DataModelCache{
 
 	public function fetchUpdate() : void{
 		$this->lastUpdateTick = $this->plugin->getServer()->getTick();
+		$this->connector->setLoggingQueries(false);
 		$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FETCH_NEXT_UPDATE, [
 			"lastMaxUpdate" => $this->lastUpdateId,
 			"server" => $this->serverId,
@@ -104,6 +106,7 @@ class DataModelCache{
 				$this->onModelUpdated($update);
 			}
 		});
+		$this->connector->setLoggingQueries(true);
 		$this->scheduleUpdate();
 	}
 
@@ -119,7 +122,7 @@ class DataModelCache{
 
 	public function trackModel(DataModel $model) : void{
 		if(isset($this->models[$model->getUuid()])){
-			throw new InvalidArgumentException("The data model $model is already being checked.");
+			throw new InvalidArgumentException("The data model {$model->getUuid()} is already being checked.");
 		}
 
 		$this->models[$model->getUuid()] = $model;
@@ -128,8 +131,9 @@ class DataModelCache{
 	public function doCycle() : void{
 		foreach($this->models as $model){
 			if($model->isGarbage()){
+				$uuid = $model->getUuid();
 				$model->markGarbage($this->connector);
-				unset($this->models[$model->getUuid()]);
+				unset($this->models[$uuid]);
 			}else{
 				$model->tickCheck($this->connector);
 			}

@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Transaction;
 
+use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
@@ -51,6 +52,22 @@ class Transaction extends DataModel{
 	protected $transactionType;
 	/** @var int */
 	protected $date;
+
+	public static function call(DataModelCache $cache, Account $from, float $minus, Account $to, float $plus, string $type, callable $onComplete, callable $onCancel) : void{
+		$event = new TransactionCreationEvent($from, $to, $minus, $plus, $type);
+		$cache->getPlugin()->getServer()->getPluginManager()->callAsyncEvent($event, function() use ($onComplete, $plus, $to, $minus, $from, $cache, $onCancel, $event){
+			if($event->isCancelled()){
+				/** @noinspection NullPointerExceptionInspection */
+				$onCancel($event->getCancellation()->getMessage());
+				return;
+			}
+
+			$transaction = self::createNew($cache, $event);
+			$from->setBalance($from->getBalance() - $minus);
+			$to->setBalance($to->getBalance() + $plus);
+			$onComplete($transaction);
+		});
+	}
 
 	public static function createNew(DataModelCache $cache, TransactionCreationEvent $event) : Transaction{
 		if($event->isCancelled()){

@@ -31,7 +31,7 @@ namespace DHMO\XialotEcon\Bank;
 use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\DataModel\DataModel;
 use poggit\libasynql\DataConnector;
-use function intdiv;
+use function floor;
 use function time;
 
 abstract class OfflineBankInterest extends DataModel{
@@ -52,7 +52,7 @@ abstract class OfflineBankInterest extends DataModel{
 	public function tickCheck(DataConnector $connector) : void{
 		parent::tickCheck($connector);
 		if($this->account->isValid() && $this->isValid() && time() - $this->lastApplied >= $this->period){
-			$intervals = intdiv(time() - $this->lastApplied, $this->period);
+			$intervals = (int) floor((time() - $this->lastApplied) / $this->period);
 			$this->setLastApplied($this->lastApplied + (int) ($intervals * $this->period));
 			$balance = $this->account->getBalance();
 			$balance = $this->applyInterest($balance, $intervals);
