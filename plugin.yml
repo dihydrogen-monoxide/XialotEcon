@@ -1,14 +1,15 @@
 ---
 main: DHMO\XialotEcon\XialotEcon
-api:
-- 3.0.0-ALPHA11
 name: XialotEcon
 description: A next-gem economy plugin
-version: 0.0.1
+website: https://dihydrogen-monixide.github.io/XialotEcon
 author: DHMO Team
 authors:
+- SOFe
 - Hittmana
-- SO
+api:
+- 3.0.0-ALPHA11
+version: 0.0.1
 permissions:
   xialotecon:
     default: op
