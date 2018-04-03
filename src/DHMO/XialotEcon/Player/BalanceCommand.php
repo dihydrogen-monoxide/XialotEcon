@@ -30,23 +30,35 @@ namespace DHMO\XialotEcon\Player;
 
 use DHMO\XialotEcon\Account\AccountSearchEvent;
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Permissions;
+use DHMO\XialotEcon\UserException;
 use DHMO\XialotEcon\Util\JointPromise;
+use DHMO\XialotEcon\XialotEconCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use poggit\libasynql\result\SqlSelectResult;
 use function assert;
+use RuntimeException;
 use function ucfirst;
 
-class MyBalanceCommand extends PlayerCommand{
-	public function __construct(){
-		parent::__construct("balance", "Check your account balance", "/balance", ["bal"]);
+class BalanceCommand extends XialotEconCommand{
+	public function __construct(bool $my){
+			parent::__construct("balance", "Check your account balance", "/balance", ["bal"]);
+			$this->setPermission(Permissions::PLAYER_ANALYSIS_BALANCE_MY . ";" . Permissions::PLAYER_ANALYSIS_BALANCE_HIS);
 	}
 
 	protected function run(CommandSender $sender, array $args) : void{
 		parent::run($sender, $args);
-		assert($sender instanceof Player);
 
-		$this->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountSearchEvent($sender), function(AccountSearchEvent $event) use ($sender){
+		if(isset($args[0])){
+			$target = $args[0];
+		}elseif($sender instanceof Player){
+			$target = $sender->getName();
+		}else{
+			throw new UserException("Usage: /balance <player>");
+		}
+
+		$this->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountSearchEvent($target), function(AccountSearchEvent $event) use ($sender, $target){
 			$idLists = $event->getAccountIds();
 
 			$promise = JointPromise::create();
@@ -59,7 +71,9 @@ class MyBalanceCommand extends PlayerCommand{
 					});
 				});
 			}
-			$promise->then(function(array $result) use ($sender){
+			$promise->then(function(array $result) use ($sender, $target){
+				$sender->sendMessage("Account summary of {$target}:");
+
 				$grandTotal = [];
 				foreach($result as $flags => $rows){
 					$line = ucfirst(AccountSearchEvent::flagToString($flags));

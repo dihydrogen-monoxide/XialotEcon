@@ -36,7 +36,6 @@ use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\XialotEcon;
 use InvalidArgumentException;
 use poggit\libasynql\DataConnector;
-use poggit\libasynql\libasynql;
 use poggit\libasynql\result\SqlSelectResult;
 use function assert;
 

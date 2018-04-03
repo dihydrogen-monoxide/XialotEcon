@@ -47,19 +47,19 @@ class AccountSearchEvent extends XialotEconEvent{
 		return empty($adj) ? "personal" : implode(" ", $adj);
 	}
 
-	/** @var Player */
-	private $player;
+	/** @var string */
+	private $playerName;
 
 	/** @var string[] */
 	private $accountIds = [];
 
-	public function __construct(Player $player){
+	public function __construct(string $playerName){
 		parent::__construct();
-		$this->player = $player;
+		$this->playerName = $playerName;
 	}
 
-	public function getPlayer() : Player{
-		return $this->player;
+	public function getPlayerName() : string{
+		return $this->playerName;
 	}
 
 	public function addAccountId(string $accountId, int $flags) : void{

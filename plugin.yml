@@ -8,10 +8,11 @@ version: 0.0.1
 author: DHMO Team
 authors:
 - Hittmana
-- SOFe
+- SO
 permissions:
   xialotecon:
     default: op
+    description: XialotEcon root permission node
     children:
       xialotecon.player:
         default: op
@@ -36,6 +37,7 @@ permissions:
                 description: Allows spending money from bank account directly
           xialotecon.player.transaction:
             default: op
+            description: Permission to carry out transactions
             children:
               xialotecon.player.transaction.pay:
                 default: true
@@ -50,4 +52,19 @@ permissions:
                   xialotecon.player.transaction.bank.withdrawal:
                     default: true
                     description: Allows withdrawing money from bank to cash
+          xialotecon.player.analysis:
+            default: op
+            description: Permission for analysing a player's financial state
+            children:
+              xialotecon.player.analysis.balance:
+                default: op
+                description: Permission to check account balance summary by account
+                  type
+                children:
+                  xialotecon.player.analysis.balance.my:
+                    default: true
+                    description: Allows accessing own balance summary report
+                  xialotecon.player.analysis.balance.his:
+                    default: op
+                    description: Allows accessing others' balance summary report
 ...

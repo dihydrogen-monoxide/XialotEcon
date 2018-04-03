@@ -33,8 +33,6 @@ use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\Util\JointPromise;
-use Exception;
-use pocketmine\utils\MainLogger;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
 use function array_map;

@@ -32,7 +32,6 @@ use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Account\AccountContributionEvent;
 use DHMO\XialotEcon\Account\AccountDescriptionEvent;
 use DHMO\XialotEcon\Transaction\Transaction;
-use DHMO\XialotEcon\Transaction\TransactionCreationEvent;
 use DHMO\XialotEcon\Util\JointPromise;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
@@ -102,7 +101,7 @@ class PayOnlinePlayerCommand extends PlayerCommand{
 									$targetPlayer->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getUuid());
 								}
 							});
-					}, function(string $message) use($sender){
+					}, function(string $message) use ($sender){
 						$sender->sendMessage(TextFormat::RED . "Cannot execute transaction! " . $message);
 					});
 				});

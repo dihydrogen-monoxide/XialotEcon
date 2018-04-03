@@ -44,7 +44,6 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\Player;
 use poggit\libasynql\ConfigException;
 use poggit\libasynql\result\SqlSelectResult;
-use function var_dump;
 
 final class PlayerModule extends XialotEconModule implements Listener{
 	public const OWNER_TYPE_PLAYER = "xialotecon.player.player";
@@ -83,7 +82,8 @@ final class PlayerModule extends XialotEconModule implements Listener{
 		$this->plugin->getServer()->getPluginManager()->registerEvents($this, $this->plugin);
 		$this->plugin->getServer()->getCommandMap()->registerAll("xialotecon", [
 			new PayOnlinePlayerCommand(),
-			new MyBalanceCommand(),
+			new BalanceCommand(true),
+			new BalanceCommand(false),
 		]);
 		$this->config = $this->plugin->getConfig()->get("player");
 	}
@@ -173,7 +173,7 @@ final class PlayerModule extends XialotEconModule implements Listener{
 		$event->pause();
 		$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_OWNER_TYPE, [
 			"ownerType" => self::OWNER_TYPE_PLAYER,
-			"ownerName" => $event->getPlayer()->getName(),
+			"ownerName" => $event->getPlayerName(),
 			"accountTypes" => [self::ACCOUNT_TYPE_CASH, self::ACCOUNT_TYPE_BANK],
 		], function(SqlSelectResult $result) use ($event){
 			foreach($result->getRows() as $row){

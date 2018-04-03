@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xialotecon>
+	XialotEcon root permission node
 	<player>
 		<cash>
 			<deposit default="true">Allows depositing money into cash account directly</deposit>
@@ -10,11 +11,20 @@
 			<withdraw default="true">Allows spending money from bank account directly</withdraw>
 		</bank>
 		<transaction>
+			Permission to carry out transactions
 			<pay default="true">Allows paying money to another player through the /pay command</pay>
 			<bank>
 				<deposit default="true">Allows depositing money from cash to bank</deposit>
 				<withdrawal default="true">Allows withdrawing money from bank to cash</withdrawal>
 			</bank>
 		</transaction>
+		<analysis>
+			Permission for analysing a player's financial state
+			<balance>
+				Permission to check account balance summary by account type
+				<my default="true">Allows accessing own balance summary report</my>
+				<his>Allows accessing others' balance summary report</his>
+			</balance>
+		</analysis>
 	</player>
 </xialotecon>
