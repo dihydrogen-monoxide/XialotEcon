@@ -75,6 +75,9 @@ currency:
 account:
   # If an account hasn't been accessed for a long time, delete the account automatically
   obsolete-time: 60d
+  # XialotEcon modules will try to guess which account hte player wants to use. If it cannot be guessed reliably, the player will be asked to choose.
+  # This value determines how sure the plugin needs to be to automatically choose the account.
+  default-distinction: 10
 
 player:
   # Default accounts to setup for the player.

@@ -29,18 +29,21 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Debug;
 
 use DHMO\XialotEcon\XialotEconCommand;
+use const JSON_PRETTY_PRINT;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
 
 class ListCacheCommand extends XialotEconCommand{
-	protected function run(
-		CommandSender $sender, array $args) : void{
+	protected function run(CommandSender $sender, array $args) : void{
 		parent::run($sender, $args);
 		$types = [];
 		foreach($this->getPlugin()->getModelCache()->getAll() as $uuid => $model){
 			$type = $model->getType();
+			if(isset($args[0]) && $type !== $args[0]){
+				continue;
+			}
 			$types[$model->getType()] = ($types[$type] ?? 0) + 1;
-			$sender->sendMessage(TextFormat::GOLD . $uuid . TextFormat::WHITE . ": " . TextFormat::AQUA . $type . TextFormat::WHITE . " - " . TextFormat::DARK_GREEN . json_encode($model));
+			$sender->sendMessage(TextFormat::GOLD . $uuid . TextFormat::WHITE . ": " . TextFormat::AQUA . $type . TextFormat::WHITE . " - " . TextFormat::DARK_GREEN . json_encode($model, JSON_PRETTY_PRINT));
 		}
 		$sender->sendMessage(TextFormat::AQUA . "Sub-total:");
 		foreach($types as $type => $count){

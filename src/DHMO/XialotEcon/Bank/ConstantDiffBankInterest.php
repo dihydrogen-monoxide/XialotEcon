@@ -87,6 +87,14 @@ class ConstantDiffBankInterest extends OfflineBankInterest{
 		$this->touchAutosave();
 	}
 
+
+	public function jsonSerialize() : array{
+		return parent::jsonSerialize() + [
+				"diff" => $this->diff,
+			];
+	}
+
+
 	protected function downloadChanges(DataModelCache $cache) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_DIFF, [
 			"interestId" => $this->getUuid(),

@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
+use poggit\libasynql\libasynql;
 use function assert;
 
 abstract class XialotEconModule{
@@ -39,7 +40,9 @@ abstract class XialotEconModule{
 		if(!static::shouldConstruct($plugin)){
 			return null;
 		}
-		$plugin->getLogger()->info("Initializing " . static::getName() . " module...");
+		if(!libasynql::isPackaged()){
+			$plugin->getLogger()->info("Initializing " . static::getName() . " module...");
+		}
 		return new static($plugin, $onComplete);
 	}
 

@@ -41,6 +41,10 @@ use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Transaction\TransactionModule;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
+use Exception;
+use function json_encode;
+use const JSON_PRETTY_PRINT;
+use LogicException;
 use pocketmine\plugin\PluginBase;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
@@ -160,7 +164,11 @@ final class XialotEcon extends PluginBase{
 	}
 
 	public function findAccount(AccountContributionEvent $event, callable $consumer, int $distinctionThreshold = null) : void{
+		$distinctionThreshold = $distinctionThreshold ?? $this->getConfig()->getNested("account.default-distinction", 10);
 		$this->getServer()->getPluginManager()->callAsyncEvent($event, function(AccountContributionEvent $event) use ($distinctionThreshold, $consumer){
+			if(!libasynql::isPackaged()){
+				$this->getLogger()->info("Available accounts found: " . json_encode($event->getAccounts(), JSON_PRETTY_PRINT));
+			}
 			if(empty($event->getAccounts())){
 				$consumer(null);
 				return;
@@ -169,9 +177,13 @@ final class XialotEcon extends PluginBase{
 			$this->getServer()->getPluginManager()->callAsyncEvent($priorityEvent, function(AccountPriorityEvent $event) use ($distinctionThreshold, $consumer){
 				$distinction = 0;
 				$result = $event->sortResult($distinction);
+				if(!libasynql::isPackaged()){
+					$this->getLogger()->info("Sorted result (distinction = $distinction): " . json_encode($result, JSON_PRETTY_PRINT));
+				}
 				if($distinction >= $distinctionThreshold){
 					$consumer(array_values($result)[0]);
 				}else{
+					throw new LogicException("Time to implement manual account selection!");
 					// TODO select with forms
 				}
 			});

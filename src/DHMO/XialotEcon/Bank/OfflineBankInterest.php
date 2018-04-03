@@ -31,8 +31,10 @@ namespace DHMO\XialotEcon\Bank;
 use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\DataModel\DataModel;
 use poggit\libasynql\DataConnector;
+use function date;
 use function floor;
 use function time;
+use const DATE_ATOM;
 
 abstract class OfflineBankInterest extends DataModel{
 	/** @var Account */
@@ -83,6 +85,14 @@ abstract class OfflineBankInterest extends DataModel{
 		$this->lastApplied = $row["lastApplied"];
 	}
 
+	public function touchAccess() : void{
+		parent::touchAccess();
+		if($this->account !== null){
+			$this->account->touchAccess();
+		}
+	}
+
+
 	public function getPeriod() : float{
 		$this->touchAccess();
 		return $this->period;
@@ -101,5 +111,14 @@ abstract class OfflineBankInterest extends DataModel{
 	public function setLastApplied(int $lastApplied) : void{
 		$this->lastApplied = $lastApplied;
 		$this->touchAutosave();
+	}
+
+
+	public function jsonSerialize() : array{
+		return parent::jsonSerialize() + [
+				"account" => $this->account->getUuid(),
+				"period" => $this->period,
+				"lastApplied" => date(DATE_ATOM, $this->lastApplied),
+			];
 	}
 }

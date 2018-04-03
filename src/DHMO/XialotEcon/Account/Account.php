@@ -174,6 +174,18 @@ class Account extends DataModel{
 		$this->balance = $balance;
 	}
 
+
+	public function jsonSerialize() : array{
+		return parent::jsonSerialize() + [
+				"ownerType" => $this->ownerType,
+				"ownerName" => $this->ownerName,
+				"accountType" => $this->accountType,
+				"currency" => $this->currency->getUuid(),
+				"balance" => $this->balance
+			];
+	}
+
+
 	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeChange(Queries::XIALOTECON_ACCOUNT_UPDATE_HYBRID, [
 			"uuid" => $this->getUuid(),

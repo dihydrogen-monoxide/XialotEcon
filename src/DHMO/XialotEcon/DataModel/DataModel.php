@@ -30,10 +30,12 @@ namespace DHMO\XialotEcon\DataModel;
 
 use DHMO\XialotEcon\Database\Queries;
 use InvalidStateException;
+use JsonSerializable;
 use pocketmine\Server;
 use poggit\libasynql\DataConnector;
 use function assert;
 use function bin2hex;
+use function count;
 use function hash;
 use function microtime;
 use function random_bytes;
@@ -48,7 +50,7 @@ use function substr;
  * - Invalidation: If data in this model have been updated remotely, this model will be first invalidated, and later updated. Data access is unavailable during this period. While this mechanism does not 100% eliminate concurrency changes, it effectively visualizes remote changes that the local server might keep overwriting.
  * - Autosaving: If data in this model have been updated locally, the changes will be asynchronously posted after a period of time. The frequency of auto-saving should be low enough to ensure that save queries are not in the wrong order such that the earlier save query (which is useless) overwrites the later save query.
  */
-abstract class DataModel{
+abstract class DataModel implements JsonSerializable{
 	/** @var DataModelTypeConfig[] */
 	public static $CONFIG = [];
 
@@ -87,6 +89,21 @@ abstract class DataModel{
 	public function getUuid() : string{
 		$this->touchAccess();
 		return $this->uuid;
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"type" => $this->type,
+			"uuid" => $this->uuid,
+			"accessDiff" => microtime(true) - $this->lastAccess,
+			"markedGarbage" => $this->markedGarbage,
+			"invalidated" => $this->invalidated,
+			"onValidQueue" => "Array[" . count($this->onValidQueue) . "]",
+			"onValidConGuard" => $this->onValidConGuard,
+			"autosaveDiff" => microtime(true) - $this->lastAutosave,
+			"needAutosave" => $this->needAutosave,
+			"afterNextUpload" => "Array[" . count($this->afterNextUpload) . "]",
+		];
 	}
 
 	// volatility

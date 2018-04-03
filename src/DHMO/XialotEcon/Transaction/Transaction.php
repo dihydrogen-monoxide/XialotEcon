@@ -35,7 +35,9 @@ use DHMO\XialotEcon\DataModel\DataModelCache;
 use InvalidStateException;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
+use function date;
 use function time;
+use const DATE_ATOM;
 
 class Transaction extends DataModel{
 	public const DATUM_TYPE = "xialotecon.transaction";
@@ -111,6 +113,44 @@ class Transaction extends DataModel{
 		$this->transactionType = $row["transactionType"];
 		$this->date = $row["date"];
 	}
+
+
+	public function getSourceUuid() : string{
+		return $this->sourceUuid;
+	}
+
+	public function getTargetUuid() : string{
+		return $this->targetUuid;
+	}
+
+	public function getSourceReduction() : float{
+		return $this->sourceReduction;
+	}
+
+	public function getTargetAddition() : float{
+		return $this->targetAddition;
+	}
+
+	public function getTransactionType() : string{
+		return $this->transactionType;
+	}
+
+	public function getDate() : int{
+		return $this->date;
+	}
+
+
+	public function jsonSerialize() : array{
+		return parent::jsonSerialize() + [
+				"source" => $this->sourceUuid,
+				"target" => $this->targetUuid,
+				"sourceReduction" => $this->sourceReduction,
+				"targetAddition" => $this->targetAddition,
+				"transactionType" => $this->transactionType,
+				"date" => date(DATE_ATOM, $this->date),
+			];
+	}
+
 
 	protected function downloadChanges(DataModelCache $cache) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result){

@@ -36,6 +36,7 @@ use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEconCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
+use pocketmine\utils\TextFormat;
 use poggit\libasynql\result\SqlSelectResult;
 use function assert;
 use RuntimeException;
@@ -95,6 +96,7 @@ class BalanceCommand extends XialotEconCommand{
 					$prefix = ", ";
 				}
 				$sender->sendMessage($line);
+				$sender->sendMessage(TextFormat::YELLOW . "Note: Bank interests may not have been compounded in this summary.");
 			});
 		});
 	}

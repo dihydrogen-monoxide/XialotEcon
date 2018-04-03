@@ -149,6 +149,15 @@ class Currency extends DataModel{
 	}
 
 
+	public function jsonSerialize() : array{
+		return parent::jsonSerialize() + [
+				"name" => $this->name,
+				"symbolBefore" => $this->symbolBefore,
+				"symbolAfter" => $this->symbolAfter
+			];
+	}
+
+
 	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeChange(Queries::XIALOTECON_CURRENCY_UPDATE_HYBRID, [
 			"uuid" => $this->getUuid(),

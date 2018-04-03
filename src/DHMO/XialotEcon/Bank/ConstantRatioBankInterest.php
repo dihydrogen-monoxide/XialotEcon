@@ -87,6 +87,14 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 		$this->touchAutosave();
 	}
 
+
+	public function jsonSerialize() : array{
+		return parent::jsonSerialize() + [
+				"ratio" => $this->ratio,
+			];
+	}
+
+
 	protected function downloadChanges(DataModelCache $cache) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_RATIO, [
 			"interestId" => $this->getUuid(),
