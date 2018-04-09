@@ -36,7 +36,7 @@ use DHMO\XialotEcon\Util\JointPromise;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
 
-class PayOnlinePlayerCommand extends PlayerCommand{
+final class PayOnlinePlayerCommand extends PlayerCommand{
 	public const TRANSACTION_TYPE = "xialotecon.player.pay.direct";
 
 	public function __construct(){
@@ -72,7 +72,7 @@ class PayOnlinePlayerCommand extends PlayerCommand{
 				->flagFloat(AccountContributionEvent::FF_AMOUNT, $amount)
 				->flagString(AccountContributionEvent::FS_OWNER_TYPE, PlayerModule::OWNER_TYPE_PLAYER)
 				->flagString(AccountContributionEvent::FS_OWNER_NAME, $target)
-				->flagString(AccountContributionEvent::FS_CURRENCY, $currency->getUuid())
+				->flagString(AccountContributionEvent::FS_CURRENCY, $currency->getXoid())
 				, function(?Account $to) use ($target, $amount, $sender, $from, $currency){
 					if($to === null){
 						$sender->sendMessage(TextFormat::RED . "$target doesn't have an account to receive money with");
@@ -93,12 +93,12 @@ class PayOnlinePlayerCommand extends PlayerCommand{
 							})
 							->then(function(array $result) use ($target, $currency, $amount, $sender, $transaction){
 								$sender->sendMessage(TextFormat::GREEN . "Sent {$currency->symbolize($amount)} from {$result["from.name"]} to {$result["to.name"]}.");
-								$sender->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getUuid());
+								$sender->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getXoid());
 
 								$targetPlayer = $this->getPlugin()->getServer()->getPlayerExact($target);
 								if($targetPlayer !== null){
 									$targetPlayer->sendMessage("Received {$currency->symbolize($amount)} from {$result["from.name"]} to {$result["to.name"]}.");
-									$targetPlayer->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getUuid());
+									$targetPlayer->sendMessage(TextFormat::GRAY . "Transaction ID: " . $transaction->getXoid());
 								}
 							});
 					}, function(string $message) use ($sender){

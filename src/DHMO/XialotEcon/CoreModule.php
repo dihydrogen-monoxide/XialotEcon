@@ -34,7 +34,7 @@ use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
 use const INF;
 
-class CoreModule extends XialotEconModule{
+final class CoreModule extends XialotEconModule{
 	protected static function getName() : string{
 		return "core";
 	}

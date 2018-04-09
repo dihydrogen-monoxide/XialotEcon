@@ -49,7 +49,7 @@ class AccountPriorityEvent extends XialotEconEvent{
 			throw new InvalidArgumentException("No accounts to sort");
 		}
 		foreach($event->getAccounts() as $account){
-			$this->priorities[$account->getUuid()] = 0;
+			$this->priorities[$account->getXoid()] = 0;
 		}
 	}
 
@@ -61,8 +61,8 @@ class AccountPriorityEvent extends XialotEconEvent{
 		return $this->event->getAccounts();
 	}
 
-	public function applyPriority(string $uuid, int $modifier) : void{
-		$this->priorities[$uuid] += $modifier;
+	public function applyPriority(string $xoid, int $modifier) : void{
+		$this->priorities[$xoid] += $modifier;
 	}
 
 	/**

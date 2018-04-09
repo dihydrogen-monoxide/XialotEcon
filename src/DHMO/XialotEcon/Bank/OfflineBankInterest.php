@@ -116,7 +116,7 @@ abstract class OfflineBankInterest extends DataModel{
 
 	public function jsonSerialize() : array{
 		return parent::jsonSerialize() + [
-				"account" => $this->account->getUuid(),
+				"account" => $this->account->getXoid(),
 				"period" => $this->period,
 				"lastApplied" => date(DATE_ATOM, $this->lastApplied),
 			];

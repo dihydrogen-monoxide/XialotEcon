@@ -33,7 +33,7 @@ use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 
-class TransactionModule extends XialotEconModule{
+final class TransactionModule extends XialotEconModule{
 	protected static function getName() : string{
 		return "transaction";
 	}

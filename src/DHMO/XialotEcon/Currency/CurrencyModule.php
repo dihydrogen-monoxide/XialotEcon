@@ -33,7 +33,7 @@ use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 
-class CurrencyModule extends XialotEconModule{
+final class CurrencyModule extends XialotEconModule{
 	protected static function getName() : string{
 		return "currency";
 	}

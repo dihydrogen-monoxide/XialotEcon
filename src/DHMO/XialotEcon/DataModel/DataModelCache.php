@@ -39,7 +39,7 @@ use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
 use function assert;
 
-class DataModelCache{
+final class DataModelCache{
 	/** @var XialotEcon */
 	private $plugin;
 	/** @var DataConnector */
@@ -99,7 +99,7 @@ class DataModelCache{
 				if($this->lastUpdateId < $row["updateId"]){
 					$this->lastUpdateId = $row["updateId"];
 				}
-				$updates[] = $row["uuid"];
+				$updates[] = $row["xoid"];
 			}
 			foreach($updates as $update){
 				$this->onModelUpdated($update);
@@ -113,26 +113,26 @@ class DataModelCache{
 		return $this->connector;
 	}
 
-	public function onModelUpdated(string $uuid) : void{
-		if(isset($this->models[$uuid])){
-			$this->models[$uuid]->remoteInvalidate($this);
+	public function onModelUpdated(string $xoid) : void{
+		if(isset($this->models[$xoid])){
+			$this->models[$xoid]->remoteInvalidate($this);
 		}
 	}
 
 	public function trackModel(DataModel $model) : void{
-		if(isset($this->models[$model->getUuid()])){
-			throw new InvalidArgumentException("The data model {$model->getUuid()} is already being checked.");
+		if(isset($this->models[$model->getXoid()])){
+			throw new InvalidArgumentException("The data model {$model->getXoid()} is already being checked.");
 		}
 
-		$this->models[$model->getUuid()] = $model;
+		$this->models[$model->getXoid()] = $model;
 	}
 
 	public function doCycle() : void{
 		foreach($this->models as $model){
 			if($model->isGarbage()){
-				$uuid = $model->getUuid();
+				$xoid = $model->getXoid(false);
 				$model->markGarbage($this->connector);
-				unset($this->models[$uuid]);
+				unset($this->models[$xoid]);
 			}else{
 				$model->tickCheck($this->connector);
 			}
@@ -146,37 +146,37 @@ class DataModelCache{
 		$this->models = [];
 	}
 
-	public function isTrackingModel(string $uuid) : bool{
-		return isset($this->models[$uuid]);
+	public function isTrackingModel(string $xoid) : bool{
+		return isset($this->models[$xoid]);
 	}
 
-	public function getModel(string $uuid) : ?DataModel{
-		if(isset($this->models[$uuid])){
-			$this->models[$uuid]->touchAccess();
-			unset($this->models[$uuid]);
+	public function getModel(string $xoid) : ?DataModel{
+		if(isset($this->models[$xoid])){
+			$this->models[$xoid]->touchAccess();
+			unset($this->models[$xoid]);
 		}
 		return null;
 	}
 
 
-	public function getCurrency(string $uuid) : Currency{
-		$currency = $this->models[$uuid] ?? null;
-		assert($currency !== null, "Currency $uuid is not loaded");
-		assert($currency instanceof Currency, "UUID $uuid does not point to a Currency");
+	public function getCurrency(string $xoid) : Currency{
+		$currency = $this->models[$xoid] ?? null;
+		assert($currency !== null, "Currency $xoid is not loaded");
+		assert($currency instanceof Currency, "XOID $xoid does not point to a Currency");
 		$currency->touchAccess();
 		return $currency;
 	}
 
-	public function getAccount(string $uuid) : ?Account{
-		$account = $this->models[$uuid] ?? null;
-		assert($account === null || $account instanceof Account, "UUID $uuid is not loaded or does not point to an Account");
+	public function getAccount(string $xoid) : ?Account{
+		$account = $this->models[$xoid] ?? null;
+		assert($account === null || $account instanceof Account, "XOID $xoid is not loaded or does not point to an Account");
 		$account->touchAccess();
 		return $account;
 	}
 
-	public function getTransaction(string $uuid) : ?Transaction{
-		$transaction = $this->models[$uuid] ?? null;
-		assert($transaction === null || $transaction instanceof Transaction, "UUID $uuid is not loaded or does not point to a Transaction");
+	public function getTransaction(string $xoid) : ?Transaction{
+		$transaction = $this->models[$xoid] ?? null;
+		assert($transaction === null || $transaction instanceof Transaction, "XOID $xoid is not loaded or does not point to a Transaction");
 		$transaction->touchAccess();
 		return $transaction;
 	}

@@ -104,7 +104,7 @@ class AccountContributionEvent extends XialotEconEvent{
 	}
 
 	public function contributeAccount(Account $account) : void{
-		$this->accounts[$account->getUuid()] = $account;
+		$this->accounts[$account->getXoid()] = $account;
 	}
 
 	public function suggestNegative(string $negativeSuggestion) : void{

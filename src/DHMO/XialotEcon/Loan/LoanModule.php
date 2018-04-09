@@ -26,18 +26,16 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Account;
+namespace DHMO\XialotEcon\Loan;
 
-use DHMO\XialotEcon\Database\Queries;
-use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\JointPromise;
-use DHMO\XialotEcon\Util\StringUtil;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
+use RuntimeException;
 
-final class AccountModule extends XialotEconModule{
+final class LoanModule extends XialotEconModule{
 	protected static function getName() : string{
-		return "account";
+		return "loan";
 	}
 
 	protected static function shouldConstruct(XialotEcon $plugin) : bool{
@@ -47,36 +45,6 @@ final class AccountModule extends XialotEconModule{
 	public function __construct(XialotEcon $plugin, callable $onComplete){
 		$this->plugin = $plugin;
 		JointPromise::create()
-			->do("account.init", function(callable $complete){
-				$this->plugin->getConnector()->executeGeneric(Queries::XIALOTECON_ACCOUNT_INIT_TABLE, [], $complete);
-			})
 			->then($onComplete);
-	}
-
-	public function onStartup() : void{
-		$obsoleteTime = StringUtil::parseTime($this->plugin->getConfig()->get("account")["obsolete-time"], 86400.0);
-		$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask(function() use ($obsoleteTime){
-//			$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_OBSOLETE_FIND, [
-//				"time" => $obsoleteTime
-//			], function(SqlSelectResult $result) use ($obsoleteTime){
-//				$ids = array_map(function(array $row){
-//					return $row["accountId"];
-//				}, $result->getRows());
-//				if(!empty($ids)){
-//					$this->plugin->getLogger()->info("Deleting " . count($ids) . " obsolete accounts");
-//					$this->plugin->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_OBSOLETE_DELETE_LIMITED, [
-//						"time" => $obsoleteTime,
-//						"limit" => count($ids)
-//					]);
-//				}
-//			});
-			$this->plugin->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_OBSOLETE_DELETE_UNLIMITED, [
-				"time" => $obsoleteTime
-			], function(int $changes){
-				if($changes > 0){
-					$this->plugin->getLogger()->info("Deleted $changes obsolete accounts");
-				}
-			});
-		}), 36000);
 	}
 }

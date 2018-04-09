@@ -86,7 +86,7 @@ FROM bank_interest_constant_diff
 WHERE accountId = :accountId;
 -- #        }
 -- #    }
--- #    { find.by_uuid
+-- #    { find.by_xoid
 -- #        { constant_ratio
 -- #            :interestId string
 SELECT

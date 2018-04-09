@@ -50,8 +50,8 @@ class Currency extends DataModel{
 	protected $symbolAfter;
 
 	public static function createNew(DataModelCache $cache, string $name, string $symbolBefore, string $symbolAfter) : Currency{
-		$uuid = self::generateUuid(self::DATUM_TYPE);
-		$instance = new Currency($cache, self::DATUM_TYPE, $uuid, true);
+		$xoid = self::generateXoid(self::DATUM_TYPE);
+		$instance = new Currency($cache, self::DATUM_TYPE, $xoid, true);
 		$instance->name = $name;
 		$instance->symbolBefore = $symbolBefore;
 		$instance->symbolAfter = $symbolAfter;
@@ -63,12 +63,12 @@ class Currency extends DataModel{
 			self::$byName = [];
 			$currencies = [];
 			foreach($result->getRows() as $row){
-				$uuid = $row["currencyId"];
-				if($cache->isTrackingModel($uuid)){
-					$currencies[] = $currency = $cache->getCurrency($uuid);
+				$xoid = $row["currencyId"];
+				if($cache->isTrackingModel($xoid)){
+					$currencies[] = $currency = $cache->getCurrency($xoid);
 					self::$byName[$currency->getName()] = $currency;
 				}else{
-					$instance = new Currency($cache, self::DATUM_TYPE, $uuid, false);
+					$instance = new Currency($cache, self::DATUM_TYPE, $xoid, false);
 					$instance->applyRow($row);
 					$currencies[] = $instance;
 					self::$byName[$instance->getName()] = $instance;
@@ -160,7 +160,7 @@ class Currency extends DataModel{
 
 	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeChange(Queries::XIALOTECON_CURRENCY_UPDATE_HYBRID, [
-			"uuid" => $this->getUuid(),
+			"xoid" => $this->getXoid(),
 			"name" => $this->name,
 			"symbolBefore" => $this->symbolBefore,
 			"symbolAfter" => $this->symbolAfter,
@@ -168,7 +168,7 @@ class Currency extends DataModel{
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CURRENCY_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CURRENCY_LOAD_BY_XOID, ["xoid" => $this->getXoid()], function(SqlSelectResult $result){
 			$this->applyRow($result->getRows()[0]);
 			$this->onChangesDownloaded();
 		});

@@ -29,12 +29,12 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Account;
 
 use DHMO\XialotEcon\XialotEconEvent;
-use pocketmine\Player;
 use function implode;
 
 class AccountSearchEvent extends XialotEconEvent{
 	public const FLAG_SHARED = 2;
 	public const FLAG_LOAN = 4;
+	public const FLAG_NON_MONETARY = 8;
 
 	public static function flagToString(int $flags) : string{
 		$adj = [];
@@ -43,6 +43,9 @@ class AccountSearchEvent extends XialotEconEvent{
 		}
 		if($flags & self::FLAG_LOAN){
 			$adj[] = "loan";
+		}
+		if($flags & self::FLAG_NON_MONETARY){
+			$adj[] = "non-monetary";
 		}
 		return empty($adj) ? "personal" : implode(" ", $adj);
 	}

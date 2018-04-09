@@ -37,19 +37,19 @@ use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
 use DHMO\XialotEcon\Debug\DebugModule;
+use DHMO\XialotEcon\Loan\LoanModule;
 use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Transaction\TransactionModule;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
-use Exception;
-use function json_encode;
-use const JSON_PRETTY_PRINT;
 use LogicException;
 use pocketmine\plugin\PluginBase;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
 use function array_values;
+use function json_encode;
 use function mkdir;
+use const JSON_PRETTY_PRINT;
 
 final class XialotEcon extends PluginBase{
 	private const MODULES = [
@@ -58,8 +58,7 @@ final class XialotEcon extends PluginBase{
 			AccountModule::class => [
 				TransactionModule::class => [],
 				BankModule::class => [],
-			],
-		],
+				LoanModule::class => [],],],
 		PlayerModule::class => [],
 		DebugModule::class => [],
 	];

@@ -35,110 +35,110 @@ final class Permissions{
 	 * XialotEcon root permission node
 	 *
 	 * Default: op
-	*/
+	 */
 	public const XIALOTECON = "xialotecon";
 
 	/**
 	 * Default: op
-	*/
+	 */
 	public const PLAYER = "xialotecon.player";
 
 	/**
 	 * Default: op
-	*/
+	 */
 	public const PLAYER_CASH = "xialotecon.player.cash";
 
 	/**
 	 * Allows depositing money into cash account directly
 	 *
 	 * Default: true
-	*/
+	 */
 	public const PLAYER_CASH_DEPOSIT = "xialotecon.player.cash.deposit";
 
 	/**
 	 * Allows spending money from cash account directly
 	 *
 	 * Default: true
-	*/
+	 */
 	public const PLAYER_CASH_WITHDRAW = "xialotecon.player.cash.withdraw";
 
 	/**
 	 * Default: op
-	*/
+	 */
 	public const PLAYER_BANK = "xialotecon.player.bank";
 
 	/**
 	 * Allows depositing money into bank account directly
 	 *
 	 * Default: true
-	*/
+	 */
 	public const PLAYER_BANK_DEPOSIT = "xialotecon.player.bank.deposit";
 
 	/**
 	 * Allows spending money from bank account directly
 	 *
 	 * Default: true
-	*/
+	 */
 	public const PLAYER_BANK_WITHDRAW = "xialotecon.player.bank.withdraw";
 
 	/**
 	 * Permission to carry out transactions
 	 *
 	 * Default: op
-	*/
+	 */
 	public const PLAYER_TRANSACTION = "xialotecon.player.transaction";
 
 	/**
 	 * Allows paying money to another player through the /pay command
 	 *
 	 * Default: true
-	*/
+	 */
 	public const PLAYER_TRANSACTION_PAY = "xialotecon.player.transaction.pay";
 
 	/**
 	 * Default: op
-	*/
+	 */
 	public const PLAYER_TRANSACTION_BANK = "xialotecon.player.transaction.bank";
 
 	/**
 	 * Allows depositing money from cash to bank
 	 *
 	 * Default: true
-	*/
+	 */
 	public const PLAYER_TRANSACTION_BANK_DEPOSIT = "xialotecon.player.transaction.bank.deposit";
 
 	/**
 	 * Allows withdrawing money from bank to cash
 	 *
 	 * Default: true
-	*/
+	 */
 	public const PLAYER_TRANSACTION_BANK_WITHDRAWAL = "xialotecon.player.transaction.bank.withdrawal";
 
 	/**
 	 * Permission for analysing a player's financial state
 	 *
 	 * Default: op
-	*/
+	 */
 	public const PLAYER_ANALYSIS = "xialotecon.player.analysis";
 
 	/**
 	 * Permission to check account balance summary by account type
 	 *
 	 * Default: op
-	*/
+	 */
 	public const PLAYER_ANALYSIS_BALANCE = "xialotecon.player.analysis.balance";
 
 	/**
 	 * Allows accessing own balance summary report
 	 *
 	 * Default: true
-	*/
+	 */
 	public const PLAYER_ANALYSIS_BALANCE_MY = "xialotecon.player.analysis.balance.my";
 
 	/**
 	 * Allows accessing others' balance summary report
 	 *
 	 * Default: op
-	*/
+	 */
 	public const PLAYER_ANALYSIS_BALANCE_HIS = "xialotecon.player.analysis.balance.his";
 }

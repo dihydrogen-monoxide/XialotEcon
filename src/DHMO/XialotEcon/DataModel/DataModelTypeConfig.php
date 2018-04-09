@@ -30,7 +30,7 @@ namespace DHMO\XialotEcon\DataModel;
 
 use DHMO\XialotEcon\Util\StringUtil;
 
-class DataModelTypeConfig{
+final class DataModelTypeConfig{
 	/** @var string */
 	public $type;
 	/** @var float */

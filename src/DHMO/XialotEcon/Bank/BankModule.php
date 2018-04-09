@@ -43,13 +43,13 @@ use function array_shift;
 use function in_array;
 use function is_numeric;
 
-class BankModule extends XialotEconModule implements Listener{
+final class BankModule extends XialotEconModule implements Listener{
 	protected static function getName() : string{
 		return "bank";
 	}
 
 	protected static function shouldConstruct(XialotEcon $plugin) : bool{
-		return true;
+		return $plugin->getConfig()->getNested("bank.enabled", true);
 	}
 
 	public function __construct(XialotEcon $plugin, callable $onComplete){

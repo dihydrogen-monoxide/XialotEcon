@@ -38,23 +38,27 @@ use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use poggit\libasynql\result\SqlSelectResult;
-use function assert;
-use RuntimeException;
 use function ucfirst;
 
-class BalanceCommand extends XialotEconCommand{
+final class BalanceCommand extends XialotEconCommand{
 	public function __construct(bool $my){
-			parent::__construct("balance", "Check your account balance", "/balance", ["bal"]);
-			$this->setPermission(Permissions::PLAYER_ANALYSIS_BALANCE_MY . ";" . Permissions::PLAYER_ANALYSIS_BALANCE_HIS);
+		parent::__construct("balance", "Check your account balance", "/balance", ["bal"]);
+		$this->setPermission(Permissions::PLAYER_ANALYSIS_BALANCE_MY . ";" . Permissions::PLAYER_ANALYSIS_BALANCE_HIS);
 	}
 
 	protected function run(CommandSender $sender, array $args) : void{
 		parent::run($sender, $args);
 
 		if(isset($args[0])){
+			if(!$sender->hasPermission(Permissions::PLAYER_ANALYSIS_BALANCE_HIS)){
+				throw UserException::noPermission();
+			}
 			$target = $args[0];
 		}elseif($sender instanceof Player){
 			$target = $sender->getName();
+			if(!$sender->hasPermission(Permissions::PLAYER_ANALYSIS_BALANCE_MY)){
+				throw UserException::noPermission();
+			}
 		}else{
 			throw new UserException("Usage: /balance <player>");
 		}

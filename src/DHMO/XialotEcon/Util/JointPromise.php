@@ -30,7 +30,7 @@ namespace DHMO\XialotEcon\Util;
 
 use InvalidStateException;
 
-class JointPromise{
+final class JointPromise{
 	private $callables = [];
 	private $results = [];
 	private $remaining = 0;

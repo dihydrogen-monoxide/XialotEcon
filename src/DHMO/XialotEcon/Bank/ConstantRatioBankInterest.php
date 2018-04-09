@@ -46,7 +46,7 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 	}
 
 	public static function createNew(DataModelCache $cache, Account $account, float $ratio, float $period) : ConstantRatioBankInterest{
-		$interest = new ConstantRatioBankInterest($cache, self::DATUM_TYPE, self::generateUuid(self::DATUM_TYPE), true);
+		$interest = new ConstantRatioBankInterest($cache, self::DATUM_TYPE, self::generateXoid(self::DATUM_TYPE), true);
 		$interest->ratio = $ratio;
 		$interest->account = $account;
 		$interest->period = $period;
@@ -56,7 +56,7 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 
 	public static function forAccount(DataModelCache $cache, Account $account, callable $consumer) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_RATIO, [
-			"accountId" => $account->getUuid()
+			"accountId" => $account->getXoid()
 		], function(SqlSelectResult $result) use ($consumer, $cache, $account){
 			$interests = [];
 			foreach($result->getRows() as $row){
@@ -96,8 +96,8 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_RATIO, [
-			"interestId" => $this->getUuid(),
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_XOID_CONSTANT_RATIO, [
+			"interestId" => $this->getXoid(),
 		], function(SqlSelectResult $result){
 			$this->applyRow($this->account, $result->getRows()[0]);
 			$this->onChangesDownloaded();
@@ -108,8 +108,8 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 		$connector->executeChange($insert ?
 			Queries::XIALOTECON_BANK_INTEREST_INSERT_CONSTANT_RATIO :
 			Queries::XIALOTECON_BANK_INTEREST_UPDATE_CONSTANT_RATIO, [
-			"interestId" => $this->getUuid(),
-			"accountId" => $this->account->getUuid(),
+			"interestId" => $this->getXoid(),
+			"accountId" => $this->account->getXoid(),
 			"ratio" => $this->ratio,
 			"period" => $this->period,
 			"lastApplied" => $this->lastApplied

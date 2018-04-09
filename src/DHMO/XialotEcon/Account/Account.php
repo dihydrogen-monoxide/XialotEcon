@@ -52,7 +52,7 @@ class Account extends DataModel{
 	protected $balance;
 
 	public static function create(DataModelCache $cache, string $type, string $ownerType, string $ownerName, Currency $currency, float $balance, callable $onComplete) : void{
-		$account = new Account($cache, self::DATUM_TYPE, self::generateUuid(self::DATUM_TYPE), true);
+		$account = new Account($cache, self::DATUM_TYPE, self::generateXoid(self::DATUM_TYPE), true);
 		$account->accountType = $type;
 		$account->ownerType = $ownerType;
 		$account->ownerName = $ownerName;
@@ -64,22 +64,22 @@ class Account extends DataModel{
 		});
 	}
 
-	public static function getByUuid(DataModelCache $cache, string $uuid, callable $consumer) : void{
-		if($cache->isTrackingModel($uuid)){
-			$consumer($cache->getAccount($uuid));
+	public static function getByXoid(DataModelCache $cache, string $xoid, callable $consumer) : void{
+		if($cache->isTrackingModel($xoid)){
+			$consumer($cache->getAccount($xoid));
 			return;
 		}
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_UUID, ["uuid" => $uuid], function(SqlSelectResult $result) use ($cache, $uuid, $consumer){
-			if($cache->isTrackingModel($uuid)){
-				$consumer($cache->getAccount($uuid));
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_XOID, ["xoid" => $xoid], function(SqlSelectResult $result) use ($cache, $xoid, $consumer){
+			if($cache->isTrackingModel($xoid)){
+				$consumer($cache->getAccount($xoid));
 				return;
 			}
 			if(empty($result->getRows())){
 				$consumer(null);
 				return;
 			}
-			$cache->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_TOUCH, ["uuid" => $uuid]);
-			$instance = new Account($cache, self::DATUM_TYPE, $uuid, false);
+			$cache->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_TOUCH, ["xoid" => $xoid]);
+			$instance = new Account($cache, self::DATUM_TYPE, $xoid, false);
 			$instance->applyRow($cache, $result->getRows()[0]);
 			$cache->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountTrackedEvent($instance, false), function() use ($consumer, $instance){
 				$consumer($instance);
@@ -180,7 +180,7 @@ class Account extends DataModel{
 				"ownerType" => $this->ownerType,
 				"ownerName" => $this->ownerName,
 				"accountType" => $this->accountType,
-				"currency" => $this->currency->getUuid(),
+				"currency" => $this->currency->getXoid(),
 				"balance" => $this->balance
 			];
 	}
@@ -188,17 +188,17 @@ class Account extends DataModel{
 
 	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeChange(Queries::XIALOTECON_ACCOUNT_UPDATE_HYBRID, [
-			"uuid" => $this->getUuid(),
+			"xoid" => $this->getXoid(),
 			"ownerType" => $this->ownerType,
 			"ownerName" => $this->ownerName,
 			"accountType" => $this->accountType,
-			"currency" => $this->currency->getUuid(),
+			"currency" => $this->currency->getXoid(),
 			"balance" => $this->balance,
 		], $onComplete);
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result) use ($cache){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_XOID, ["xoid" => $this->getXoid()], function(SqlSelectResult $result) use ($cache){
 			$this->applyRow($cache, $result->getRows()[0]);
 			$this->onChangesDownloaded();
 		});

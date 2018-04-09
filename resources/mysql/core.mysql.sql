@@ -5,7 +5,7 @@
 -- #    { init_feed
 CREATE TABLE IF NOT EXISTS updates_feed (
 	updateId   INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	uuid       CHAR(34),
+	xoid       CHAR(34),
 	type       VARCHAR(100),
 	time       TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
 	fromServer CHAR(36)
@@ -13,11 +13,11 @@ CREATE TABLE IF NOT EXISTS updates_feed (
 	AUTO_INCREMENT = 1;
 -- #    }
 -- #    { feed_update
--- #        :uuid string
+-- #        :xoid string
 -- #        :type string
 -- #        :server string
-INSERT INTO updates_feed (uuid, type, fromServer)
-VALUES (:uuid, :type, :server);
+INSERT INTO updates_feed (xoid, type, fromServer)
+VALUES (:xoid, :type, :server);
 -- #    }
 -- #    { fetch_first_update
 SELECT MAX(updateId) maxUpdateId
@@ -28,7 +28,7 @@ FROM updates_feed;
 -- #        :server string
 SELECT
 	updateId,
-	uuid
+	xoid
 FROM updates_feed
 WHERE updateId > :lastMaxUpdate AND fromServer <> :server;
 -- #    }
@@ -57,25 +57,25 @@ SELECT
 FROM currencies;
 -- #    }
 
--- #    { load.by_uuid
--- #        :uuid string
+-- #    { load.by_xoid
+-- #        :xoid string
 SELECT
 	currencyId,
 	name,
 	symbolBefore,
 	symbolAfter
 FROM currencies
-WHERE currencyId = :uuid;
+WHERE currencyId = :xoid;
 -- #    }
 
 -- #    { update.hybrid
--- #        :uuid string
+-- #        :xoid string
 -- #        :name string
 -- #        :symbolBefore string
 -- #        :symbolAfter string
 INSERT INTO currencies
 (currencyId, name, symbolBefore, symbolAfter)
-VALUES (:uuid, :name, :symbolBefore, :symbolAfter)
+VALUES (:xoid, :name, :symbolBefore, :symbolAfter)
 ON DUPLICATE KEY UPDATE
 	name         = VALUES(name),
 	symbolBefore = VALUES(symbolBefore),
@@ -97,8 +97,8 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 -- #    }
 -- #    { load
--- #        {by_uuid
--- #            :uuid string
+-- #        {by_xoid
+-- #            :xoid string
 SELECT
 	accountId,
 	ownerType,
@@ -107,7 +107,7 @@ SELECT
 	currency,
 	balance
 FROM accounts
-WHERE accountId = :uuid;
+WHERE accountId = :xoid;
 -- #        }
 -- #        { by_owner
 -- #            :ownerType string
@@ -169,7 +169,7 @@ ORDER BY touch ASC;
 -- #    }
 
 -- #    { update.hybrid
--- #        :uuid string
+-- #        :xoid string
 -- #        :ownerType string
 -- #        :ownerName string
 -- #        :accountType string
@@ -177,7 +177,7 @@ ORDER BY touch ASC;
 -- #        :balance float
 INSERT INTO accounts
 (accountId, ownerType, ownerName, accountType, currency, balance)
-VALUES (:uuid, :ownerType, :ownerName, :accountType, :currency, :balance)
+VALUES (:xoid, :ownerType, :ownerName, :accountType, :currency, :balance)
 ON DUPLICATE KEY UPDATE
 	ownerType   = VALUES(ownerType),
 	ownerName   = VALUES(ownerName),
@@ -187,10 +187,10 @@ ON DUPLICATE KEY UPDATE
 -- #    }
 
 -- #    { touch
--- #        :uuid string
+-- #        :xoid string
 UPDATE accounts
 SET touch = CURRENT_TIMESTAMP
-WHERE accountId = :uuid;
+WHERE accountId = :xoid;
 -- #    }
 -- #}
 
@@ -207,8 +207,8 @@ CREATE TABLE IF NOT EXISTS transactions (
 	KEY (transactionType)
 );
 -- #    }
--- #    { load.by_uuid
--- #        :uuid string
+-- #    { load.by_xoid
+-- #        :xoid string
 SELECT
 	transactionId,
 	source,
@@ -218,10 +218,10 @@ SELECT
 	transactionType,
 	date
 FROM transactions
-WHERE transactionId = :uuid;
+WHERE transactionId = :xoid;
 -- #    }
 -- #    { update.hybrid
--- #        :uuid string
+-- #        :xoid string
 -- #        :source string
 -- #        :target string
 -- #        :date timestamp
@@ -230,7 +230,7 @@ WHERE transactionId = :uuid;
 -- #        :transactionType string
 INSERT INTO transactions
 (transactionId, source, target, date, sourceReduction, targetAddition, transactionType)
-VALUES (:uuid, :source, :target, :date, :sourceReduction, :targetAddition, :transactionType)
+VALUES (:xoid, :source, :target, :date, :sourceReduction, :targetAddition, :transactionType)
 ON DUPLICATE KEY UPDATE
 	source          = VALUES(source),
 	target          = VALUES(target),

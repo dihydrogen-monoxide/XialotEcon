@@ -32,7 +32,7 @@ use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 use poggit\libasynql\libasynql;
 
-class DebugModule extends XialotEconModule{
+final class DebugModule extends XialotEconModule{
 	protected static function getName() : string{
 		return "debug";
 	}

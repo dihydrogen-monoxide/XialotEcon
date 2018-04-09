@@ -35,4 +35,8 @@ class UserException extends RuntimeException{
 	public function __construct(string $message, Throwable $previous = null){
 		parent::__construct($message, 1, $previous);
 	}
+
+	public static function noPermission() : UserException{
+		return new UserException("You don't have permission to use this command.");
+	}
 }

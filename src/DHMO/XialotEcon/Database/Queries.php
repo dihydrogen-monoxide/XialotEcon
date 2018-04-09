@@ -65,9 +65,9 @@ final class Queries{
 	 * - resources/mysql/core.mysql.sql:111
 	 *
 	 * <h3>Variables</h3>
-	 * - <code>:uuid</code> string, required in core.mysql.sql
+	 * - <code>:xoid</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_ACCOUNT_LOAD_BY_UUID = "xialotecon.account.load.by_uuid";
+	public const XIALOTECON_ACCOUNT_LOAD_BY_XOID = "xialotecon.account.load.by_xoid";
 
 	/**
 	 * <h4>Declared in:</h4>
@@ -102,7 +102,7 @@ final class Queries{
 	 * - resources/mysql/core.mysql.sql:194
 	 *
 	 * <h3>Variables</h3>
-	 * - <code>:uuid</code> string, required in core.mysql.sql
+	 * - <code>:xoid</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_ACCOUNT_TOUCH = "xialotecon.account.touch";
 
@@ -116,7 +116,7 @@ final class Queries{
 	 * - <code>:ownerName</code> string, required in core.mysql.sql
 	 * - <code>:currency</code> string, required in core.mysql.sql
 	 * - <code>:balance</code> float, required in core.mysql.sql
-	 * - <code>:uuid</code> string, required in core.mysql.sql
+	 * - <code>:xoid</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_ACCOUNT_UPDATE_HYBRID = "xialotecon.account.update.hybrid";
 
@@ -145,7 +145,7 @@ final class Queries{
 	 * <h3>Variables</h3>
 	 * - <code>:interestId</code> string, required in bank.mysql.sql
 	 */
-	public const XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_DIFF = "xialotecon.bank.interest.find.by_uuid.constant_diff";
+	public const XIALOTECON_BANK_INTEREST_FIND_BY_XOID_CONSTANT_DIFF = "xialotecon.bank.interest.find.by_xoid.constant_diff";
 
 	/**
 	 * <h4>Declared in:</h4>
@@ -154,7 +154,7 @@ final class Queries{
 	 * <h3>Variables</h3>
 	 * - <code>:interestId</code> string, required in bank.mysql.sql
 	 */
-	public const XIALOTECON_BANK_INTEREST_FIND_BY_UUID_CONSTANT_RATIO = "xialotecon.bank.interest.find.by_uuid.constant_ratio";
+	public const XIALOTECON_BANK_INTEREST_FIND_BY_XOID_CONSTANT_RATIO = "xialotecon.bank.interest.find.by_xoid.constant_ratio";
 
 	/**
 	 * <h4>Declared in:</h4>
@@ -227,9 +227,9 @@ final class Queries{
 	 * - resources/mysql/core.mysql.sql:69
 	 *
 	 * <h3>Variables</h3>
-	 * - <code>:uuid</code> string, required in core.mysql.sql
+	 * - <code>:xoid</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_CURRENCY_LOAD_BY_UUID = "xialotecon.currency.load.by_uuid";
+	public const XIALOTECON_CURRENCY_LOAD_BY_XOID = "xialotecon.currency.load.by_xoid";
 
 	/**
 	 * <h4>Declared in:</h4>
@@ -244,7 +244,7 @@ final class Queries{
 	 * <h3>Variables</h3>
 	 * - <code>:symbolBefore</code> string, required in core.mysql.sql
 	 * - <code>:symbolAfter</code> string, required in core.mysql.sql
-	 * - <code>:uuid</code> string, required in core.mysql.sql
+	 * - <code>:xoid</code> string, required in core.mysql.sql
 	 * - <code>:name</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_CURRENCY_UPDATE_HYBRID = "xialotecon.currency.update.hybrid";
@@ -264,7 +264,7 @@ final class Queries{
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:server</code> string, required in core.mysql.sql
-	 * - <code>:uuid</code> string, required in core.mysql.sql
+	 * - <code>:xoid</code> string, required in core.mysql.sql
 	 * - <code>:type</code> string, required in core.mysql.sql
 	 */
 	public const XIALOTECON_DATA_MODEL_FEED_UPDATE = "xialotecon.data_model.feed_update";
@@ -344,9 +344,9 @@ final class Queries{
 	 * - resources/mysql/core.mysql.sql:222
 	 *
 	 * <h3>Variables</h3>
-	 * - <code>:uuid</code> string, required in core.mysql.sql
+	 * - <code>:xoid</code> string, required in core.mysql.sql
 	 */
-	public const XIALOTECON_TRANSACTION_LOAD_BY_UUID = "xialotecon.transaction.load.by_uuid";
+	public const XIALOTECON_TRANSACTION_LOAD_BY_XOID = "xialotecon.transaction.load.by_xoid";
 
 	/**
 	 * <h4>Declared in:</h4>
@@ -358,7 +358,7 @@ final class Queries{
 	 * - <code>:targetAddition</code> float, required in core.mysql.sql
 	 * - <code>:source</code> string, required in core.mysql.sql
 	 * - <code>:target</code> string, required in core.mysql.sql
-	 * - <code>:uuid</code> string, required in core.mysql.sql
+	 * - <code>:xoid</code> string, required in core.mysql.sql
 	 * - <code>:date</code> timestamp, required in core.mysql.sql
 	 */
 	public const XIALOTECON_TRANSACTION_UPDATE_HYBRID = "xialotecon.transaction.update.hybrid";

@@ -58,9 +58,9 @@ abstract class DataModel implements JsonSerializable{
 	/** @var string */
 	private $type;
 	/** @var string */
-	private $uuid;
+	private $xoid;
 
-	public static function generateUuid(string $type) : string{
+	public static function generateXoid(string $type) : string{
 		$crc32 = hash("crc32b", $type, true);
 		$prefix = substr($crc32, 0, 2) ^ substr($crc32, 2);
 		$hex = bin2hex($prefix . random_bytes(14));
@@ -70,10 +70,10 @@ abstract class DataModel implements JsonSerializable{
 			substr($hex, 18, 14);
 	}
 
-	public function __construct(DataModelCache $cache, string $type, string $uuid, bool $needInsert){
+	public function __construct(DataModelCache $cache, string $type, string $xoid, bool $needInsert){
 		$this->type = $type;
-		assert(strlen($uuid) === 34);
-		$this->uuid = $uuid;
+		assert(strlen($xoid) === 34);
+		$this->xoid = $xoid;
 
 		$this->lastAccess = microtime(true);
 		$this->lastAutosave = $needInsert ? 0.0 : microtime(true);
@@ -86,15 +86,17 @@ abstract class DataModel implements JsonSerializable{
 		return $this->type;
 	}
 
-	public function getUuid() : string{
-		$this->touchAccess();
-		return $this->uuid;
+	public function getXoid(bool $touch = true) : string{
+		if($touch){
+			$this->touchAccess();
+		}
+		return $this->xoid;
 	}
 
 	public function jsonSerialize() : array{
 		return [
 			"type" => $this->type,
-			"uuid" => $this->uuid,
+			"xoid" => $this->xoid,
 			"accessDiff" => microtime(true) - $this->lastAccess,
 			"markedGarbage" => $this->markedGarbage,
 			"invalidated" => $this->invalidated,
@@ -218,7 +220,7 @@ abstract class DataModel implements JsonSerializable{
 			if(self::$CONFIG[$this->type]->notifyChanges){
 				$connector->executeInsert(Queries::XIALOTECON_DATA_MODEL_FEED_UPDATE, [
 					"server" => Server::getInstance()->getServerUniqueId()->toString(),
-					"uuid" => $this->uuid,
+					"xoid" => $this->xoid,
 					"type" => $this->type,
 				]);
 			}

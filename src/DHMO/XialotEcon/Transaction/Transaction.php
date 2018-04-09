@@ -43,9 +43,9 @@ class Transaction extends DataModel{
 	public const DATUM_TYPE = "xialotecon.transaction";
 
 	/** @var string */
-	protected $sourceUuid;
+	protected $sourceXoid;
 	/** @var string */
-	protected $targetUuid;
+	protected $targetXoid;
 	/** @var float */
 	protected $sourceReduction;
 	/** @var float */
@@ -75,9 +75,9 @@ class Transaction extends DataModel{
 		if($event->isCancelled()){
 			throw new InvalidStateException("Cannot create transaction from a cancelled event");
 		}
-		$transaction = new Transaction($cache, Transaction::DATUM_TYPE, DataModel::generateUuid(Transaction::DATUM_TYPE), true);
-		$transaction->sourceUuid = $event->getSource()->getUuid();
-		$transaction->targetUuid = $event->getTarget()->getUuid();
+		$transaction = new Transaction($cache, Transaction::DATUM_TYPE, DataModel::generateXoid(Transaction::DATUM_TYPE), true);
+		$transaction->sourceXoid = $event->getSource()->getXoid();
+		$transaction->targetXoid = $event->getTarget()->getXoid();
 		$transaction->sourceReduction = $event->getSourceReduction();
 		$transaction->targetAddition = $event->getTargetAddition();
 		$transaction->transactionType = $event->getTransactionType();
@@ -85,29 +85,29 @@ class Transaction extends DataModel{
 		return $transaction;
 	}
 
-	public static function getByUuid(DataModelCache $cache, string $uuid, callable $consumer) : void{
-		if($cache->isTrackingModel($uuid)){
-			$consumer($cache->getTransaction($uuid));
+	public static function getByXoid(DataModelCache $cache, string $xoid, callable $consumer) : void{
+		if($cache->isTrackingModel($xoid)){
+			$consumer($cache->getTransaction($xoid));
 			return;
 		}
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_UUID, ["uuid" => $uuid], function(SqlSelectResult $result) use ($cache, $uuid, $consumer){
-			if($cache->isTrackingModel($uuid)){
-				$consumer($cache->getAccount($uuid));
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_XOID, ["xoid" => $xoid], function(SqlSelectResult $result) use ($cache, $xoid, $consumer){
+			if($cache->isTrackingModel($xoid)){
+				$consumer($cache->getAccount($xoid));
 				return;
 			}
 			if(empty($result->getRows())){
 				$consumer(null);
 				return;
 			}
-			$instance = new Transaction($cache, self::DATUM_TYPE, $uuid, false);
+			$instance = new Transaction($cache, self::DATUM_TYPE, $xoid, false);
 			$instance->applyRow($result->getRows()[0]);
 			$consumer($instance);
 		});
 	}
 
 	private function applyRow(array $row) : void{
-		$this->sourceUuid = $row["source"];
-		$this->targetUuid = $row["target"];
+		$this->sourceXoid = $row["source"];
+		$this->targetXoid = $row["target"];
 		$this->sourceReduction = $row["sourceReduction"];
 		$this->targetAddition = $row["targetAddition"];
 		$this->transactionType = $row["transactionType"];
@@ -115,12 +115,12 @@ class Transaction extends DataModel{
 	}
 
 
-	public function getSourceUuid() : string{
-		return $this->sourceUuid;
+	public function getSourceXoid() : string{
+		return $this->sourceXoid;
 	}
 
-	public function getTargetUuid() : string{
-		return $this->targetUuid;
+	public function getTargetXoid() : string{
+		return $this->targetXoid;
 	}
 
 	public function getSourceReduction() : float{
@@ -142,8 +142,8 @@ class Transaction extends DataModel{
 
 	public function jsonSerialize() : array{
 		return parent::jsonSerialize() + [
-				"source" => $this->sourceUuid,
-				"target" => $this->targetUuid,
+				"source" => $this->sourceXoid,
+				"target" => $this->targetXoid,
 				"sourceReduction" => $this->sourceReduction,
 				"targetAddition" => $this->targetAddition,
 				"transactionType" => $this->transactionType,
@@ -153,7 +153,7 @@ class Transaction extends DataModel{
 
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_UUID, ["uuid" => $this->getUuid()], function(SqlSelectResult $result){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_XOID, ["xoid" => $this->getXoid()], function(SqlSelectResult $result){
 			$this->applyRow($result->getRows()[0]);
 			$this->onChangesDownloaded();
 		});
@@ -161,13 +161,13 @@ class Transaction extends DataModel{
 
 	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeInsert(Queries::XIALOTECON_TRANSACTION_UPDATE_HYBRID, [
-			"uuid" => $this->getUuid(),
+			"xoid" => $this->getXoid(),
 			"date" => $this->date,
 			"transactionType" => $this->transactionType,
 			"sourceReduction" => $this->sourceReduction,
 			"targetAddition" => $this->targetAddition,
-			"source" => $this->sourceUuid,
-			"target" => $this->targetUuid,
+			"source" => $this->sourceXoid,
+			"target" => $this->targetXoid,
 		], $onComplete);
 	}
 }
