@@ -31,7 +31,6 @@ namespace DHMO\XialotEcon\Player;
 use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Account\AccountContributionEvent;
 use DHMO\XialotEcon\Account\AccountDescriptionEvent;
-use DHMO\XialotEcon\Account\AccountSearchEvent;
 use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Permissions;
@@ -177,7 +176,7 @@ final class PlayerModule extends XialotEconModule implements Listener{
 			"accountTypes" => [self::ACCOUNT_TYPE_CASH, self::ACCOUNT_TYPE_BANK],
 		], function(SqlSelectResult $result) use ($event){
 			foreach($result->getRows() as $row){
-				$event->addAccountId($row["accountId"], 0);
+				$event->addAccountId($row["accountId"], 0 | ($row["accountType"] === self::ACCOUNT_TYPE_CASH ? AccountSearchEvent::FLAG_QUICK_ACCESS : 0));
 			}
 			$event->continue();
 		});

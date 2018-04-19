@@ -38,11 +38,11 @@ final class ListCacheCommand extends XialotEconCommand{
 		parent::run($sender, $args);
 		$types = [];
 		foreach($this->getPlugin()->getModelCache()->getAll() as $xoid => $model){
-			$type = $model->getType();
+			$type = $model->getDataModelType();
 			if(isset($args[0]) && $type !== $args[0]){
 				continue;
 			}
-			$types[$model->getType()] = ($types[$type] ?? 0) + 1;
+			$types[$model->getDataModelType()] = ($types[$type] ?? 0) + 1;
 			$sender->sendMessage(TextFormat::GOLD . $xoid . TextFormat::WHITE . ": " . TextFormat::AQUA . $type . TextFormat::WHITE . " - " . TextFormat::DARK_GREEN . json_encode($model, JSON_PRETTY_PRINT));
 		}
 		$sender->sendMessage(TextFormat::AQUA . "Sub-total:");

@@ -28,10 +28,12 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
+use DHMO\XialotEcon\Database\DutyManager;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
+use poggit\libasynql\SqlError;
 use const INF;
 
 final class CoreModule extends XialotEconModule{
@@ -48,9 +50,20 @@ final class CoreModule extends XialotEconModule{
 		$connector = $plugin->getConnector();
 		JointPromise::create()
 			->do("feed.init", function(callable $complete) use ($connector){
-				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_INIT_FEED, [], function() use ($complete){
+				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_FEED_INIT, [], function() use ($complete){
 					$this->plugin->getModelCache()->scheduleUpdate();
 					$complete();
+				});
+			})
+			->do("duty.init", function(callable $complete) use ($connector){
+				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_DUTY_INIT_TABLE, [], function() use ($complete, $connector){
+					$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_DUTY_INIT_FUNC, [], $complete, function(SqlError $error) use ($complete){
+						if($error->getErrorMessage() === "FUNCTION AcquireDuty already exists"){
+							$complete();
+						}else{
+							throw $error;
+						}
+					});
 				});
 			})
 			->then($onComplete);
@@ -62,8 +75,10 @@ final class CoreModule extends XialotEconModule{
 		$persistTime = StringUtil::parseTime($this->plugin->getConfig()->get("data-model")["feed-persistence"]);
 		if($persistTime < INF && $persistTime >= 0){
 			$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask(function() use ($persistTime){
-				$this->plugin->getConnector()->executeChange(Queries::XIALOTECON_DATA_MODEL_CLEAR_FEED, ["persistence" => $persistTime]);
+				$this->plugin->getConnector()->executeChange(Queries::XIALOTECON_DATA_MODEL_FEED_CLEAR, ["persistence" => $persistTime]);
 			}), 600);
 		}
+
+		$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new DutyManager($this->plugin), 100);
 	}
 }

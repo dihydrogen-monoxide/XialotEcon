@@ -35,19 +35,19 @@ use poggit\libasynql\DataConnector;
 use poggit\libasynql\result\SqlSelectResult;
 use function time;
 
-class ConstantRatioBankInterest extends OfflineBankInterest{
-	public const DATUM_TYPE = "xialotecon.bank.interest.constant.ratio";
+class ConstantDiffInterest extends OfflineInterest{
+	public const DATUM_TYPE = "xialotecon.bank.interest.constant.diff";
 
 	/** @var float */
-	private $ratio;
+	private $diff;
 
 	public function applyInterest(float $balance, int $intervals) : float{
-		return $balance * (($this->ratio + 1) ** $intervals);
+		return $balance + $intervals * $this->diff;
 	}
 
-	public static function createNew(DataModelCache $cache, Account $account, float $ratio, float $period) : ConstantRatioBankInterest{
-		$interest = new ConstantRatioBankInterest($cache, self::DATUM_TYPE, self::generateXoid(self::DATUM_TYPE), true);
-		$interest->ratio = $ratio;
+	public static function createNew(DataModelCache $cache, Account $account, float $diff, float $period) : ConstantDiffInterest{
+		$interest = new ConstantDiffInterest($cache, self::DATUM_TYPE, self::generateXoid(self::DATUM_TYPE), true);
+		$interest->diff = $diff;
 		$interest->account = $account;
 		$interest->period = $period;
 		$interest->lastApplied = time();
@@ -55,7 +55,7 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 	}
 
 	public static function forAccount(DataModelCache $cache, Account $account, callable $consumer) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_RATIO, [
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_DIFF, [
 			"accountId" => $account->getXoid()
 		], function(SqlSelectResult $result) use ($consumer, $cache, $account){
 			$interests = [];
@@ -63,7 +63,7 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 				if($cache->isTrackingModel($row["interestId"])){
 					$interests[] = $cache->getModel($row["interestId"]);
 				}else{
-					$interest = new ConstantRatioBankInterest($cache, self::DATUM_TYPE, $row["interestId"], false);
+					$interest = new ConstantDiffInterest($cache, self::DATUM_TYPE, $row["interestId"], false);
 					$interest->applyRow($account, $row);
 					$interests[] = $interest;
 				}
@@ -74,29 +74,29 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 
 	protected function applyRow(Account $account, array $row) : void{
 		parent::applyRow($account, $row);
-		$this->ratio = $row["ratio"];
+		$this->diff = $row["diff"];
 	}
 
-	public function getRatio() : float{
+	public function getDiff() : float{
 		$this->touchAccess();
-		return $this->ratio;
+		return $this->diff;
 	}
 
-	public function setRatio(float $ratio) : void{
-		$this->ratio = $ratio;
+	public function setDiff(float $diff) : void{
+		$this->diff = $diff;
 		$this->touchAutosave();
 	}
 
 
 	public function jsonSerialize() : array{
 		return parent::jsonSerialize() + [
-				"ratio" => $this->ratio,
+				"diff" => $this->diff,
 			];
 	}
 
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_XOID_CONSTANT_RATIO, [
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_XOID_CONSTANT_DIFF, [
 			"interestId" => $this->getXoid(),
 		], function(SqlSelectResult $result){
 			$this->applyRow($this->account, $result->getRows()[0]);
@@ -106,11 +106,11 @@ class ConstantRatioBankInterest extends OfflineBankInterest{
 
 	protected function uploadChanges(DataConnector $connector, bool $insert, callable $onComplete) : void{
 		$connector->executeChange($insert ?
-			Queries::XIALOTECON_BANK_INTEREST_INSERT_CONSTANT_RATIO :
-			Queries::XIALOTECON_BANK_INTEREST_UPDATE_CONSTANT_RATIO, [
+			Queries::XIALOTECON_BANK_INTEREST_INSERT_CONSTANT_DIFF :
+			Queries::XIALOTECON_BANK_INTEREST_UPDATE_CONSTANT_DIFF, [
 			"interestId" => $this->getXoid(),
 			"accountId" => $this->account->getXoid(),
-			"ratio" => $this->ratio,
+			"diff" => $this->diff,
 			"period" => $this->period,
 			"lastApplied" => $this->lastApplied
 		], $onComplete);

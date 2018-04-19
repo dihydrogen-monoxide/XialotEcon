@@ -18,6 +18,15 @@
 				<withdrawal default="true">Allows withdrawing money from bank to cash</withdrawal>
 			</bank>
 		</transaction>
+		<loan>
+			Permission to interact with loans
+			<borrow>
+				Permission to borrow loans
+				<server default="true">Allows borrowing loans from the server</server>
+				<player default="true">Allows borrowing loans from other players</player>
+			</borrow>
+			<lend default="true">Allows lending loans to other players</lend>
+		</loan>
 		<analysis>
 			Permission for analysing a player's financial state
 			<balance>

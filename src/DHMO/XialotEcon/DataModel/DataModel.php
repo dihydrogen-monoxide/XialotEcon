@@ -82,7 +82,7 @@ abstract class DataModel implements JsonSerializable{
 		$cache->trackModel($this);
 	}
 
-	public function getType() : string{
+	public function getDataModelType() : string{
 		return $this->type;
 	}
 

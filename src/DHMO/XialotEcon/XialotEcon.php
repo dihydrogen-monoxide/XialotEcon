@@ -40,6 +40,7 @@ use DHMO\XialotEcon\Debug\DebugModule;
 use DHMO\XialotEcon\Loan\LoanModule;
 use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Transaction\TransactionModule;
+use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
 use LogicException;
@@ -77,6 +78,9 @@ final class XialotEcon extends PluginBase{
 
 	/** @var XialotEconModule[] */
 	private $modules = [];
+
+	/** @var bool */
+	private $asyncInitialized = false;
 
 	public function onLoad() : void{
 		self::$instance = $this;
@@ -119,7 +123,16 @@ final class XialotEcon extends PluginBase{
 			foreach($this->getServer()->getOnlinePlayers() as $player){
 				$this->getPlayerModule()->onJoin($player);
 			}
+
+			$this->asyncInitialized = true;
 		});
+
+		$this->getServer()->getScheduler()->scheduleDelayedTask(new CallbackTask(function(){
+			if(!$this->asyncInitialized){
+				$this->getLogger()->critical("XialotEcon failed to initialize in one minute. An error probably occurred. Please check the console logs.");
+				$this->getServer()->getPluginManager()->disablePlugin($this);
+			}
+		}), 1200);
 	}
 
 	private function recurseModules(array $modules) : JointPromise{

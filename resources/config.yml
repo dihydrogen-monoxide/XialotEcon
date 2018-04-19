@@ -100,4 +100,11 @@ bank:
 # The loan module allows players to borrow loans from the server or other players
 loan:
   enabled: true
+  # Server-to-player loans
+  server:
+    # A list of the loan plans available
+    # The key for each entry should be the name of the loan plan.
+    # The "description" attribute is a short description of the loan.
+    "Quick $1000 loan":
+      description: Get $1000 easily, and return it within 1 hour! Interest-free if you repay immediately, but very expensive interest if you can't repay within 1 hour!
 ...

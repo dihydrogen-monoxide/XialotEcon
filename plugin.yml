@@ -8,7 +8,7 @@ authors:
 - SOFe
 - Hittmana
 api:
-- 3.0.0-ALPHA11
+- 3.0.0-ALPHA12
 version: 0.0.1
 permissions:
   xialotecon:
@@ -53,6 +53,23 @@ permissions:
                   xialotecon.player.transaction.bank.withdrawal:
                     default: true
                     description: Allows withdrawing money from bank to cash
+          xialotecon.player.loan:
+            default: op
+            description: Permission to interact with loans
+            children:
+              xialotecon.player.loan.borrow:
+                default: op
+                description: Permission to borrow loans
+                children:
+                  xialotecon.player.loan.borrow.server:
+                    default: true
+                    description: Allows borrowing loans from the server
+                  xialotecon.player.loan.borrow.player:
+                    default: true
+                    description: Allows borrowing loans from other players
+              xialotecon.player.loan.lend:
+                default: true
+                description: Allows lending loans to other players
           xialotecon.player.analysis:
             default: op
             description: Permission for analysing a player's financial state

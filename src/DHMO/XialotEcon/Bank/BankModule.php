@@ -100,9 +100,9 @@ final class BankModule extends XialotEconModule implements Listener{
 
 				$account->executeAfterNextUpload(function() use ($interestType, $interestPeriod, $interestValue, $account){
 					if($interestType === "ratio"){
-						ConstantRatioBankInterest::createNew($this->plugin->getModelCache(), $account, $interestValue, $interestPeriod);
+						ConstantRatioInterest::createNew($this->plugin->getModelCache(), $account, $interestValue, $interestPeriod);
 					}elseif($interestType === "diff"){
-						ConstantDiffBankInterest::createNew($this->plugin->getModelCache(), $account, $interestValue, $interestPeriod);
+						ConstantDiffInterest::createNew($this->plugin->getModelCache(), $account, $interestValue, $interestPeriod);
 					}
 				});
 			});
@@ -115,13 +115,13 @@ final class BankModule extends XialotEconModule implements Listener{
 		}
 
 		$event->pause();
-		ConstantRatioBankInterest::forAccount($this->plugin->getModelCache(), $event->getAccount(), function($interests) use ($event){
-			JointPromise::build(array_map(function(ConstantRatioBankInterest $interest){
+		ConstantRatioInterest::forAccount($this->plugin->getModelCache(), $event->getAccount(), function($interests) use ($event){
+			JointPromise::build(array_map(function(ConstantRatioInterest $interest){
 				return [$interest, "ensureApplyInterest"];
 			}, $interests), function() use ($event){
 				// only load constant-diff after all constant-ratio have been applied
-				ConstantDiffBankInterest::forAccount($this->plugin->getModelCache(), $event->getAccount(), function($interests) use ($event){
-					JointPromise::build(array_map(function(ConstantDiffBankInterest $interest){
+				ConstantDiffInterest::forAccount($this->plugin->getModelCache(), $event->getAccount(), function($interests) use ($event){
+					JointPromise::build(array_map(function(ConstantDiffInterest $interest){
 						return [$interest, "ensureApplyInterest"];
 					}, $interests), function() use ($event){
 						$event->continue();

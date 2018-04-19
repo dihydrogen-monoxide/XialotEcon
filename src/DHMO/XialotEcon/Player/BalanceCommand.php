@@ -28,7 +28,6 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Player;
 
-use DHMO\XialotEcon\Account\AccountSearchEvent;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Permissions;
 use DHMO\XialotEcon\UserException;

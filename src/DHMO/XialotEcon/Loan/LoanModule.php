@@ -28,12 +28,20 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Loan;
 
+use DHMO\XialotEcon\Account\AccountDescriptionEvent;
+use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Player\AccountSearchEvent;
+use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
-use RuntimeException;
+use pocketmine\event\Listener;
+use poggit\libasynql\result\SqlSelectResult;
 
-final class LoanModule extends XialotEconModule{
+final class LoanModule extends XialotEconModule implements Listener{
+	public const ACCOUNT_TYPE_SERVER_PLAYER_LOAN = "xialotecon.loan.server2player";
+	public const ACCOUNT_TYPE_PLAYER_PLAYER_LOAN = "xialotecon.loan.player2player";
+
 	protected static function getName() : string{
 		return "loan";
 	}
@@ -46,5 +54,35 @@ final class LoanModule extends XialotEconModule{
 		$this->plugin = $plugin;
 		JointPromise::create()
 			->then($onComplete);
+	}
+
+	public function onStartup() : void{
+		$this->getPlugin()->getServer()->getPluginManager()->registerEvents($this, $this->plugin);
+	}
+
+	public function e_accountSearch(AccountSearchEvent $event) : void{
+		$event->pause();
+		$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_OWNER_TYPE, [
+			"ownerType" => PlayerModule::OWNER_TYPE_PLAYER,
+			"ownerName" => $event->getPlayerName(),
+			"accountTypes" => [
+				self::ACCOUNT_TYPE_SERVER_PLAYER_LOAN,
+				self::ACCOUNT_TYPE_PLAYER_PLAYER_LOAN,
+			],
+		], function(SqlSelectResult $result) use ($event){
+			foreach($result->getRows() as $row){
+				$event->addAccountId($row["accountId"], AccountSearchEvent::FLAG_LOAN);
+			}
+			$event->continue();
+		});
+	}
+
+	public function e_accountDesc(AccountDescriptionEvent $event){
+		switch($event->getAccount()->getAccountType()){
+			case self::ACCOUNT_TYPE_SERVER_PLAYER_LOAN:
+				$event->setDescription("Loan from server");
+				break;
+			case self::ACCOUNT_TYPE_PLAYER_PLAYER_LOAN:
+		}
 	}
 }

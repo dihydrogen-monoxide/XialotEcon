@@ -36,7 +36,7 @@ use function floor;
 use function time;
 use const DATE_ATOM;
 
-abstract class OfflineBankInterest extends DataModel{
+abstract class OfflineInterest extends DataModel{
 	/** @var Account */
 	protected $account;
 	/** @var float */

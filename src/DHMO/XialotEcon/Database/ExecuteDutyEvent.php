@@ -26,50 +26,10 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Account;
+namespace DHMO\XialotEcon\Database;
 
 use DHMO\XialotEcon\XialotEconEvent;
-use function implode;
 
-class AccountSearchEvent extends XialotEconEvent{
-	public const FLAG_SHARED = 2;
-	public const FLAG_LOAN = 4;
-	public const FLAG_NON_MONETARY = 8;
+class ExecuteDutyEvent extends XialotEconEvent{
 
-	public static function flagToString(int $flags) : string{
-		$adj = [];
-		if($flags & self::FLAG_SHARED){
-			$adj[] = "shared";
-		}
-		if($flags & self::FLAG_LOAN){
-			$adj[] = "loan";
-		}
-		if($flags & self::FLAG_NON_MONETARY){
-			$adj[] = "non-monetary";
-		}
-		return empty($adj) ? "personal" : implode(" ", $adj);
-	}
-
-	/** @var string */
-	private $playerName;
-
-	/** @var string[] */
-	private $accountIds = [];
-
-	public function __construct(string $playerName){
-		parent::__construct();
-		$this->playerName = $playerName;
-	}
-
-	public function getPlayerName() : string{
-		return $this->playerName;
-	}
-
-	public function addAccountId(string $accountId, int $flags) : void{
-		$this->accountIds[$flags][] = $accountId;
-	}
-
-	public function getAccountIds() : array{
-		return $this->accountIds;
-	}
 }
