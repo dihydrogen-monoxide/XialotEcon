@@ -29,7 +29,7 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Currency;
 
 use DHMO\XialotEcon\Database\Queries;
-use DHMO\XialotEcon\Util\JointPromise;
+use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 
@@ -42,16 +42,14 @@ final class CurrencyModule extends XialotEconModule{
 		return true;
 	}
 
-	public function __construct(XialotEcon $plugin, callable $onComplete){
+	public function __construct(XialotEcon $plugin, InitGraph $graph){
 		$this->plugin = $plugin;
-
-		JointPromise::create()
-			->do("currency.init", function(callable $complete){
-				$this->plugin->getConnector()->executeGeneric(Queries::XIALOTECON_CURRENCY_INIT_TABLE, [], function() use ($complete){
-					Currency::loadAll($this->plugin->getModelCache(), $complete);
-				});
-			})
-			->then($onComplete);
+		if($plugin->getInitMode() === XialotEcon::INIT_INIT){
+			$graph->addGenericQuery("currency.init", Queries::XIALOTECON_CURRENCY_INIT_TABLE);
+		}
+		$graph->add("currency.load_all", function(callable $onComplete){
+			Currency::loadAll($this->plugin->getModelCache(), $onComplete);
+		}, $plugin->getInitMode() === XialotEcon::INIT_INIT ? ["currency.init"] : []);
 	}
 
 	public function onStartup() : void{

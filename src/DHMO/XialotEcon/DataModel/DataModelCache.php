@@ -68,7 +68,7 @@ final class DataModelCache{
 		return $this->plugin;
 	}
 
-	public function scheduleUpdate() : void{
+	public function scheduleUpdate(?callable $fetchFirst = null) : void{
 		if(isset($this->lastUpdateId)){
 			$currentTick = $this->plugin->getServer()->getTick();
 			$remTicks = $this->lastUpdateTick + 20 - $currentTick;
@@ -79,9 +79,12 @@ final class DataModelCache{
 			}
 		}else{
 			$this->lastUpdateTick = $this->plugin->getServer()->getTick();
-			$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FEED_FETCH_FIRST, [], function(SqlSelectResult $result){
+			$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FEED_FETCH_FIRST, [], function(SqlSelectResult $result) use ($fetchFirst){
 				$rows = $result->getRows();
 				$this->lastUpdateId = isset($rows[0]) ? $rows[0]["maxUpdateId"] : 0;
+				if($fetchFirst !== null){
+					$fetchFirst();
+				}
 				$this->scheduleUpdate();
 			});
 		}

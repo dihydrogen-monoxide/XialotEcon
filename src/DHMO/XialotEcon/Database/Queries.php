@@ -12,13 +12,13 @@ namespace DHMO\XialotEcon\Database;
 final class Queries{
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:182
+	 * - resources/mysql/core.mysql.sql:186
 	 */
 	public const XIALOTECON_ACCOUNT_INIT_TABLE = "xialotecon.account.init_table";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:208
+	 * - resources/mysql/core.mysql.sql:212
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:ownerType</code> string, required in core.mysql.sql
@@ -28,7 +28,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:236
+	 * - resources/mysql/core.mysql.sql:240
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:ownerType</code> string, required in core.mysql.sql
@@ -39,7 +39,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:251
+	 * - resources/mysql/core.mysql.sql:255
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:accountTypes</code> string non-empty list, required in core.mysql.sql
@@ -51,7 +51,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:222
+	 * - resources/mysql/core.mysql.sql:226
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:accountTypes</code> string non-empty list, required in core.mysql.sql
@@ -62,7 +62,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:195
+	 * - resources/mysql/core.mysql.sql:199
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:xoid</code> string, required in core.mysql.sql
@@ -71,7 +71,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:269
+	 * - resources/mysql/core.mysql.sql:273
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:limit</code> int, required in core.mysql.sql
@@ -81,7 +81,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:275
+	 * - resources/mysql/core.mysql.sql:279
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:time</code> float, required in core.mysql.sql
@@ -90,7 +90,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:260
+	 * - resources/mysql/core.mysql.sql:264
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:time</code> float, required in core.mysql.sql
@@ -99,7 +99,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:302
+	 * - resources/mysql/core.mysql.sql:306
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:xoid</code> string, required in core.mysql.sql
@@ -108,7 +108,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:295
+	 * - resources/mysql/core.mysql.sql:299
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:accountType</code> string, required in core.mysql.sql
@@ -218,13 +218,13 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:134
+	 * - resources/mysql/core.mysql.sql:138
 	 */
 	public const XIALOTECON_CURRENCY_INIT_TABLE = "xialotecon.currency.init_table";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:153
+	 * - resources/mysql/core.mysql.sql:157
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:xoid</code> string, required in core.mysql.sql
@@ -233,13 +233,13 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:142
+	 * - resources/mysql/core.mysql.sql:146
 	 */
 	public const XIALOTECON_CURRENCY_LOAD_ALL = "xialotecon.currency.load_all";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:167
+	 * - resources/mysql/core.mysql.sql:171
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:symbolBefore</code> string, required in core.mysql.sql
@@ -255,7 +255,7 @@ final class Queries{
 	 * Selects <code>[{"result": result}]</code>, where result is a boolean indicating whether we are the duty server.
 	 *
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:115
+	 * - resources/mysql/core.mysql.sql:118
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:serverId</code> string, required in core.mysql.sql
@@ -263,14 +263,23 @@ final class Queries{
 	public const XIALOTECON_DATA_MODEL_DUTY_ACQUIRE = "xialotecon.data_model.duty.acquire";
 
 	/**
+	 * <i>(Description from resources/mysql/core.mysql.sql)</i>
+	 *
+	 * IF NOT existLock: If the database had not been initialized with a duty row, this means no servers had registered for duty before. Now, a few servers may be competing for acquiring the duty, and we try to INSERT INTO...ON DUPLICATE KEY UPDATE to acquire.
+	 * IF NOT existLock, after INSERT: Now, we don't immediately return true, because we don't know if we acquired the lock successfully. Sleep for 1 second to see if other servers have overwritten our lock.
+	 * ELSE: Let's check if the duty server is dead, i.e. we should take over the duty.
+	 * ELSE, IF inactivity > 15: Also sleep for 1 second to see if other servers have overwritten our lock.
+	 * ELSE, ELSE: The duty server is still alive, and we now check if it is us.
+	 * finally: Check if we are the one acquiring the duty.
+	 *
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:109
+	 * - resources/mysql/core.mysql.sql:112
 	 */
 	public const XIALOTECON_DATA_MODEL_DUTY_INIT_FUNC = "xialotecon.data_model.duty.init.func";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:68
+	 * - resources/mysql/core.mysql.sql:71
 	 */
 	public const XIALOTECON_DATA_MODEL_DUTY_INIT_TABLE = "xialotecon.data_model.duty.init.table";
 
@@ -281,7 +290,7 @@ final class Queries{
 	 * the serverId parameter is to produce an accurate changed-rows result so that we can check if we have lost the duty lock.
 	 *
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:122
+	 * - resources/mysql/core.mysql.sql:126
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:serverId</code> string, required in core.mysql.sql
@@ -290,7 +299,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:56
+	 * - resources/mysql/core.mysql.sql:59
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:persistence</code> float, required in core.mysql.sql
@@ -299,13 +308,13 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:42
+	 * - resources/mysql/core.mysql.sql:45
 	 */
 	public const XIALOTECON_DATA_MODEL_FEED_FETCH_FIRST = "xialotecon.data_model.feed.fetch_first";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:51
+	 * - resources/mysql/core.mysql.sql:54
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:lastMaxUpdate</code> int, required in core.mysql.sql
@@ -315,13 +324,13 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:31
+	 * - resources/mysql/core.mysql.sql:34
 	 */
 	public const XIALOTECON_DATA_MODEL_FEED_INIT = "xialotecon.data_model.feed.init";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:38
+	 * - resources/mysql/core.mysql.sql:41
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:server</code> string, required in core.mysql.sql
@@ -350,7 +359,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:14
+	 * - resources/mysql/core.mysql.sql:15
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:version</code> string, required in core.mysql.sql
@@ -359,7 +368,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:17
+	 * - resources/mysql/core.mysql.sql:20
 	 */
 	public const XIALOTECON_METADATA_SELECT_VERSION = "xialotecon.metadata.select_version";
 
@@ -407,13 +416,13 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:317
+	 * - resources/mysql/core.mysql.sql:321
 	 */
 	public const XIALOTECON_TRANSACTION_INIT_TABLE = "xialotecon.transaction.init_table";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:330
+	 * - resources/mysql/core.mysql.sql:334
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:xoid</code> string, required in core.mysql.sql
@@ -422,7 +431,7 @@ final class Queries{
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/core.mysql.sql:349
+	 * - resources/mysql/core.mysql.sql:353
 	 *
 	 * <h3>Variables</h3>
 	 * - <code>:transactionType</code> string, required in core.mysql.sql

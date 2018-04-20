@@ -30,9 +30,9 @@ namespace DHMO\XialotEcon\Loan;
 
 use DHMO\XialotEcon\Account\AccountDescriptionEvent;
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\Player\AccountSearchEvent;
 use DHMO\XialotEcon\Player\PlayerModule;
-use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 use pocketmine\event\Listener;
@@ -50,10 +50,9 @@ final class LoanModule extends XialotEconModule implements Listener{
 		return true;
 	}
 
-	public function __construct(XialotEcon $plugin, callable $onComplete){
+	public function __construct(XialotEcon $plugin, InitGraph $graph){
 		$this->plugin = $plugin;
-		JointPromise::create()
-			->then($onComplete);
+		// TODO
 	}
 
 	public function onStartup() : void{

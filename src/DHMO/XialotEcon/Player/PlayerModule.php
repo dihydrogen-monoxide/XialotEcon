@@ -33,8 +33,8 @@ use DHMO\XialotEcon\Account\AccountContributionEvent;
 use DHMO\XialotEcon\Account\AccountDescriptionEvent;
 use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\Permissions;
-use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 use pocketmine\event\Listener;
@@ -66,15 +66,12 @@ final class PlayerModule extends XialotEconModule implements Listener{
 		return true;
 	}
 
-	protected function __construct(XialotEcon $plugin, callable $onComplete){
+	protected function __construct(XialotEcon $plugin, InitGraph $graph){
 		self::$instance = $this;
 		$this->plugin = $plugin;
-		JointPromise::create()
-			->do("login.init", function($complete){
-				$this->plugin->getConnector()->executeGeneric(Queries::XIALOTECON_PLAYER_LOGIN_INIT, [], $complete);
-			})
-			// TODO create other tables
-			->then($onComplete);
+		if($plugin->getInitMode() === XialotEcon::INIT_INIT){
+			$graph->addGenericQuery("player.login.init", Queries::XIALOTECON_PLAYER_LOGIN_INIT);
+		}
 	}
 
 	public function onStartup() : void{

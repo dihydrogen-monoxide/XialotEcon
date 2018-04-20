@@ -29,8 +29,8 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Account;
 
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\Util\CallbackTask;
-use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
@@ -44,13 +44,11 @@ final class AccountModule extends XialotEconModule{
 		return true;
 	}
 
-	public function __construct(XialotEcon $plugin, callable $onComplete){
+	public function __construct(XialotEcon $plugin, InitGraph $graph){
 		$this->plugin = $plugin;
-		JointPromise::create()
-			->do("account.init", function(callable $complete){
-				$this->plugin->getConnector()->executeGeneric(Queries::XIALOTECON_ACCOUNT_INIT_TABLE, [], $complete);
-			})
-			->then($onComplete);
+		if($plugin->getInitMode() === XialotEcon::INIT_INIT){
+			$graph->addGenericQuery("account.init", Queries::XIALOTECON_ACCOUNT_INIT_TABLE, [], "currency.init");
+		}
 	}
 
 	public function onStartup() : void{

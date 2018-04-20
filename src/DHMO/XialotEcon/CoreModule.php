@@ -30,10 +30,9 @@ namespace DHMO\XialotEcon;
 
 use DHMO\XialotEcon\Database\DutyManager;
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\Util\CallbackTask;
-use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
-use poggit\libasynql\SqlError;
 use const INF;
 
 final class CoreModule extends XialotEconModule{
@@ -45,30 +44,15 @@ final class CoreModule extends XialotEconModule{
 		return true;
 	}
 
-	public function __construct(XialotEcon $plugin, callable $onComplete){
+	public function __construct(XialotEcon $plugin, InitGraph $graph){
 		$this->plugin = $plugin;
-		$connector = $plugin->getConnector();
-		$promise = JointPromise::create();
 		if($plugin->getInitMode() === XialotEcon::INIT_INIT){
-			$promise->do("feed.init", function(callable $complete) use ($connector){
-				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_FEED_INIT, [], function() use ($complete){
-					$this->plugin->getModelCache()->scheduleUpdate();
-					$complete();
-				});
-			});
-			$promise->do("duty.init", function(callable $complete) use ($connector){
-				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_DUTY_INIT_TABLE, [], function() use ($complete, $connector){
-					$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_DUTY_INIT_FUNC, [], $complete, function(SqlError $error) use ($complete){
-						if($error->getErrorMessage() === "FUNCTION AcquireDuty already exists"){
-							$complete();
-						}else{
-							throw $error;
-						}
-					});
-				});
-			});
+			$graph->addGenericQuery("core.feed.init", Queries::XIALOTECON_DATA_MODEL_FEED_INIT);
+			$graph->addGenericQuery("core.duty.init.table", Queries::XIALOTECON_DATA_MODEL_DUTY_INIT_TABLE);
+			$graph->addGenericQuery("core.duty.init.function", Queries::XIALOTECON_DATA_MODEL_DUTY_INIT_FUNC, [], "core.duty.init.table");
 		}
-		$promise->then($onComplete);
+		$graph->add("core.feed.fetch_first", [$this->plugin->getModelCache(), "scheduleUpdate"],
+			$plugin->getInitMode() === XialotEcon::INIT_INIT ? ["core.feed.init"] : []);
 	}
 
 	public function onStartup() : void{

@@ -26,29 +26,27 @@
 
 declare(strict_types=1);
 
-namespace DHMO\XialotEcon\Debug;
+namespace DHMO\XialotEcon\Init;
 
-use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\XialotEcon;
-use DHMO\XialotEcon\XialotEconModule;
 use poggit\libasynql\libasynql;
 
-final class DebugModule extends XialotEconModule{
-	protected static function getName() : string{
-		return "debug";
+class MysqlGenericInitNode extends InitNode{
+	/** @var string */
+	private $queryName;
+	/** @var array */
+	private $args;
+
+	public function __construct(string $name, string $queryName, array $args, array $parents){
+		parent::__construct($name, "trigger_error", $parents); // trigger_error is a placeholder function
+		$this->queryName = $queryName;
+		$this->args = $args;
 	}
 
-	public static function shouldConstruct(XialotEcon $plugin) : bool{
-		return !libasynql::isPackaged();
-	}
-
-	protected function __construct(XialotEcon $plugin, InitGraph $graph){
-		$this->plugin = $plugin;
-	}
-
-	public function onStartup() : void{
-		$this->plugin->getServer()->getCommandMap()->registerAll("xialotecon_debug", [
-			new ListCacheCommand("list-cache", "List DataModel cache", "/list-cache"),
-		]);
+	public function execute() : void{
+		if(!libasynql::isPackaged()){
+			parent::debugExecute();
+		}
+		XialotEcon::getInstance()->getConnector()->executeGeneric($this->queryName, $this->args, [$this, "onComplete"]);
 	}
 }

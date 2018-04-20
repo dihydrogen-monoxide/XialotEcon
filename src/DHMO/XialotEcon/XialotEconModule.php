@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
+use DHMO\XialotEcon\Init\InitGraph;
+use pocketmine\Player;
 use poggit\libasynql\libasynql;
 use function assert;
 
@@ -35,7 +37,7 @@ abstract class XialotEconModule{
 	/** @var XialotEcon */
 	protected $plugin;
 
-	public final static function init(XialotEcon $plugin, callable $onComplete) : ?XialotEconModule{
+	public final static function init(XialotEcon $plugin, InitGraph $graph) : ?XialotEconModule{
 		assert(static::class !== XialotEconModule::class);
 		if(!static::shouldConstruct($plugin)){
 			return null;
@@ -43,14 +45,14 @@ abstract class XialotEconModule{
 		if(!libasynql::isPackaged()){
 			$plugin->getLogger()->info("Initializing " . static::getName() . " module...");
 		}
-		return new static($plugin, $onComplete);
+		return new static($plugin, $graph);
 	}
 
 	protected static abstract function getName() : string;
 
 	protected static abstract function shouldConstruct(XialotEcon $plugin) : bool;
 
-	protected abstract function __construct(XialotEcon $plugin, callable $onComplete);
+	protected abstract function __construct(XialotEcon $plugin, InitGraph $graph);
 
 	public function getPlugin() : XialotEcon{
 		return $this->plugin;
@@ -60,5 +62,11 @@ abstract class XialotEconModule{
 	}
 
 	public function onShutdown() : void{
+	}
+
+	public function onPlayerLogin(Player $player) : void{
+	}
+
+	public function onPlayerJoin(Player $player) : void{
 	}
 }

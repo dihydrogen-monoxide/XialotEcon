@@ -31,6 +31,7 @@ namespace DHMO\XialotEcon\Bank;
 use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Account\AccountTrackedEvent;
 use DHMO\XialotEcon\Database\Queries;
+use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\Player\PlayerAccountDefinitionEvent;
 use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
@@ -52,17 +53,13 @@ final class BankModule extends XialotEconModule implements Listener{
 		return $plugin->getConfig()->getNested("bank.enabled", true);
 	}
 
-	public function __construct(XialotEcon $plugin, callable $onComplete){
+	public function __construct(XialotEcon $plugin, InitGraph $graph){
 		$this->plugin = $plugin;
 
-		JointPromise::create()
-			->do("init.constant-diff", function(callable $complete) use ($plugin){
-				$plugin->getConnector()->executeGeneric(Queries::XIALOTECON_BANK_INTEREST_INIT_CONSTANT_DIFF, [], $complete);
-			})
-			->do("init.constant-ratio", function(callable $complete) use ($plugin){
-				$plugin->getConnector()->executeGeneric(Queries::XIALOTECON_BANK_INTEREST_INIT_CONSTANT_RATIO, [], $complete);
-			})
-			->then($onComplete);
+		if($plugin->getInitMode() === XialotEcon::INIT_INIT){
+			$graph->addGenericQuery("bank.init.constant_diff", Queries::XIALOTECON_BANK_INTEREST_INIT_CONSTANT_DIFF, [], "account.init");
+			$graph->addGenericQuery("bank.init.constant_ratio", Queries::XIALOTECON_BANK_INTEREST_INIT_CONSTANT_RATIO, [], "account.init");
+		}
 	}
 
 	public function onStartup() : void{

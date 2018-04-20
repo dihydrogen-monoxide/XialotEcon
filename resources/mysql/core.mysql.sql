@@ -4,16 +4,19 @@
 -- #{ metadata
 -- #    { create
 CREATE TABLE IF NOT EXISTS xialotecon_metadata (
-	name VARCHAR(100) PRIMARY KEY,
+	name  VARCHAR(100) PRIMARY KEY,
 	value VARCHAR(100)
 );
 -- #    }
 -- #    { declare_version
 -- #        :version string
-INSERT INTO xialotecon_metadata (name, value) VALUES ('database.version', :version) ON DUPLICATE KEY UPDATE value = :version;
+INSERT INTO xialotecon_metadata (name, value) VALUES ('database.version', :version)
+ON DUPLICATE KEY UPDATE value = :version;
 -- #    }
 -- #    { select_version
-SELECT value FROM xialotecon_metadata WHERE name = 'database.version';
+SELECT value
+FROM xialotecon_metadata
+WHERE name = 'database.version';
 -- #    }
 -- #}
 
@@ -67,6 +70,12 @@ CREATE TABLE IF NOT EXISTS duty_lock (
 	ENGINE = 'InnoDB';
 -- #            }
 -- #            { func
+-- #                * IF NOT existLock: If the database had not been initialized with a duty row, this means no servers had registered for duty before. Now, a few servers may be competing for acquiring the duty, and we try to INSERT INTO...ON DUPLICATE KEY UPDATE to acquire.
+-- #                * IF NOT existLock, after INSERT: Now, we don't immediately return true, because we don't know if we acquired the lock successfully. Sleep for 1 second to see if other servers have overwritten our lock.
+-- #                * ELSE: Let's check if the duty server is dead, i.e. we should take over the duty.
+-- #                * ELSE, IF inactivity > 15: Also sleep for 1 second to see if other servers have overwritten our lock.
+-- #                * ELSE, ELSE: The duty server is still alive, and we now check if it is us.
+-- #                * finally: Check if we are the one acquiring the duty.
 CREATE FUNCTION AcquireDuty(p_serverId CHAR(36))
 	RETURNS BOOLEAN
 	BEGIN
@@ -74,32 +83,26 @@ CREATE FUNCTION AcquireDuty(p_serverId CHAR(36))
 		DECLARE inactivity INT;
 		DECLARE finalServerId CHAR(36);
 
-		SELECT EXISTS(SELECT serverId
-		              FROM duty_lock)
+		SELECT EXISTS(
+			SELECT serverId
+			FROM duty_lock)
 		INTO existsLock;
 		IF NOT existsLock THEN
-			-- If the database had not been initialized with a duty row, this means no servers had registered for duty before.
-			-- Now, a few servers may be competing for acquiring the duty, and we try to INSERT INTO...ON DUPLICATE KEY UPDATE to acquire.
 			INSERT INTO duty_lock (main, serverId) VALUES (1, p_serverId)
 			ON DUPLICATE KEY UPDATE serverId = p_serverId;
-			-- Now, we don't immediately return true, because we don't know if we acquired the lock successfully.
-			-- Sleep for 1 second to see if other servers have overwritten our lock.
 			DO SLEEP(1);
 		ELSE
-			-- Let's check if the duty server is dead, i.e. we should take over the duty
 			SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(lastActive)
 			INTO inactivity
 			FROM duty_lock;
 			IF inactivity > 15 THEN
 				UPDATE duty_lock
 				SET serverId = p_serverId;
-				-- Also sleep for 1 second to see if other servers have overwritten our lock
+				--
 				DO SLEEP(1);
 			END IF;
-		-- else, the duty server is still alive, and we now check if it is us.
 		END IF;
 
-		-- eventually, check if we are the one acquiring the duty.
 		SELECT serverId
 		INTO finalServerId
 		FROM duty_lock;
@@ -118,7 +121,8 @@ SELECT AcquireDuty(:serverId) result;
 -- #            * the serverId parameter is to produce an accurate changed-rows result so that we can check if we have lost the duty lock.
 -- #            :serverId string
 UPDATE duty_lock
-SET lastActive = CURRENT_TIMESTAMP WHERE serverId = :serverId;
+SET lastActive = CURRENT_TIMESTAMP
+WHERE serverId = :serverId;
 -- #        }
 -- #    }
 -- #}

@@ -39,13 +39,14 @@ use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
 use DHMO\XialotEcon\Debug\DebugModule;
+use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\Loan\LoanModule;
 use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Transaction\TransactionModule;
 use DHMO\XialotEcon\Util\CallbackTask;
-use DHMO\XialotEcon\Util\JointPromise;
 use DHMO\XialotEcon\Util\StringUtil;
 use LogicException;
+use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
@@ -55,21 +56,21 @@ use function json_encode;
 use function mkdir;
 use const JSON_PRETTY_PRINT;
 
-final class XialotEcon extends PluginBase{
+final class XialotEcon extends PluginBase implements Listener{
 	public const CURRENT_DB_VERSION = "1";
 	public const INIT_OK = 0;
 	public const INIT_INIT = 1;
 	public const INIT_ALTER = 2;
 
 	private const MODULES = [
-		CoreModule::class => [],
-		CurrencyModule::class => [
-			AccountModule::class => [
-				TransactionModule::class => [],
-				BankModule::class => [],
-				LoanModule::class => [],],],
-		PlayerModule::class => [],
-		DebugModule::class => [],
+		CoreModule::class,
+		CurrencyModule::class,
+		AccountModule::class,
+		TransactionModule::class,
+		BankModule::class,
+		LoanModule::class,
+		PlayerModule::class,
+		DebugModule::class,
 	];
 
 	/** @var XialotEcon */
@@ -123,7 +124,9 @@ final class XialotEcon extends PluginBase{
 			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
 		}
 
+		$this->getLogger()->debug("Starting core.metadata.create");
 		$this->getConnector()->executeGeneric(Queries::XIALOTECON_METADATA_CREATE, [], function(){
+			$this->getLogger()->debug("Starting core.metadata.selectVersion");
 			$this->getConnector()->executeSelect(Queries::XIALOTECON_METADATA_SELECT_VERSION, [], function(SqlSelectResult $result){
 				$rows = $result->getRows();
 				if(empty($rows)){
@@ -137,7 +140,16 @@ final class XialotEcon extends PluginBase{
 						$this->initMode = self::INIT_ALTER;
 					}
 				}
-				$this->recurseModules(self::MODULES)->then(function(){
+
+				$graph = new InitGraph();
+				/** @var string|XialotEconModule $module */
+				foreach(self::MODULES as $module){
+					$instance = $module::init($this, $graph);
+					if($instance !== null){
+						$this->modules[$module] = $instance;
+					}
+				}
+				$graph->execute(function() use ($graph){
 					$this->getLogger()->info("Async initialization completed");
 					foreach($this->modules as $module){
 						$module->onStartup();
@@ -150,6 +162,10 @@ final class XialotEcon extends PluginBase{
 					}
 
 					$this->asyncInitialized = true;
+
+					if(!libasynql::isPackaged()){
+						$graph->generateChart();
+					}
 				});
 			});
 		});
@@ -160,25 +176,6 @@ final class XialotEcon extends PluginBase{
 				$this->getServer()->getPluginManager()->disablePlugin($this);
 			}
 		}), 1200);
-	}
-
-	private function recurseModules(array $modules) : JointPromise{
-		$promise = JointPromise::create();
-		/**
-		 * @var string|XialotEconModule $name
-		 * @var array                   $submodules
-		 */
-		foreach($modules as $name => $submodules){
-			$promise->do($name, function(callable $complete) use ($name, $submodules){
-				$module = $name::init($this, function() use ($submodules, $complete){
-					$this->recurseModules($submodules)->then($complete);
-				});
-				if($module !== null){
-					$this->modules[$name] = $module;
-				}
-			});
-		}
-		return $promise;
 	}
 
 	public function getPlayerModule() : PlayerModule{
@@ -229,7 +226,7 @@ final class XialotEcon extends PluginBase{
 		});
 	}
 
-	public function getInitMode():int{
+	public function getInitMode() : int{
 		return $this->initMode;
 	}
 
@@ -238,6 +235,10 @@ final class XialotEcon extends PluginBase{
 			throw new BadMethodCallException("initFrom is only available in INIT_ALTER");
 		}
 		return $this->initFrom;
+	}
+
+	public function isAsyncInitialized() : bool{
+		return $this->asyncInitialized;
 	}
 
 
