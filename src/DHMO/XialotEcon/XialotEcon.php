@@ -28,11 +28,13 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon;
 
+use BadMethodCallException;
 use DHMO\XialotEcon\Account\AccountContributionEvent;
 use DHMO\XialotEcon\Account\AccountModule;
 use DHMO\XialotEcon\Account\AccountPriorityEvent;
 use DHMO\XialotEcon\Bank\BankModule;
 use DHMO\XialotEcon\Currency\CurrencyModule;
+use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\DataModel\DataModelTypeConfig;
@@ -47,12 +49,18 @@ use LogicException;
 use pocketmine\plugin\PluginBase;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
+use poggit\libasynql\result\SqlSelectResult;
 use function array_values;
 use function json_encode;
 use function mkdir;
 use const JSON_PRETTY_PRINT;
 
 final class XialotEcon extends PluginBase{
+	public const CURRENT_DB_VERSION = "1";
+	public const INIT_OK = 0;
+	public const INIT_INIT = 1;
+	public const INIT_ALTER = 2;
+
 	private const MODULES = [
 		CoreModule::class => [],
 		CurrencyModule::class => [
@@ -75,6 +83,9 @@ final class XialotEcon extends PluginBase{
 	private $modelCache;
 	/** @var DataConnector */
 	private $connector;
+
+	private $initMode;
+	private $initFrom;
 
 	/** @var XialotEconModule[] */
 	private $modules = [];
@@ -112,19 +123,35 @@ final class XialotEcon extends PluginBase{
 			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
 		}
 
-		$this->recurseModules(self::MODULES)->then(function(){
-			$this->getLogger()->info("Async initialization completed");
-			foreach($this->modules as $module){
-				$module->onStartup();
-			}
+		$this->getConnector()->executeGeneric(Queries::XIALOTECON_METADATA_CREATE, [], function(){
+			$this->getConnector()->executeSelect(Queries::XIALOTECON_METADATA_SELECT_VERSION, [], function(SqlSelectResult $result){
+				$rows = $result->getRows();
+				if(empty($rows)){
+					$this->initMode = self::INIT_INIT;
+					$this->getConnector()->executeChange(Queries::XIALOTECON_METADATA_DECLARE_VERSION, ["version" => self::CURRENT_DB_VERSION]);
+				}else{
+					$version = $rows[0]["value"];
+					if($version === self::CURRENT_DB_VERSION){
+						$this->initMode = self::INIT_OK;
+					}else{
+						$this->initMode = self::INIT_ALTER;
+					}
+				}
+				$this->recurseModules(self::MODULES)->then(function(){
+					$this->getLogger()->info("Async initialization completed");
+					foreach($this->modules as $module){
+						$module->onStartup();
+					}
 
-			// init players after all listeners have been registered.
-			// dirty hack. Any better solution?
-			foreach($this->getServer()->getOnlinePlayers() as $player){
-				$this->getPlayerModule()->onJoin($player);
-			}
+					// init players after all listeners have been registered.
+					// dirty hack. Any better solution?
+					foreach($this->getServer()->getOnlinePlayers() as $player){
+						$this->getPlayerModule()->onJoin($player);
+					}
 
-			$this->asyncInitialized = true;
+					$this->asyncInitialized = true;
+				});
+			});
 		});
 
 		$this->getServer()->getScheduler()->scheduleDelayedTask(new CallbackTask(function(){
@@ -200,6 +227,17 @@ final class XialotEcon extends PluginBase{
 				}
 			});
 		});
+	}
+
+	public function getInitMode():int{
+		return $this->initMode;
+	}
+
+	public function getInitFrom(){
+		if($this->initMode !== self::INIT_ALTER){
+			throw new BadMethodCallException("initFrom is only available in INIT_ALTER");
+		}
+		return $this->initFrom;
 	}
 
 

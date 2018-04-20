@@ -48,14 +48,15 @@ final class CoreModule extends XialotEconModule{
 	public function __construct(XialotEcon $plugin, callable $onComplete){
 		$this->plugin = $plugin;
 		$connector = $plugin->getConnector();
-		JointPromise::create()
-			->do("feed.init", function(callable $complete) use ($connector){
+		$promise = JointPromise::create();
+		if($plugin->getInitMode() === XialotEcon::INIT_INIT){
+			$promise->do("feed.init", function(callable $complete) use ($connector){
 				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_FEED_INIT, [], function() use ($complete){
 					$this->plugin->getModelCache()->scheduleUpdate();
 					$complete();
 				});
-			})
-			->do("duty.init", function(callable $complete) use ($connector){
+			});
+			$promise->do("duty.init", function(callable $complete) use ($connector){
 				$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_DUTY_INIT_TABLE, [], function() use ($complete, $connector){
 					$connector->executeGeneric(Queries::XIALOTECON_DATA_MODEL_DUTY_INIT_FUNC, [], $complete, function(SqlError $error) use ($complete){
 						if($error->getErrorMessage() === "FUNCTION AcquireDuty already exists"){
@@ -65,8 +66,9 @@ final class CoreModule extends XialotEconModule{
 						}
 					});
 				});
-			})
-			->then($onComplete);
+			});
+		}
+		$promise->then($onComplete);
 	}
 
 	public function onStartup() : void{

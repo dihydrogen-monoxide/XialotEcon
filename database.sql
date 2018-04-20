@@ -2,16 +2,19 @@
 -- XOID type: CHAR(34)
 -- Money type: DECIMAL(35, 5)
 -- Generic namespace type: VARCHAR(100)
+-- Generic string identifier: VARCHAR(100)
+-- Generic short name: VARCHAR(100)
+-- Generic message: VARCHAR(4096)
 CREATE TABLE xialotecon_version (
-	version     VARCHAR(16),
+	version     VARCHAR(100),
 	lastUpdated TIMESTAMP
 );
 
 CREATE TABLE currencies (
 	currencyId   CHAR(34) PRIMARY KEY,
-	name         VARCHAR(40), -- the currency name in English
-	symbolBefore VARCHAR(40), -- the currency prefix in English
-	symbolAfter  VARCHAR(40) -- the currency suffix in English
+	name         VARCHAR(100), -- the currency name in English
+	symbolBefore VARCHAR(100), -- the currency prefix in English
+	symbolAfter  VARCHAR(100) -- the currency suffix in English
 );
 
 CREATE TABLE accounts (

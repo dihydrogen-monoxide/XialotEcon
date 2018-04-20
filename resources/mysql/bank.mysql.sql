@@ -6,7 +6,7 @@
 -- #        { constant_ratio
 CREATE TABLE IF NOT EXISTS bank_interest_constant_ratio (
 	interestId  CHAR(34) PRIMARY KEY,
-	accountId   CHAR(34),
+	accountId   CHAR(34) NOT NULL,
 	ratio       DOUBLE,
 	period      DOUBLE,
 	lastApplied TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS bank_interest_constant_ratio (
 -- #            { constant_diff
 CREATE TABLE IF NOT EXISTS bank_interest_constant_diff (
 	interestId  CHAR(34) PRIMARY KEY,
-	accountId   CHAR(34),
+	accountId   CHAR(34) NOT NULL,
 	diff        DECIMAL(35, 5),
 	period      DOUBLE,
 	lastApplied TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

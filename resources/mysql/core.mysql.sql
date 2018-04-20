@@ -1,6 +1,22 @@
 -- #!mysql
 -- #{xialotecon
 
+-- #{ metadata
+-- #    { create
+CREATE TABLE IF NOT EXISTS xialotecon_metadata (
+	name VARCHAR(100) PRIMARY KEY,
+	value VARCHAR(100)
+);
+-- #    }
+-- #    { declare_version
+-- #        :version string
+INSERT INTO xialotecon_metadata (name, value) VALUES ('database.version', :version) ON DUPLICATE KEY UPDATE value = :version;
+-- #    }
+-- #    { select_version
+SELECT value FROM xialotecon_metadata WHERE name = 'database.version';
+-- #    }
+-- #}
+
 -- #{ data_model
 -- #    { feed
 -- #        { init
@@ -111,9 +127,9 @@ SET lastActive = CURRENT_TIMESTAMP WHERE serverId = :serverId;
 -- #    { init_table
 CREATE TABLE IF NOT EXISTS currencies (
 	currencyId   CHAR(34) PRIMARY KEY,
-	name         VARCHAR(40) UNIQUE,
-	symbolBefore VARCHAR(40),
-	symbolAfter  VARCHAR(40)
+	name         VARCHAR(100) UNIQUE,
+	symbolBefore VARCHAR(100),
+	symbolAfter  VARCHAR(100)
 );
 -- #    }
 -- #    { load_all
