@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Loan;
 
 use DHMO\XialotEcon\Account\AccountDescriptionEvent;
+use DHMO\XialotEcon\Database\ExecuteDutyEvent;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\Player\AccountSearchEvent;
@@ -36,7 +37,6 @@ use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 use pocketmine\event\Listener;
-use poggit\libasynql\result\SqlSelectResult;
 
 final class LoanModule extends XialotEconModule implements Listener{
 	public const ACCOUNT_TYPE_SERVER_PLAYER_LOAN = "xialotecon.loan.server2player";
@@ -47,12 +47,17 @@ final class LoanModule extends XialotEconModule implements Listener{
 	}
 
 	protected static function shouldConstruct(XialotEcon $plugin) : bool{
-		return true;
+		return $plugin->getConfig()->getNested("loan.enabled", true);
 	}
+
+	private $dutyCounter = 0;
 
 	public function __construct(XialotEcon $plugin, InitGraph $graph){
 		$this->plugin = $plugin;
-		// TODO
+
+		if($plugin->getInitMode() === XialotEcon::INIT_INIT){
+			$graph->addGenericQuery("loan.init.loans", Queries::XIALOTECON_LOAN_INIT_LOANS, [], "account.init");
+		}
 	}
 
 	public function onStartup() : void{
@@ -68,20 +73,36 @@ final class LoanModule extends XialotEconModule implements Listener{
 				self::ACCOUNT_TYPE_SERVER_PLAYER_LOAN,
 				self::ACCOUNT_TYPE_PLAYER_PLAYER_LOAN,
 			],
-		], function(SqlSelectResult $result) use ($event){
-			foreach($result->getRows() as $row){
+		], function(array $rows) use ($event){
+			foreach($rows as $row){
 				$event->addAccountId($row["accountId"], AccountSearchEvent::FLAG_LOAN);
 			}
 			$event->continue();
 		});
 	}
 
-	public function e_accountDesc(AccountDescriptionEvent $event){
+	public function e_accountDesc(AccountDescriptionEvent $event) : void{
 		switch($event->getAccount()->getAccountType()){
 			case self::ACCOUNT_TYPE_SERVER_PLAYER_LOAN:
 				$event->setDescription("Loan from server");
 				break;
 			case self::ACCOUNT_TYPE_PLAYER_PLAYER_LOAN:
+				$event->pause();
+
 		}
+	}
+
+	public function e_duty(ExecuteDutyEvent $event) : void{
+		if($this->dutyCounter % 12 === 0){
+			$connector = $this->getPlugin()->getConnector();
+			$connector->executeChange(Queries::XIALOTECON_LOAN_DUTY_COMPOUND_NORMAL);
+			$connector->executeSelect(Queries::XIALOTECON_LOAN_DUTY_COMPOUND_UNPAID_SERVER, [], function(array $rows){
+				// TODO execute minimum payment logic
+			});
+			$connector->executeSelect(Queries::XIALOTECON_LOAN_DUTY_COMPOUND_UNPAID_SERVER, [], function(array $rows){
+				// TODO execute minimum payment logic
+			});
+		}
+		$this->dutyCounter++;
 	}
 }

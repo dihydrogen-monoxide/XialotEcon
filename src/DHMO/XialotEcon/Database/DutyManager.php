@@ -30,7 +30,6 @@ namespace DHMO\XialotEcon\Database;
 
 use DHMO\XialotEcon\XialotEcon;
 use pocketmine\scheduler\PluginTask;
-use poggit\libasynql\result\SqlSelectResult;
 
 class DutyManager extends PluginTask{
 	private $plugin;
@@ -46,8 +45,8 @@ class DutyManager extends PluginTask{
 			$this->plugin->getConnector()->setLoggingQueries(false);
 			$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_DATA_MODEL_DUTY_ACQUIRE, [
 				"serverId" => $this->plugin->getServer()->getServerUniqueId()->toString(),
-			], function(SqlSelectResult $result){
-				$isOnDuty = (bool) $result->getRows()[0]["result"];
+			], function(array $rows){
+				$isOnDuty = (bool) $rows[0]["result"];
 				if(!$this->dutyAcquired && $isOnDuty){
 					$this->dutyAcquired = true;
 					$this->plugin->getLogger()->info("Acquiring master duty.");

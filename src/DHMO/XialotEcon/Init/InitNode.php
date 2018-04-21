@@ -34,7 +34,6 @@ use pocketmine\Server;
 use poggit\libasynql\libasynql;
 use function count;
 use function microtime;
-use function var_dump;
 
 class InitNode{
 	/** @var string */

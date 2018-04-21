@@ -178,8 +178,8 @@ CREATE TABLE IF NOT EXISTS accounts (
 	ownerType   VARCHAR(100),
 	ownerName   VARCHAR(100),
 	accountType VARCHAR(100),
-	currency    CHAR(36) REFERENCES currencies (currencyId),
-	balance     DECIMAL(35, 5),
+	currency    CHAR(34) REFERENCES currencies (currencyId),
+	balance     DECIMAL(20,5),
 	touch       TIMESTAMP,
 	KEY (accountType)
 );
@@ -310,11 +310,11 @@ WHERE accountId = :xoid;
 -- #    { init_table
 CREATE TABLE IF NOT EXISTS transactions (
 	transactionId   CHAR(34) PRIMARY KEY,
-	source          CHAR(36) REFERENCES accounts (accountId),
-	target          CHAR(36) REFERENCES accounts (accountId),
+	source          CHAR(34) REFERENCES accounts (accountId),
+	target          CHAR(34) REFERENCES accounts (accountId),
 	date            TIMESTAMP,
-	sourceReduction DECIMAL(35, 5),
-	targetAddition  DECIMAL(35, 5),
+	sourceReduction DECIMAL(20,5),
+	targetAddition  DECIMAL(20,5),
 	transactionType VARCHAR(100), -- transaction types with namespaces used for quick filtering. do not store data here; if you need to store transaction-specific data, create a "peer table". this should not be used as an identifier.
 	KEY (transactionType)
 );

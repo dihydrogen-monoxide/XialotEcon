@@ -28,11 +28,11 @@ declare(strict_types=1);
 
 namespace DHMO\XialotEcon\Init;
 
+use DHMO\XialotEcon\XialotEcon;
 use LogicException;
 use pocketmine\Server;
 use poggit\libasynql\libasynql;
 use RuntimeException;
-use function array_keys;
 use function array_map;
 use function count;
 use function imagecolorallocate;
@@ -43,10 +43,8 @@ use function imageline;
 use function imagepng;
 use function imagettftext;
 use function implode;
-use function printf;
 use function rand;
 use function uasort;
-use function var_dump;
 use const INF;
 
 class InitGraph{
@@ -172,17 +170,14 @@ class InitGraph{
 			if($node->startTime < $epoch){
 				$epoch = $node->startTime;
 			}
-			printf("Node %s: from %f to %f\n", $node->name, $node->startTime - $epoch, $node->endTime - $epoch);
 
 			for($i = 0, $iMax = count($barLists); $i < $iMax; ++$i){
 				if(!isset($barStack[$i]) || $barStack[$i]->endTime <= $node->startTime){
-					echo "Reusing row $i for $node->name\n";
 					$barLists[$i][] = $barStack[$i] = $node;
 					$node->chartPosition = $i;
 					continue 2;
 				}
 			}
-			echo "Extending new $i for $node->name\n";
 			$barLists[$i][] = $barStack[$i] = $node;
 			$node->chartPosition = $i;
 		}
@@ -221,6 +216,6 @@ class InitGraph{
 				(int) ($topPad + count($barLists) * $barHeight + ($node->chartPosition + 1.5) * 20), $foreground, $ttf, "+" . ($node->endTime - $epoch) . " (tick {$node->endTick})");
 		}
 
-		imagepng($image, $path = Server::getInstance()->getDataPath() . "xialotecon-init.png");
+		imagepng($image, Server::getInstance()->getProperty("xialotecon.debug.init-graph-folder", Server::getInstance()->getDataPath()) . "/init-graph-" . XialotEcon::getInstance()->getInitMode() . ".png");
 	}
 }

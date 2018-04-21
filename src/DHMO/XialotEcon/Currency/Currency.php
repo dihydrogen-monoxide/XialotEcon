@@ -33,7 +33,6 @@ use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\XialotEcon;
 use poggit\libasynql\DataConnector;
-use poggit\libasynql\result\SqlSelectResult;
 use function sprintf;
 
 class Currency extends DataModel{
@@ -59,10 +58,10 @@ class Currency extends DataModel{
 	}
 
 	public static function loadAll(DataModelCache $cache, callable $consumer) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CURRENCY_LOAD_ALL, [], function(SqlSelectResult $result) use ($consumer, $cache){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CURRENCY_LOAD_ALL, [], function(array $rows) use ($consumer, $cache){
 			self::$byName = [];
 			$currencies = [];
-			foreach($result->getRows() as $row){
+			foreach($rows as $row){
 				$xoid = $row["currencyId"];
 				if($cache->isTrackingModel($xoid)){
 					$currencies[] = $currency = $cache->getCurrency($xoid);
@@ -168,8 +167,10 @@ class Currency extends DataModel{
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CURRENCY_LOAD_BY_XOID, ["xoid" => $this->getXoid()], function(SqlSelectResult $result){
-			$this->applyRow($result->getRows()[0]);
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_CURRENCY_LOAD_BY_XOID, [
+			"xoid" => $this->getXoid()
+		], function(array $rows){
+			$this->applyRow($rows[0]);
 			$this->onChangesDownloaded();
 		});
 	}

@@ -34,7 +34,6 @@ use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use InvalidStateException;
 use poggit\libasynql\DataConnector;
-use poggit\libasynql\result\SqlSelectResult;
 use function date;
 use function time;
 use const DATE_ATOM;
@@ -90,17 +89,19 @@ class Transaction extends DataModel{
 			$consumer($cache->getTransaction($xoid));
 			return;
 		}
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_XOID, ["xoid" => $xoid], function(SqlSelectResult $result) use ($cache, $xoid, $consumer){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_XOID, [
+			"xoid" => $xoid
+		], function(array $rows) use ($cache, $xoid, $consumer){
 			if($cache->isTrackingModel($xoid)){
 				$consumer($cache->getAccount($xoid));
 				return;
 			}
-			if(empty($result->getRows())){
+			if(empty($rows)){
 				$consumer(null);
 				return;
 			}
 			$instance = new Transaction($cache, self::DATUM_TYPE, $xoid, false);
-			$instance->applyRow($result->getRows()[0]);
+			$instance->applyRow($rows[0]);
 			$consumer($instance);
 		});
 	}
@@ -153,8 +154,8 @@ class Transaction extends DataModel{
 
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_XOID, ["xoid" => $this->getXoid()], function(SqlSelectResult $result){
-			$this->applyRow($result->getRows()[0]);
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_TRANSACTION_LOAD_BY_XOID, ["xoid" => $this->getXoid()], function(array $rows){
+			$this->applyRow($rows[0]);
 			$this->onChangesDownloaded();
 		});
 	}

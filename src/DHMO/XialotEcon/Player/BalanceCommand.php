@@ -36,7 +36,6 @@ use DHMO\XialotEcon\XialotEconCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
-use poggit\libasynql\result\SqlSelectResult;
 use function ucfirst;
 
 final class BalanceCommand extends XialotEconCommand{
@@ -70,8 +69,8 @@ final class BalanceCommand extends XialotEconCommand{
 				$promise->do($flags, function(callable $complete) use ($ids){
 					$this->getPlugin()->getConnector()->executeSelect(Queries::XIALOTECON_PLAYER_STATS_BALANCE_GROUPED_SUM, [
 						"accountIds" => $ids
-					], function(SqlSelectResult $result) use ($complete){
-						$complete($result->getRows());
+					], function(array $rows) use ($complete){
+						$complete($rows);
 					});
 				});
 			}

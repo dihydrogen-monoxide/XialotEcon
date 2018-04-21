@@ -36,7 +36,6 @@ use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\XialotEcon;
 use InvalidArgumentException;
 use poggit\libasynql\DataConnector;
-use poggit\libasynql\result\SqlSelectResult;
 use function assert;
 
 final class DataModelCache{
@@ -79,8 +78,7 @@ final class DataModelCache{
 			}
 		}else{
 			$this->lastUpdateTick = $this->plugin->getServer()->getTick();
-			$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FEED_FETCH_FIRST, [], function(SqlSelectResult $result) use ($fetchFirst){
-				$rows = $result->getRows();
+			$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FEED_FETCH_FIRST, [], function(array $rows) use ($fetchFirst){
 				$this->lastUpdateId = isset($rows[0]) ? $rows[0]["maxUpdateId"] : 0;
 				if($fetchFirst !== null){
 					$fetchFirst();
@@ -96,9 +94,9 @@ final class DataModelCache{
 		$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FEED_FETCH_NEXT, [
 			"lastMaxUpdate" => $this->lastUpdateId,
 			"server" => $this->serverId,
-		], function(SqlSelectResult $result){
+		], function(array $rows){
 			$updates = [];
-			foreach($result->getRows() as $row){
+			foreach($rows as $row){
 				if($this->lastUpdateId < $row["updateId"]){
 					$this->lastUpdateId = $row["updateId"];
 				}

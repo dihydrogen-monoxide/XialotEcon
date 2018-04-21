@@ -1,6 +1,6 @@
 -- This is the MySQL database definition.
 -- XOID type: CHAR(34)
--- Money type: DECIMAL(35, 5)
+-- Money type: DECIMAL(20, 5)
 -- Generic namespace type: VARCHAR(100)
 -- Generic string identifier: VARCHAR(100)
 -- Generic short name: VARCHAR(100)
@@ -23,7 +23,7 @@ CREATE TABLE accounts (
 	ownerName   VARCHAR(100), -- the name of the owner under the owner type namespace. only use this for data analysis. do not store data here; if you need to store account-specific data, create a "peer table", unless this is the reasonably only extra identifier needed, and its value matches the definition of "owner".
 	accountType VARCHAR(100), -- account types with namespaces used for quick filtering, e.g. xialotecon.player.capital, xialotecon.shops.revenue, factions.faction.treasury. do not store data here; if you need to store account-specific data, create a "peer table". this should not be used as an identifier.
 	currency    CHAR(34) REFERENCES currencies (currencyId), -- if someone has multiple currencies, split them to multiple accounts.
-	balance     DECIMAL(35, 5), -- the signed amount of capital in this currency that can be attributed to the owner. may be used for data analysis, so this balance should represent actual capital, not other things like shop prices. if this account represents a liability, the balance should be negative.
+	balance     DECIMAL(20,5), -- the signed amount of capital in this currency that can be attributed to the owner. may be used for data analysis, so this balance should represent actual capital, not other things like shop prices. if this account represents a liability, the balance should be negative.
 	touch       TIMESTAMP,
 	KEY (accountType)
 );
@@ -33,8 +33,8 @@ CREATE TABLE transactions (
 	source          CHAR(34) REFERENCES accounts (accountId),
 	target          CHAR(34) REFERENCES accounts (accountId),
 	date            TIMESTAMP,
-	sourceReduction DECIMAL(35, 5),
-	targetAddition  DECIMAL(35, 5),
+	sourceReduction DECIMAL(20,5),
+	targetAddition  DECIMAL(20,5),
 	transactionType VARCHAR(100), -- transaction types with namespaces used for quick filtering. do not store data here; if you need to store transaction-specific data, create a "peer table". this should not be used as an identifier.
 	KEY (transactionType)
 );

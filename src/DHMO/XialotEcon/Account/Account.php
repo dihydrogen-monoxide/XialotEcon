@@ -34,7 +34,6 @@ use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use DHMO\XialotEcon\Util\JointPromise;
 use poggit\libasynql\DataConnector;
-use poggit\libasynql\result\SqlSelectResult;
 use function array_map;
 
 class Account extends DataModel{
@@ -69,25 +68,25 @@ class Account extends DataModel{
 			$consumer($cache->getAccount($xoid));
 			return;
 		}
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_XOID, ["xoid" => $xoid], function(SqlSelectResult $result) use ($cache, $xoid, $consumer){
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_XOID, ["xoid" => $xoid], function(array $rows) use ($cache, $xoid, $consumer){
 			if($cache->isTrackingModel($xoid)){
 				$consumer($cache->getAccount($xoid));
 				return;
 			}
-			if(empty($result->getRows())){
+			if(empty($rows)){
 				$consumer(null);
 				return;
 			}
 			$cache->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_TOUCH, ["xoid" => $xoid]);
 			$instance = new Account($cache, self::DATUM_TYPE, $xoid, false);
-			$instance->applyRow($cache, $result->getRows()[0]);
+			$instance->applyRow($cache, $rows[0]);
 			$cache->getPlugin()->getServer()->getPluginManager()->callAsyncEvent(new AccountTrackedEvent($instance, false), function() use ($consumer, $instance){
 				$consumer($instance);
 			});
 		});
 	}
 
-	public static function getForOwner(DataModelCache $cache, string $ownerType, string $ownerName, ?string $currency, ?array $accountTypes, callable $consumer){
+	public static function getForOwner(DataModelCache $cache, string $ownerType, string $ownerName, ?string $currency, ?array $accountTypes, callable $consumer) : void{
 		if($accountTypes === []){
 			$consumer([]);
 			return;
@@ -100,9 +99,9 @@ class Account extends DataModel{
 			"ownerName" => $ownerName,
 			"currency" => $currency,
 			"accountTypes" => $accountTypes,
-		], function(SqlSelectResult $result) use ($cache, $consumer){
+		], function(array $rows) use ($cache, $consumer){
 			$accounts = [];
-			foreach($result->getRows() as $row){
+			foreach($rows as $row){
 				if($cache->isTrackingModel($row["accountId"])){
 					$accounts[] = $cache->getAccount($row["accountId"]);
 				}else{
@@ -198,8 +197,8 @@ class Account extends DataModel{
 	}
 
 	protected function downloadChanges(DataModelCache $cache) : void{
-		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_XOID, ["xoid" => $this->getXoid()], function(SqlSelectResult $result) use ($cache){
-			$this->applyRow($cache, $result->getRows()[0]);
+		$cache->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_LOAD_BY_XOID, ["xoid" => $this->getXoid()], function(array $rows) use ($cache){
+			$this->applyRow($cache, $rows[0]);
 			$this->onChangesDownloaded();
 		});
 	}

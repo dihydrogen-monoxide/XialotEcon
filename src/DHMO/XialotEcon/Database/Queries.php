@@ -340,16 +340,79 @@ final class Queries{
 	public const XIALOTECON_DATA_MODEL_FEED_UPDATE = "xialotecon.data_model.feed.update";
 
 	/**
+	 * <i>(Description from resources/mysql/loan.mysql.sql)</i>
+	 *
+	 * Warning: balance is negative.
+	 *
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/loan.mysql.sql:33
+	 * - resources/mysql/loan.mysql.sql:107
 	 */
-	public const XIALOTECON_LOAN_DUTY_GLOBAL_COMPOUND = "xialotecon.loan.duty.global_compound";
+	public const XIALOTECON_LOAN_DUTY_COMPOUND_NORMAL = "xialotecon.loan.duty.compound.normal";
 
 	/**
 	 * <h4>Declared in:</h4>
-	 * - resources/mysql/loan.mysql.sql:22
+	 * - resources/mysql/loan.mysql.sql:145
+	 */
+	public const XIALOTECON_LOAN_DUTY_COMPOUND_UNPAID_PLAYER = "xialotecon.loan.duty.compound.unpaid.player";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/loan.mysql.sql:125
+	 */
+	public const XIALOTECON_LOAN_DUTY_COMPOUND_UNPAID_SERVER = "xialotecon.loan.duty.compound.unpaid.server";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/loan.mysql.sql:23
 	 */
 	public const XIALOTECON_LOAN_INIT_LOANS = "xialotecon.loan.init.loans";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/loan.mysql.sql:48
+	 *
+	 * <h3>Variables</h3>
+	 * - <code>:nextCompoundDate</code> timestamp, required in loan.mysql.sql
+	 * - <code>:normalInterest</code> float, required in loan.mysql.sql
+	 * - <code>:normalPeriod</code> int, required in loan.mysql.sql
+	 * - <code>:nextInterest</code> float, required in loan.mysql.sql
+	 * - <code>:visibleName</code> string, required in loan.mysql.sql
+	 * - <code>:localReturn</code> float, required in loan.mysql.sql
+	 * - <code>:accountId</code> string, required in loan.mysql.sql
+	 * - <code>:minReturn</code> float, required in loan.mysql.sql
+	 * - <code>:principal</code> float, required in loan.mysql.sql
+	 * - <code>:creditor</code> null|string, required in loan.mysql.sql
+	 * - <code>:loanId</code> string, required in loan.mysql.sql
+	 */
+	public const XIALOTECON_LOAN_SINGLE_INSERT = "xialotecon.loan.single.insert";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/loan.mysql.sql:93
+	 *
+	 * <h3>Variables</h3>
+	 * - <code>:loanId</code> string, required in loan.mysql.sql
+	 */
+	public const XIALOTECON_LOAN_SINGLE_SELECT = "xialotecon.loan.single.select";
+
+	/**
+	 * <h4>Declared in:</h4>
+	 * - resources/mysql/loan.mysql.sql:77
+	 *
+	 * <h3>Variables</h3>
+	 * - <code>:nextCompoundDate</code> timestamp, required in loan.mysql.sql
+	 * - <code>:normalInterest</code> float, required in loan.mysql.sql
+	 * - <code>:normalPeriod</code> int, required in loan.mysql.sql
+	 * - <code>:nextInterest</code> float, required in loan.mysql.sql
+	 * - <code>:visibleName</code> string, required in loan.mysql.sql
+	 * - <code>:localReturn</code> float, required in loan.mysql.sql
+	 * - <code>:accountId</code> string, required in loan.mysql.sql
+	 * - <code>:minReturn</code> float, required in loan.mysql.sql
+	 * - <code>:principal</code> float, required in loan.mysql.sql
+	 * - <code>:creditor</code> null|string, required in loan.mysql.sql
+	 * - <code>:loanId</code> string, required in loan.mysql.sql
+	 */
+	public const XIALOTECON_LOAN_SINGLE_UPDATE = "xialotecon.loan.single.update";
 
 	/**
 	 * <h4>Declared in:</h4>

@@ -54,20 +54,6 @@ final class AccountModule extends XialotEconModule{
 	public function onStartup() : void{
 		$obsoleteTime = StringUtil::parseTime($this->plugin->getConfig()->get("account")["obsolete-time"], 86400.0);
 		$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask(function() use ($obsoleteTime){
-//			$this->plugin->getConnector()->executeSelect(Queries::XIALOTECON_ACCOUNT_OBSOLETE_FIND, [
-//				"time" => $obsoleteTime
-//			], function(SqlSelectResult $result) use ($obsoleteTime){
-//				$ids = array_map(function(array $row){
-//					return $row["accountId"];
-//				}, $result->getRows());
-//				if(!empty($ids)){
-//					$this->plugin->getLogger()->info("Deleting " . count($ids) . " obsolete accounts");
-//					$this->plugin->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_OBSOLETE_DELETE_LIMITED, [
-//						"time" => $obsoleteTime,
-//						"limit" => count($ids)
-//					]);
-//				}
-//			});
 			$this->plugin->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_OBSOLETE_DELETE_UNLIMITED, [
 				"time" => $obsoleteTime
 			], function(int $changes){

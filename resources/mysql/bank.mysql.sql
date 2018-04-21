@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS bank_interest_constant_ratio (
 CREATE TABLE IF NOT EXISTS bank_interest_constant_diff (
 	interestId  CHAR(34) PRIMARY KEY,
 	accountId   CHAR(34) NOT NULL,
-	diff        DECIMAL(35, 5),
+	diff        DECIMAL(20,5),
 	period      DOUBLE,
 	lastApplied TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	KEY (accountId),

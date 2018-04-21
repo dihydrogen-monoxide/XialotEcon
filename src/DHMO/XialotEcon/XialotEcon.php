@@ -50,7 +50,6 @@ use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
-use poggit\libasynql\result\SqlSelectResult;
 use function array_values;
 use function json_encode;
 use function mkdir;
@@ -109,11 +108,13 @@ final class XialotEcon extends PluginBase implements Listener{
 				"mysql/core.mysql.sql",
 				"mysql/player.mysql.sql",
 				"mysql/bank.mysql.sql",
+				"mysql/loan.mysql.sql",
 			],
 			"sqlite" => [
 				"sqlite/core.sqlite.sql",
 				"sqlite/player.sqlite.sql",
 				"sqlite/bank.sqlite.sql",
+				"sqlite/loan.sqlite.sql",
 			],
 		]);
 
@@ -127,8 +128,7 @@ final class XialotEcon extends PluginBase implements Listener{
 		$this->getLogger()->debug("Starting core.metadata.create");
 		$this->getConnector()->executeGeneric(Queries::XIALOTECON_METADATA_CREATE, [], function(){
 			$this->getLogger()->debug("Starting core.metadata.selectVersion");
-			$this->getConnector()->executeSelect(Queries::XIALOTECON_METADATA_SELECT_VERSION, [], function(SqlSelectResult $result){
-				$rows = $result->getRows();
+			$this->getConnector()->executeSelect(Queries::XIALOTECON_METADATA_SELECT_VERSION, [], function(array $rows){
 				if(empty($rows)){
 					$this->initMode = self::INIT_INIT;
 					$this->getConnector()->executeChange(Queries::XIALOTECON_METADATA_DECLARE_VERSION, ["version" => self::CURRENT_DB_VERSION]);
@@ -156,9 +156,15 @@ final class XialotEcon extends PluginBase implements Listener{
 					}
 
 					// init players after all listeners have been registered.
-					// dirty hack. Any better solution?
 					foreach($this->getServer()->getOnlinePlayers() as $player){
-						$this->getPlayerModule()->onJoin($player);
+						foreach($this->modules as $module){
+							$module->onPlayerLogin($player);
+						}
+					}
+					foreach($this->getServer()->getOnlinePlayers() as $player){
+						foreach($this->modules as $module){
+							$module->onPlayerJoin($player);
+						}
 					}
 
 					$this->asyncInitialized = true;

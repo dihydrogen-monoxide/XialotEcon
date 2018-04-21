@@ -38,11 +38,9 @@ use DHMO\XialotEcon\Permissions;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\Player;
 use poggit\libasynql\ConfigException;
-use poggit\libasynql\result\SqlSelectResult;
 
 final class PlayerModule extends XialotEconModule implements Listener{
 	public const OWNER_TYPE_PLAYER = "xialotecon.player.player";
@@ -94,14 +92,11 @@ final class PlayerModule extends XialotEconModule implements Listener{
 		return $this->config;
 	}
 
-	public function e_join(PlayerJoinEvent $event) : void{
-		$this->onJoin($event->getPlayer());
-	}
-
-	public function onJoin(Player $player) : void{
+	public function onPlayerJoin(Player $player) : void{
 		$conn = $this->plugin->getConnector();
-		$conn->executeSelect(Queries::XIALOTECON_PLAYER_LOGIN_WHEN, ["name" => $player->getName()], function(SqlSelectResult $result) use ($conn, $player){
-			$rows = $result->getRows();
+		$conn->executeSelect(Queries::XIALOTECON_PLAYER_LOGIN_WHEN, [
+			"name" => $player->getName()
+		], function(array $rows) use ($conn, $player){
 			if(empty($rows)){
 				$this->initAccounts($player);
 				$conn->executeChange(Queries::XIALOTECON_PLAYER_LOGIN_TOUCH_INSERT, ["name" => $player->getName()]);
@@ -171,8 +166,8 @@ final class PlayerModule extends XialotEconModule implements Listener{
 			"ownerType" => self::OWNER_TYPE_PLAYER,
 			"ownerName" => $event->getPlayerName(),
 			"accountTypes" => [self::ACCOUNT_TYPE_CASH, self::ACCOUNT_TYPE_BANK],
-		], function(SqlSelectResult $result) use ($event){
-			foreach($result->getRows() as $row){
+		], function(array $rows) use ($event){
+			foreach($rows as $row){
 				$event->addAccountId($row["accountId"], 0 | ($row["accountType"] === self::ACCOUNT_TYPE_CASH ? AccountSearchEvent::FLAG_QUICK_ACCESS : 0));
 			}
 			$event->continue();

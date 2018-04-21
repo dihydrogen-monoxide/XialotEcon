@@ -32,7 +32,6 @@ use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use poggit\libasynql\DataConnector;
-use poggit\libasynql\result\SqlSelectResult;
 use function time;
 
 class ConstantDiffInterest extends OfflineInterest{
@@ -57,9 +56,9 @@ class ConstantDiffInterest extends OfflineInterest{
 	public static function forAccount(DataModelCache $cache, Account $account, callable $consumer) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_ACCOUNT_CONSTANT_DIFF, [
 			"accountId" => $account->getXoid()
-		], function(SqlSelectResult $result) use ($consumer, $cache, $account){
+		], function(array $rows) use ($consumer, $cache, $account){
 			$interests = [];
-			foreach($result->getRows() as $row){
+			foreach($rows as $row){
 				if($cache->isTrackingModel($row["interestId"])){
 					$interests[] = $cache->getModel($row["interestId"]);
 				}else{
@@ -98,8 +97,8 @@ class ConstantDiffInterest extends OfflineInterest{
 	protected function downloadChanges(DataModelCache $cache) : void{
 		$cache->getConnector()->executeSelect(Queries::XIALOTECON_BANK_INTEREST_FIND_BY_XOID_CONSTANT_DIFF, [
 			"interestId" => $this->getXoid(),
-		], function(SqlSelectResult $result){
-			$this->applyRow($this->account, $result->getRows()[0]);
+		], function(array $rows){
+			$this->applyRow($this->account, $rows[0]);
 			$this->onChangesDownloaded();
 		});
 	}

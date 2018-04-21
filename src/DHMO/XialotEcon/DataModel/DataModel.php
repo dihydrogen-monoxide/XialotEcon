@@ -211,7 +211,11 @@ abstract class DataModel implements JsonSerializable{
 		}
 	}
 
-	public function executeAfterNextUpload(callable $callable) : void{
+	public function executeAfterNextUpload(callable $callable, bool $immediateIfUnchanged = true) : void{
+		if($immediateIfUnchanged && !$this->needAutosave){
+			$callable();
+			return;
+		}
 		$this->afterNextUpload[] = $callable;
 	}
 
