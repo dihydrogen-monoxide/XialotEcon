@@ -35,6 +35,7 @@ use poggit\libasynql\libasynql;
 use RuntimeException;
 use function array_map;
 use function count;
+use function crc32;
 use function imagecolorallocate;
 use function imagecreatetruecolor;
 use function imagefill;
@@ -43,7 +44,7 @@ use function imageline;
 use function imagepng;
 use function imagettftext;
 use function implode;
-use function rand;
+use function round;
 use function uasort;
 use const INF;
 
@@ -154,7 +155,7 @@ class InitGraph{
 		$rightPad = 200;
 		$topPad = 50;
 		$bottomPad = 200;
-		$barHeight = 50;
+		$barHeight = 30;
 		$secondWidth = 1000;
 
 		uasort($this->namedMap, function(InitNode $node1, InitNode $node2) : int{
@@ -186,6 +187,7 @@ class InitGraph{
 		$image = imagecreatetruecolor((int) (($completeTime - $epoch) * $secondWidth) + $leftPad + $rightPad, count($barLists) * $barHeight + $topPad + $bottomPad);
 		$foreground = imagecolorallocate($image, 0, 0, 0);
 		$background = imagecolorallocate($image, 255, 255, 255);
+		$darkMode = 128;
 		imagefill($image, 0, 0, $background);
 
 		foreach($barLists as $i => $nodes){
@@ -196,26 +198,31 @@ class InitGraph{
 				$left = (int) (($node->startTime - $epoch) * $secondWidth) + $leftPad;
 				$right = (int) (($node->endTime - $epoch) * $secondWidth) + $leftPad;
 
-				$darkMode = 128; // if dark mode, set to 0
-				$r = rand(0, 127) + $darkMode;
-				$g = rand(0, 127) + $darkMode;
-				$b = rand(0, 127) + $darkMode;
+				$crc = crc32($node->name);
+				$r = ($crc & 127) + $darkMode;
+				$g = (($crc >> 8) & 127) + $darkMode;
+				$b = (($crc >> 16) & 127) + $darkMode;
+
 				imagefilledrectangle($image, $left, $ceil, $right, $floor, imagecolorallocate($image, $r, $g, $b));
-				imagettftext($image, 12, 0, $left, (int) (($ceil + $floor) / 2), $foreground, $ttf, $node->name);
+				imagettftext($image, 12, 0, $left, (int) (($ceil + $floor) / 2) + 6, $foreground, $ttf, $node->name);
 			}
 		}
 
 		imageline($image, $leftPad, $topPad, $leftPad, $topPad + (int) (count($barLists) * $barHeight), $foreground);
-		imageline($image, $leftPad, $topPad + (count($barLists) * $barHeight), $leftPad + (int) (($completeTime - $epoch) * $secondWidth), $topPad + (count($barLists) * $barHeight), $foreground);
+		imageline($image, $leftPad, $topPad + (count($barLists) * $barHeight), $leftPad + (int) (($completeTime - $epoch) * $secondWidth), $topPad + count($barLists) * $barHeight, $foreground);
+		imagettftext($image, 6, 0, $leftPad + (int) (($completeTime - $epoch) * $secondWidth) - 5, $topPad + count($barLists) * $barHeight + 10, $foreground, $ttf, "ms");
 
 		foreach($this->namedMap as $node){
 			imagettftext($image, 6, 0, (int) ($leftPad + ($node->startTime - $epoch) * $secondWidth),
-				(int) ($topPad + count($barLists) * $barHeight + ($node->chartPosition + 1) * 20), $foreground, $ttf, "+" . ($node->startTime - $epoch) . " (tick {$node->startTick})");
+				(int) ($topPad + count($barLists) * $barHeight + ($node->chartPosition + 1) * 20), $foreground, $ttf,
+				round(($node->startTime - $epoch) * 1000, 3) . " (tick {$node->startTick})");
 
 			imagettftext($image, 6, 0, (int) ($leftPad + ($node->endTime - $epoch) * $secondWidth),
-				(int) ($topPad + count($barLists) * $barHeight + ($node->chartPosition + 1.5) * 20), $foreground, $ttf, "+" . ($node->endTime - $epoch) . " (tick {$node->endTick})");
+				(int) ($topPad + count($barLists) * $barHeight + ($node->chartPosition + 1.5) * 20), $foreground, $ttf,
+				round(($node->endTime - $epoch) * 1000, 3) . " (tick {$node->endTick})");
 		}
 
-		imagepng($image, Server::getInstance()->getProperty("xialotecon.debug.init-graph-folder", Server::getInstance()->getDataPath()) . "/init-graph-" . XialotEcon::getInstance()->getInitMode() . ".png");
+		imagepng($image, $path = Server::getInstance()->getProperty("xialotecon.debug.init-graph-folder", Server::getInstance()->getDataPath()) . "/init-graph-" . XialotEcon::getInstance()->getInitMode() . ".png");
+		XialotEcon::getInstance()->getLogger()->info("Generated init report at $path");
 	}
 }

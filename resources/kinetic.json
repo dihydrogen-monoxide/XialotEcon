@@ -1,0 +1,224 @@
+{
+    "name": "INDEX",
+    "attrs": {
+        "ID": "xialotecon",
+        "NAMESPACE": "DHMO\\XialotEcon",
+        "TITLE": "XialotEcon"
+    },
+    "children": [
+        {
+            "name": "SYNOPSIS",
+            "text": "Welcome to XialotEcon!"
+        },
+        {
+            "name": "INDEX",
+            "attrs": {
+                "ID": "bank",
+                "TITLE": "Bank"
+            }
+        },
+        {
+            "name": "INDEX",
+            "attrs": {
+                "ID": "admin",
+                "TITLE": "Admin Tools"
+            },
+            "children": [
+                {
+                    "name": "INDEX",
+                    "attrs": {
+                        "ID": "moderation",
+                        "TITLE": "Moderation"
+                    },
+                    "children": [
+                        {
+                            "name": "LIST",
+                            "attrs": {
+                                "ID": "bankruptQueue",
+                                "TITLE": "Bankruptcy Queue",
+                                "PROVIDER": "Loan\\BankruptcyQueueAdapter"
+                            },
+                            "children": [
+                                {
+                                    "name": "SYNOPSIS",
+                                    "text": "Players in this queue are unable to repay loans. Click on each player to view their financial\n          status and determine actions."
+                                },
+                                {
+                                    "name": "EACH"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "INDEX",
+                    "attrs": {
+                        "ID": "analytics",
+                        "TITLE": "Global Analytics"
+                    },
+                    "children": [
+                        {
+                            "name": "LIST",
+                            "attrs": {
+                                "ID": "wealthList",
+                                "TITLE": "Wealthiest players",
+                                "PROVIDER": "Player\\WealthListProvider"
+                            },
+                            "children": [
+                                {
+                                    "name": "COMMAND",
+                                    "attrs": {
+                                        "NAME": "top-money"
+                                    },
+                                    "children": [
+                                        {
+                                            "name": "ALIAS",
+                                            "text": "topmoney"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "SYNOPSIS",
+                                    "text": "Click into each player to view his financial status"
+                                },
+                                {
+                                    "name": "PERMISSION",
+                                    "text": "xialotecon.player.analysis.balance.his",
+                                    "children": [
+                                        {
+                                            "name": "MESSAGE",
+                                            "text": "You don't have permission to view other players' balance."
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "SIMPLECONFIG",
+                                    "attrs": {
+                                        "ARGNAME": "display size"
+                                    },
+                                    "children": [
+                                        {
+                                            "name": "INPUT",
+                                            "attrs": {
+                                                "ID": "limit",
+                                                "TITLE": "Number of players to list",
+                                                "DEFAULT": "10",
+                                                "TYPECAST": "int"
+                                            }
+                                        },
+                                        {
+                                            "name": "INPUT",
+                                            "attrs": {
+                                                "ID": "limit",
+                                                "TITLE": "Number of players to list",
+                                                "DEFAULT": "10",
+                                                "TYPECAST": "int"
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "LISTCONFIG",
+                                    "attrs": {
+                                        "ID": "currencyConfig",
+                                        "TITLE": "Change currency comparison settings"
+                                    },
+                                    "children": [
+                                        {
+                                            "name": "ADAPTER",
+                                            "text": "Player\\CurrencyWeightAdapter"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "CONFIG",
+                                    "attrs": {
+                                        "ID": "cmpConfig",
+                                        "TITLE": "Change account comparison settings"
+                                    },
+                                    "children": [
+                                        {
+                                            "name": "INPUT",
+                                            "attrs": {
+                                                "ID": "sharedWeight",
+                                                "TITLE": "Weight of shared accounts",
+                                                "DEFAULT": "0",
+                                                "TYPECAST": "float",
+                                                "PLACEHOLDER": "Put a number here"
+                                            }
+                                        },
+                                        {
+                                            "name": "INPUT",
+                                            "attrs": {
+                                                "ID": "loanWeight",
+                                                "TITLE": "Weight of debt accounts",
+                                                "DEFAULT": "0",
+                                                "TYPECAST": "float",
+                                                "PLACEHOLDER": "Put a positive number here. Outstanding debts will be deducted according to this ratio."
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "BEFORE",
+                                    "children": [
+                                        {
+                                            "name": "LINK",
+                                            "attrs": {
+                                                "TARGET": "xialotecon.admin.analytics.balance"
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "EACH"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "INFO",
+                            "attrs": {
+                                "ID": "balance"
+                            },
+                            "children": [
+                                {
+                                    "name": "COMMANDENTRY",
+                                    "attrs": {
+                                        "NAME": "balance"
+                                    }
+                                },
+                                {
+                                    "name": "SIMPLECONFIG",
+                                    "attrs": {
+                                        "TYPE": "input",
+                                        "ID": "whose",
+                                        "TITLE": "Player name",
+                                        "ARGNAME": "player",
+                                        "PLACEHOLDER": "You can just type the first few letters of the name"
+                                    }
+                                },
+                                {
+                                    "name": "ADAPTER",
+                                    "text": "Player\\BalanceInfoAdapter"
+                                },
+                                {
+                                    "name": "LISTCONFIG",
+                                    "attrs": {
+                                        "ID": "which",
+                                        "TITLE": "Which player do you want?"
+                                    },
+                                    "children": [
+                                        {
+                                            "name": "ADAPTER",
+                                            "text": "Player\\BalanceWhichConfig"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

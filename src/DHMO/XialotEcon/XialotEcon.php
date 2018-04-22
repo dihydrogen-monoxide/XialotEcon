@@ -99,8 +99,6 @@ final class XialotEcon extends PluginBase implements Listener{
 	}
 
 	public function onEnable() : void{
-		//Make the faction config
-		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 
 		$connector = libasynql::create($this, $this->getConfig()->get("database"), [
@@ -182,10 +180,6 @@ final class XialotEcon extends PluginBase implements Listener{
 				$this->getServer()->getPluginManager()->disablePlugin($this);
 			}
 		}), 1200);
-	}
-
-	public function getPlayerModule() : PlayerModule{
-		return $this->modules[PlayerModule::class];
 	}
 
 	public function onDisable() : void{

@@ -29,10 +29,12 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Loan;
 
 use DHMO\XialotEcon\Account\Account;
+use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\DataModel\DataModel;
 use DHMO\XialotEcon\DataModel\DataModelCache;
 use poggit\libasynql\DataConnector;
+use function time;
 
 class Loan extends DataModel{
 	public const DATUM_TYPE = "xialotecon.loan";
@@ -59,6 +61,23 @@ class Loan extends DataModel{
 	private $nextInterest;
 	/** @var int */
 	private $nextCompoundDate;
+
+	public static function createNew(DataModelCache $cache, string $debtorType, string $debtorName, string $loanType, ?Account $creditor, string $visibleName, float $minReturn, float $firstInterest, float $normalInterest, int $firstPeriod, int $normalPeriod, float $principal, Currency $currency, callable $onComplete) : void{
+		Account::create($cache, $loanType, $debtorType, $debtorName, $currency, $principal, function(Account $refAccount) use ($principal, $visibleName, $creditor, $cache, $minReturn, $firstInterest, $normalInterest, $firstPeriod, $normalPeriod, $onComplete){
+			$loan = new Loan($cache, self::DATUM_TYPE, self::generateXoid(self::DATUM_TYPE), true);
+			$loan->refAccount = $refAccount;
+			$loan->creditor = $creditor;
+			$loan->visibleName = $visibleName;
+			$loan->minReturn = $minReturn;
+			$loan->normalInterest = $normalInterest;
+			$loan->normalPeriod = $normalPeriod;
+			$loan->principal = $principal;
+			$loan->localReturn = 0.0;
+			$loan->nextInterest = $firstInterest;
+			$loan->nextCompoundDate = time() + $firstPeriod;
+			$onComplete($loan);
+		});
+	}
 
 	public function isGarbage() : bool{
 		return $this->refAccount->isGarbage() || ($this->creditor !== null && $this->creditor->isGarbage()) || parent::isGarbage();

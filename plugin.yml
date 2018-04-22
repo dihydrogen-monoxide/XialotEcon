@@ -85,4 +85,6 @@ permissions:
                   xialotecon.player.analysis.balance.his:
                     default: op
                     description: Allows accessing others' balance summary report
+      xialotecon.admin:
+        default: op
 ...

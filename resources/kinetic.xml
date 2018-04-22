@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<index id="xialotecon" namespace="DHMO\XialotEcon" title="XialotEcon">
+  <!-- xmlns="https://rawgit.com/SOF3/libkinetic/master/libkinetic.xsd" -->
+  <synopsis>Welcome to XialotEcon!</synopsis>
+
+  <index id="bank" title="Bank">
+  </index>
+
+  <index id="admin" title="Admin Tools">
+    <index id="moderation" title="Moderation">
+      <list id="bankruptQueue" title="Bankruptcy Queue" provider="Loan\BankruptcyQueueAdapter">
+        <synopsis>Players in this queue are unable to repay loans. Click on each player to view their financial
+          status and determine actions.
+        </synopsis>
+
+        <each>
+
+        </each>
+      </list>
+    </index>
+
+    <index id="analytics" title="Global Analytics">
+      <list id="wealthList" title="Wealthiest players" provider="Player\WealthListProvider">
+        <command name="top-money">
+          <alias>topmoney</alias>
+        </command>
+        <synopsis>Click into each player to view his financial status</synopsis>
+        <permission>xialotecon.player.analysis.balance.his
+          <message>You don't have permission to view other players' balance.</message>
+        </permission>
+
+        <simpleConfig argName="display size">
+          <input id="limit" title="Number of players to list" default="10" typeCast="int"/>
+          <input id="limit" title="Number of players to list" default="10" typeCast="int"/>
+        </simpleConfig>
+
+        <listConfig id="currencyConfig" title="Change currency comparison settings">
+          <adapter>Player\CurrencyWeightAdapter</adapter>
+        </listConfig>
+
+        <config id="cmpConfig" title="Change account comparison settings">
+          <input id="sharedWeight" title="Weight of shared accounts" default="0" typeCast="float"
+                 placeholder="Put a number here"/>
+          <input id="loanWeight" title="Weight of debt accounts" default="0" typeCast="float"
+                 placeholder="Put a positive number here. Outstanding debts will be deducted according to this ratio."/>
+        </config>
+
+        <before>
+          <link target="xialotecon.admin.analytics.balance"/>
+        </before>
+
+        <each>
+
+        </each>
+      </list>
+
+      <info id="balance">
+        <commandEntry name="balance"/>
+        <simpleConfig type="input" id="whose" title="Player name" argName="player"
+                      placeholder="You can just type the first few letters of the name"/>
+        <adapter>Player\BalanceInfoAdapter</adapter>
+
+        <listConfig id="which" title="Which player do you want?">
+          <adapter>Player\BalanceWhichConfig</adapter>
+        </listConfig>
+      </info>
+    </index>
+  </index>
+</index>

@@ -1,4 +1,0 @@
-[submodule "gh-pages"]
-	path = docs
-	url = git@github.com:dihydrogen-monoxide/XialotEcon
-	branch = gh-pages

@@ -79,7 +79,7 @@ final class DataModelCache{
 		}else{
 			$this->lastUpdateTick = $this->plugin->getServer()->getTick();
 			$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FEED_FETCH_FIRST, [], function(array $rows) use ($fetchFirst){
-				$this->lastUpdateId = isset($rows[0]) ? $rows[0]["maxUpdateId"] : 0;
+				$this->lastUpdateId = isset($rows[0], $rows[0]["maxUpdateId"]) ? $rows[0]["maxUpdateId"] : -1;
 				if($fetchFirst !== null){
 					$fetchFirst();
 				}

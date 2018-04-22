@@ -5,3 +5,6 @@ projects:
         version: ^3.0
         branch: "*"
         epitope: .sha
+      - src: SOF3/libkinetic/libkinetic
+        version: 0.0.1
+        epitope: .sha
