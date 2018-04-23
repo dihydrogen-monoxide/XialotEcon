@@ -9,12 +9,11 @@
   <index id="admin" title="Admin Tools">
     <index id="moderation" title="Moderation">
       <list id="bankruptQueue" title="Bankruptcy Queue" provider="Loan\BankruptcyQueueAdapter">
-        <synopsis>Players in this queue are unable to repay loans. Click on each player to view their financial
-          status and determine actions.
+        <synopsis>Players in this queue are unable to repay loans. Click on each player to view their financial status
+          and determine actions.
         </synopsis>
 
-        <each>
-
+        <each configName="player">
         </each>
       </list>
     </index>
@@ -25,20 +24,23 @@
           <alias>topmoney</alias>
         </command>
         <synopsis>Click into each player to view his financial status</synopsis>
-        <permission>xialotecon.player.analysis.balance.his
+        <permission value="xialotecon.player.analysis.balance.his">
           <message>You don't have permission to view other players' balance.</message>
         </permission>
 
-        <simpleConfig argName="display size">
+        <commandConfig argName="display size">
           <input id="limit" title="Number of players to list" default="10" typeCast="int"/>
-          <input id="limit" title="Number of players to list" default="10" typeCast="int"/>
-        </simpleConfig>
+        </commandConfig>
 
-        <listConfig id="currencyConfig" title="Change currency comparison settings">
-          <adapter>Player\CurrencyWeightAdapter</adapter>
-        </listConfig>
+        <complexConfig id="currencyConfig" title="Change currency weight">
+          <provider>Player\CurrencyWeightAdapter</provider>
+          <each>
+            <toggle id="toggle"/>
+            <input typeCast="float"/>
+          </each>
+        </complexConfig>
 
-        <config id="cmpConfig" title="Change account comparison settings">
+        <config id="cmpConfig" title="Choose which accounts to consider">
           <input id="sharedWeight" title="Weight of shared accounts" default="0" typeCast="float"
                  placeholder="Put a number here"/>
           <input id="loanWeight" title="Weight of debt accounts" default="0" typeCast="float"
@@ -49,20 +51,20 @@
           <link target="xialotecon.admin.analytics.balance"/>
         </before>
 
-        <each>
-
+        <each configName="whose">
+          <link target="xialotecon.admin.analytics.balance"/>
         </each>
       </list>
 
-      <info id="balance">
+      <info id="balance" populator="Player\BalanceInfoPopulator">
         <commandEntry name="balance"/>
+        <permission predicate="Player\BalancePermissionPredicate"/>
         <simpleConfig type="input" id="whose" title="Player name" argName="player"
                       placeholder="You can just type the first few letters of the name"/>
-        <adapter>Player\BalanceInfoAdapter</adapter>
 
-        <listConfig id="which" title="Which player do you want?">
-          <adapter>Player\BalanceWhichConfig</adapter>
-        </listConfig>
+        <listConfig id="which" title="Which player do you want?" provider="Player\WhichBalanceInfoProvider"/>
+
+        <button1>Check transaction history</button1>
       </info>
     </index>
   </index>
