@@ -48,11 +48,12 @@ use DHMO\XialotEcon\Util\StringUtil;
 use LogicException;
 use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\TextFormat;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
 use function array_values;
 use function json_encode;
-use function mkdir;
+use function microtime;
 use const JSON_PRETTY_PRINT;
 
 final class XialotEcon extends PluginBase implements Listener{
@@ -101,6 +102,10 @@ final class XialotEcon extends PluginBase implements Listener{
 	public function onEnable() : void{
 		$this->saveDefaultConfig();
 
+		if(!libasynql::isPackaged()){
+			$this->getLogger()->warning("This copy of XialotEcon contains an unshaded version of libasynql v3, which means debug mode is enabled. This may cause a significant performance reduction. " . TextFormat::AQUA . "Do not use this copy on a production server. Get a release from Poggit instead: " . TextFormat::UNDERLINE . "https://poggit.pmmp.io/p/XialotEcon");
+		}
+
 		$connector = libasynql::create($this, $this->getConfig()->get("database"), [
 			"mysql" => [
 				"mysql/core.mysql.sql",
@@ -123,10 +128,11 @@ final class XialotEcon extends PluginBase implements Listener{
 			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
 		}
 
+		$start = microtime(true);
 		$this->getLogger()->debug("Starting core.metadata.create");
-		$this->getConnector()->executeGeneric(Queries::XIALOTECON_METADATA_CREATE, [], function(){
+		$this->getConnector()->executeGeneric(Queries::XIALOTECON_METADATA_CREATE, [], function() use ($start){
 			$this->getLogger()->debug("Starting core.metadata.selectVersion");
-			$this->getConnector()->executeSelect(Queries::XIALOTECON_METADATA_SELECT_VERSION, [], function(array $rows){
+			$this->getConnector()->executeSelect(Queries::XIALOTECON_METADATA_SELECT_VERSION, [], function(array $rows) use ($start){
 				if(empty($rows)){
 					$this->initMode = self::INIT_INIT;
 					$this->getConnector()->executeChange(Queries::XIALOTECON_METADATA_DECLARE_VERSION, ["version" => self::CURRENT_DB_VERSION]);
@@ -147,23 +153,29 @@ final class XialotEcon extends PluginBase implements Listener{
 						$this->modules[$module] = $instance;
 					}
 				}
-				$graph->execute(function() use ($graph){
-					$this->getLogger()->info("Async initialization completed");
+				$graph->execute(function() use ($graph, $start){
+					$this->getLogger()->info("Async initialization completed (" . (microtime(true) - $start) * 1000 . " ms)");
+
 					foreach($this->modules as $module){
 						$module->onStartup();
 					}
 
 					// init players after all listeners have been registered.
+					// PocketMine call sequence: call PlayerLoginEvent, add to getOnlinePlayers(), call PlayerJoinEvent
+					// Therefore getOnlinePlayers() must have PlayerLoginEvent called, but may not have PlayerJoinEvent called
 					foreach($this->getServer()->getOnlinePlayers() as $player){
 						foreach($this->modules as $module){
 							$module->onPlayerLogin($player);
 						}
 					}
 					foreach($this->getServer()->getOnlinePlayers() as $player){
-						foreach($this->modules as $module){
-							$module->onPlayerJoin($player);
+						if($player->spawned){
+							foreach($this->modules as $module){
+								$module->onPlayerJoin($player);
+							}
 						}
 					}
+					$this->getServer()->getPluginManager()->registerEvents(new PlayerTrafficMonitor($this), $this);
 
 					$this->asyncInitialized = true;
 
@@ -183,6 +195,11 @@ final class XialotEcon extends PluginBase implements Listener{
 	}
 
 	public function onDisable() : void{
+		foreach($this->getServer()->getOnlinePlayers() as $player){
+			foreach($this->modules as $module){
+				$module->onPlayerQuit($player);
+			}
+		}
 		foreach($this->modules as $module){
 			$module->onShutdown();
 		}
@@ -235,6 +252,13 @@ final class XialotEcon extends PluginBase implements Listener{
 			throw new BadMethodCallException("initFrom is only available in INIT_ALTER");
 		}
 		return $this->initFrom;
+	}
+
+	/**
+	 * @return XialotEconModule[]
+	 */
+	public function getModules() : array{
+		return $this->modules;
 	}
 
 	public function isAsyncInitialized() : bool{

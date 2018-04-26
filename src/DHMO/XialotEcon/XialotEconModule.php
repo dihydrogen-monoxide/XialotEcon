@@ -33,6 +33,21 @@ use pocketmine\Player;
 use poggit\libasynql\libasynql;
 use function assert;
 
+/**
+ * Represents a module in XialotEcon.
+ *
+ * Startup is reported at the following sequence, given modules A and B and online players Steve and Alex:
+ * - Module A: onStartup
+ * - Module B: onStartup
+ * - Module A: Steve login
+ * - Module B: Steve login
+ * - Module A: Alex login
+ * - Module B: Alex login
+ * - Module A: Steve join
+ * - Module B: Steve join
+ * - Module A: Alex join
+ * - Module B: Alex join
+ */
 abstract class XialotEconModule{
 	/** @var XialotEcon */
 	protected $plugin;
@@ -68,5 +83,8 @@ abstract class XialotEconModule{
 	}
 
 	public function onPlayerJoin(Player $player) : void{
+	}
+
+	public function onPlayerQuit(Player $player) : void{
 	}
 }

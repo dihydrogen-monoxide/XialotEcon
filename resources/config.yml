@@ -20,6 +20,10 @@ database:
   # Recommended: 1 for sqlite, 2 for MySQL. You may want to further increase this value if your MySQL connection is very slow.
   worker-limit: 1
 
+master-menu-item:
+  id: feather
+  damage: 0
+
 data-model:
   # About loading, saving and synchronizing
   # notify-changes: When some data are changed on this server, notify other servers about it.

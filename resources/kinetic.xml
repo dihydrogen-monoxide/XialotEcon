@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <index id="xialotecon" namespace="DHMO\XialotEcon" title="XialotEcon">
   <!-- xmlns="https://rawgit.com/SOF3/libkinetic/master/libkinetic.xsd" -->
+  <item fromConfig="master-menu-item"/>
   <synopsis>Welcome to XialotEcon!</synopsis>
 
   <index id="bank" title="Bank">
@@ -36,7 +37,7 @@
           <provider>Player\CurrencyWeightAdapter</provider>
           <each>
             <toggle id="toggle"/>
-            <input typeCast="float"/>
+            <input id="weight" typeCast="float"/>
           </each>
         </complexConfig>
 

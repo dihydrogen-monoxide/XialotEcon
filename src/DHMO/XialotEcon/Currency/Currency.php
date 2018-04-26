@@ -89,7 +89,7 @@ class Currency extends DataModel{
 				self::$byName[$name] = self::createNew($cache, $name, $symbols["prefix"] ?? "", $symbols["suffix"] ?? "");
 			}elseif(($symbols["prefix"] ?? "") !== self::$byName[$name]->symbolBefore ||
 				($symbols["suffix"] ?? "") !== self::$byName[$name]->symbolAfter){
-				XialotEcon::getInstance()->getLogger()->warning(sprintf(
+				XialotEcon::getInstance()->getLogger()->notice(sprintf(
 					'The registered currency "%s" has different units in the database (%s) and in your config (%s). The value in your config will be used. The value in the database will be overwritten.',
 					$name, self::$byName[$name]->symbolize(123), ($symbols["prefix"] ?? "") . "123" . ($symbols["suffix"] ?? "")));
 				self::$byName[$name]->onValid(function(Currency $currency) use ($symbols){
