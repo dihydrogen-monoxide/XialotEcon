@@ -1,0 +1,8 @@
+language: en_US
+base: true
+
+constants:
+
+messages:
+  xialotecon:
+

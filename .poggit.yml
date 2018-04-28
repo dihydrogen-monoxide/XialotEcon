@@ -3,7 +3,9 @@ projects:
     libs:
       - src: poggit/libasynql/libasynql
         version: ^3.0
-        branch: "*"
+        epitope: .sha
+      - src: SOF3/libglocal/libglocal
+        version: 0.1.0
         epitope: .sha
       - src: SOF3/libkinetic/libkinetic
         version: 0.0.1

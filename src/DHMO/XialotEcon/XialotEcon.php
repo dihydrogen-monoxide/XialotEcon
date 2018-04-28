@@ -47,10 +47,13 @@ use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\StringUtil;
 use LogicException;
 use pocketmine\event\Listener;
+use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
+use SOFe\Libglocal\LanguageManager;
+use SOFe\Libglocal\Libglocal;
 use function array_values;
 use function json_encode;
 use function microtime;
@@ -84,6 +87,9 @@ final class XialotEcon extends PluginBase implements Listener{
 	private $modelCache;
 	/** @var DataConnector */
 	private $connector;
+
+	/** @var LanguageManager */
+	private $lang;
 
 	private $initMode;
 	private $initFrom;
@@ -123,6 +129,8 @@ final class XialotEcon extends PluginBase implements Listener{
 
 		$this->modelCache = new DataModelCache($this, $connector);
 		$this->connector = $connector;
+
+		$this->lang = Libglocal::init($this);
 
 		foreach($this->getConfig()->get("data-model")["types"] as $type => $modelConfig){
 			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
@@ -216,6 +224,32 @@ final class XialotEcon extends PluginBase implements Listener{
 		return $this->connector;
 	}
 
+	public function getLang() : LanguageManager{
+		return $this->lang;
+	}
+
+	public function translate(Player $player, string $key, array $args = []) : string{
+		return $this->lang->translate($player->getLocale(), $key, $args);
+	}
+
+	public function getInitMode() : int{
+		return $this->initMode;
+	}
+
+	public function getInitFrom(){
+		if($this->initMode !== self::INIT_ALTER){
+			throw new BadMethodCallException("initFrom is only available in INIT_ALTER");
+		}
+		return $this->initFrom;
+	}
+
+	/**
+	 * @return XialotEconModule[]
+	 */
+	public function getModules() : array{
+		return $this->modules;
+	}
+
 	public function findAccount(AccountContributionEvent $event, callable $consumer, int $distinctionThreshold = null) : void{
 		$distinctionThreshold = $distinctionThreshold ?? $this->getConfig()->getNested("account.default-distinction", 10);
 		$this->getServer()->getPluginManager()->callAsyncEvent($event, function(AccountContributionEvent $event) use ($distinctionThreshold, $consumer){
@@ -241,24 +275,6 @@ final class XialotEcon extends PluginBase implements Listener{
 				}
 			});
 		});
-	}
-
-	public function getInitMode() : int{
-		return $this->initMode;
-	}
-
-	public function getInitFrom(){
-		if($this->initMode !== self::INIT_ALTER){
-			throw new BadMethodCallException("initFrom is only available in INIT_ALTER");
-		}
-		return $this->initFrom;
-	}
-
-	/**
-	 * @return XialotEconModule[]
-	 */
-	public function getModules() : array{
-		return $this->modules;
 	}
 
 	public function isAsyncInitialized() : bool{
