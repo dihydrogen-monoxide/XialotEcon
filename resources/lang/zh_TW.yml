@@ -1,0 +1,37 @@
+language: zh_TW
+
+localName: 繁體中文
+
+constants:
+  plugin.name: XialotEcon
+  role.staff: 管理員
+
+messages:
+  xialotecon:
+    main:
+      title: %{plugin.name}
+      synopsis: 歡迎使用%{plugin.name}
+    staff:
+      title: %{role.staff}工具
+      synopsis: ""
+      queues:
+        title: 待辦隊列
+        synopsis: 一些有待%{role.staff}處理的事項
+        bankruptcy:
+          title: 破產管理
+          synopsis: 下列玩家未有手動償還欠債，自動還債亦未能償清此期最低還款額。點擊玩家以查看其財務狀況，為他們進行手動清盤，及決定進一步行動。
+      analytics:
+        title: 全伺服器經濟分析
+        synopsis: 分析整個伺服器/網絡的經濟境況
+        wealth-list:
+          title: 最富有的玩家
+          synopsis: 點擊玩家以查看其財務狀況。
+          permission-message:
+            his: "%{error}你沒有查看其他玩家結餘的權限。"
+          limit:
+            arg-name: 顯示數量
+            input-name: 顯示的玩家數量
+          currency-weight:
+            title: 貨幣比重
+            toggle: 計算${currency.name}？
+            weight: 比重︰

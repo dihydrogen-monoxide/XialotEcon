@@ -54,12 +54,14 @@ use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
 use SOFe\Libglocal\LanguageManager;
 use SOFe\Libglocal\Libglocal;
+use SOFe\libkinetic\KineticManager;
+use SOFe\libkinetic\LanguageProvider;
 use function array_values;
 use function json_encode;
 use function microtime;
 use const JSON_PRETTY_PRINT;
 
-final class XialotEcon extends PluginBase implements Listener{
+final class XialotEcon extends PluginBase implements Listener, LanguageProvider{
 	public const CURRENT_DB_VERSION = "1";
 	public const INIT_OK = 0;
 	public const INIT_INIT = 1;
@@ -91,7 +93,12 @@ final class XialotEcon extends PluginBase implements Listener{
 	/** @var LanguageManager */
 	private $lang;
 
+	/** @var KineticManager */
+	private $kinetic;
+
+	/** @var int */
 	private $initMode;
+	/** @var string */
 	private $initFrom;
 
 	/** @var XialotEconModule[] */
@@ -162,34 +169,7 @@ final class XialotEcon extends PluginBase implements Listener{
 					}
 				}
 				$graph->execute(function() use ($graph, $start){
-					$this->getLogger()->info("Async initialization completed (" . (microtime(true) - $start) * 1000 . " ms)");
-
-					foreach($this->modules as $module){
-						$module->onStartup();
-					}
-
-					// init players after all listeners have been registered.
-					// PocketMine call sequence: call PlayerLoginEvent, add to getOnlinePlayers(), call PlayerJoinEvent
-					// Therefore getOnlinePlayers() must have PlayerLoginEvent called, but may not have PlayerJoinEvent called
-					foreach($this->getServer()->getOnlinePlayers() as $player){
-						foreach($this->modules as $module){
-							$module->onPlayerLogin($player);
-						}
-					}
-					foreach($this->getServer()->getOnlinePlayers() as $player){
-						if($player->spawned){
-							foreach($this->modules as $module){
-								$module->onPlayerJoin($player);
-							}
-						}
-					}
-					$this->getServer()->getPluginManager()->registerEvents(new PlayerTrafficMonitor($this), $this);
-
-					$this->asyncInitialized = true;
-
-					if(!libasynql::isPackaged()){
-						$graph->generateChart();
-					}
+					$this->onAsyncReady($graph, $start);
 				});
 			});
 		});
@@ -200,6 +180,39 @@ final class XialotEcon extends PluginBase implements Listener{
 				$this->getServer()->getPluginManager()->disablePlugin($this);
 			}
 		}), 1200);
+	}
+
+	private function onAsyncReady(InitGraph $graph, float $start) : void{
+		$this->getLogger()->info("Async initialization completed (" . (microtime(true) - $start) * 1000 . " ms)");
+
+		foreach($this->modules as $module){
+			$module->onStartup();
+		}
+
+		// init players after all listeners have been registered.
+		// PocketMine call sequence: call PlayerLoginEvent, add to getOnlinePlayers(), call PlayerJoinEvent
+		// Therefore getOnlinePlayers() must have PlayerLoginEvent called, but may not have PlayerJoinEvent called
+		foreach($this->getServer()->getOnlinePlayers() as $player){
+			foreach($this->modules as $module){
+				$module->onPlayerLogin($player);
+			}
+		}
+		foreach($this->getServer()->getOnlinePlayers() as $player){
+			if($player->spawned){
+				foreach($this->modules as $module){
+					$module->onPlayerJoin($player);
+				}
+			}
+		}
+		$this->getServer()->getPluginManager()->registerEvents(new PlayerTrafficMonitor($this), $this);
+
+		$this->kinetic = new KineticManager($this, $this, "kinetic.xml", "kinetic.json");
+
+		$this->asyncInitialized = true;
+
+		if(!libasynql::isPackaged()){
+			$graph->generateChart();
+		}
 	}
 
 	public function onDisable() : void{
@@ -228,7 +241,7 @@ final class XialotEcon extends PluginBase implements Listener{
 		return $this->lang;
 	}
 
-	public function translate(Player $player, string $key, array $args = []) : string{
+	public function getMessage(Player $player, string $key, array $args = []) : string{
 		return $this->lang->translate($player->getLocale(), $key, $args);
 	}
 
@@ -280,7 +293,6 @@ final class XialotEcon extends PluginBase implements Listener{
 	public function isAsyncInitialized() : bool{
 		return $this->asyncInitialized;
 	}
-
 
 	public function __debugInfo(){
 		return [];
