@@ -25,19 +25,20 @@
           <alias>topmoney</alias>
         </command>
         <synopsis>xialotecon.staff.analytics.wealth-list.title</synopsis>
-        <permission value="xialotecon.player.analysis.balance.his">
-          <message>xialotecon.staff.analytics.wealth-list.permission-message.his</message>
-        </permission>
+        <permission value="xialotecon.player.analysis.balance.his"
+                    message="xialotecon.staff.analytics.wealth-list.permission-message.his"/>
 
         <commandConfig argName="xialotecon.staff.analytics.wealth-list.limit.arg-name">
-          <input id="limit" title="xialotecon.staff.analytics.wealth-list.limit.input-name" default="10" typeCast="int"/>
+          <input id="limit" title="xialotecon.staff.analytics.wealth-list.limit.input-name" default="10"
+                 typeCast="int"/>
         </commandConfig>
 
-        <complexConfig id="currencyConfig" title="xialotecon.staff.analytics.wealth-list.currency-weight.title">
-          <provider>Player\CurrencyWeightAdapter</provider>
+        <complexConfig id="currencyConfig" title="xialotecon.staff.analytics.wealth-list.currency-weight.title"
+                       provider="Player\CurrencyWeightAdapter">
           <each>
-            <toggle id="toggle"/>
-            <input id="weight" typeCast="float"/>
+            <toggle id="toggle" title="xialotecon.staff.analytics.wealth-list.currency-weight.toggle"/>
+            <input id="weight" title="xialotecon.staff.analytics.wealth-list.currency-weight.analytics"
+                   typeCast="float"/>
           </each>
         </complexConfig>
 
@@ -57,17 +58,16 @@
         </each>
       </list>
 
-      <info id="balance" populator="Player\BalanceInfoPopulator">
-        <commandEntry name="balance"/>
+      <info id="balance" populator="Player\BalanceInfoPopulator" title="xialotecon.staff.analytics.balance">
+        <command name="balance"/>
         <permission predicate="Player\BalancePermissionPredicate"/>
-        <simpleConfig type="input" id="whose" title="Player name" argName="player"
-                      placeholder="You can just type the first few letters of the name"/>
+        <commandConfig argName="xialotecon.staff.analytics.balance.whose.arg-name">
+          <input id="whose" title="xialotecon.staff.analytics.balance.whose.title" placeholder="xialotecon.staff.analytics.balance.whose.placeholder"/>
+        </commandConfig>
 
-        <listConfig id="which" title="Which player do you want?" provider="Player\WhichBalanceInfoProvider"/>
-
-        <button1>Check transaction history</button1>
+        <listConfig id="which" title="xialotecon.staff.analytics.balance.which.title" provider="Player\WhichBalanceInfoProvider"/>
       </info>
     </index>
   </index>
-  <literal id="about" title="About" content=""/>
+  <text id="about" title="About" content="xialotecon.about.content"/>
 </index>

@@ -10,6 +10,8 @@ messages:
       synopsis:
         _: Welcome to XialotEcon!
         ^: This is the line displayed in the main menu page.
+    player:
+    bank:
     staff:
       title: Staff Tools
       synopsis: Hello staff! What would you like to do?
