@@ -16,7 +16,7 @@ messages:
       title: Staff Tools
       synopsis: Hello staff! What would you like to do?
       queues:
-        title: Queues
+        title: Pending Queues
         synopsis: Some pending work to do.
         bankruptcy:
           title: Bankruptcy
@@ -37,4 +37,4 @@ messages:
             toggle:
               _: Include ${currency.name}?
               $: currency.name
-            weight: Weight:
+            weight: "Weight:"

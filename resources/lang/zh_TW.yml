@@ -24,7 +24,7 @@ messages:
         title: 全伺服器經濟分析
         synopsis: 分析整個伺服器/網絡的經濟境況
         wealth-list:
-          title: 最富有的玩家
+          title: 富豪榜
           synopsis: 點擊玩家以查看其財務狀況。
           permission-message:
             his: "%{error}你沒有查看其他玩家結餘的權限。"
