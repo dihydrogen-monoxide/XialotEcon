@@ -54,14 +54,17 @@ use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
 use SOFe\Libglocal\LanguageManager;
 use SOFe\Libglocal\Libglocal;
+use SOFe\libkinetic\KineticAdapter;
+use SOFe\libkinetic\KineticAdapterBase;
 use SOFe\libkinetic\KineticManager;
-use SOFe\libkinetic\LanguageProvider;
 use function array_values;
 use function json_encode;
 use function microtime;
 use const JSON_PRETTY_PRINT;
 
-final class XialotEcon extends PluginBase implements Listener, LanguageProvider{
+final class XialotEcon extends PluginBase implements Listener, KineticAdapter{
+	use KineticAdapterBase;
+
 	public const CURRENT_DB_VERSION = "1";
 	public const INIT_OK = 0;
 	public const INIT_INIT = 1;
@@ -241,8 +244,8 @@ final class XialotEcon extends PluginBase implements Listener, LanguageProvider{
 		return $this->lang;
 	}
 
-	public function getMessage(Player $player, string $key, array $args = []) : string{
-		return $this->lang->translate($player->getLocale(), $key, $args);
+	public function getMessage(?Player $player, string $key, array $args = []) : string{
+		return $this->lang->translate($player !== null ? $player->getLocale() : "en_US", $key, $args);
 	}
 
 	public function getInitMode() : int{

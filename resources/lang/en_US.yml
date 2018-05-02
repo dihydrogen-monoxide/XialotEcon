@@ -38,3 +38,10 @@ messages:
               _: Include ${currency.name}?
               $: currency.name
             weight: "Weight:"
+        balance:
+          title:
+            _: Balance of ${whose}
+            $: [whose]
+          content:
+            _: TODO
+    about:
