@@ -2,7 +2,10 @@
 <kinetic namespace="DHMO\XialotEcon"
          xmlns="https://rawgit.com/SOF3/libkinetic/master/libkinetic.xsd">
   <index id="xialotecon" title="xialotecon.main.title" synopsis="xialotecon.main.synopsis">
-    <item fromConfig="master-menu-item"/>
+    <interact>
+      <item fromConfig="master-menu-item"/>
+      <block fromConfig="master-menu-block"/>
+    </interact>
 
     <index id="bank" title="Bank">
     </index>
