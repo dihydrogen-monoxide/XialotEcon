@@ -16,7 +16,7 @@ final class KineticIds{
 	 */
 	public const XIALOTECON = "xialotecon";
 	/**
-	 * TextNode &lt;TEXT&gt;
+	 * InfoNode &lt;INFO&gt;
 	 */
 	public const XIALOTECON_ABOUT = "xialotecon.about";
 	/**
@@ -32,14 +32,6 @@ final class KineticIds{
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_BALANCE = "xialotecon.admin.analytics.balance";
 	/**
-	 * CommandConfigNode &lt;COMMANDCONFIG&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_BALANCE___COMMANDARGS = "xialotecon.admin.analytics.balance.__commandArgs";
-	/**
-	 * InputNode &lt;INPUT&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_BALANCE___COMMANDARGS_WHOSE = "xialotecon.admin.analytics.balance.__commandArgs.whose";
-	/**
 	 * ListConfigNode &lt;LISTCONFIG&gt;
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_BALANCE_WHICH = "xialotecon.admin.analytics.balance.which";
@@ -47,14 +39,6 @@ final class KineticIds{
 	 * ListNode &lt;LIST&gt;
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST = "xialotecon.admin.analytics.wealthList";
-	/**
-	 * CommandConfigNode &lt;COMMANDCONFIG&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST___COMMANDARGS = "xialotecon.admin.analytics.wealthList.__commandArgs";
-	/**
-	 * InputNode &lt;INPUT&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST___COMMANDARGS_LIMIT = "xialotecon.admin.analytics.wealthList.__commandArgs.limit";
 	/**
 	 * BeforeListNode &lt;BEFORE&gt;
 	 */
@@ -64,14 +48,6 @@ final class KineticIds{
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CMPCONFIG = "xialotecon.admin.analytics.wealthList.cmpConfig";
 	/**
-	 * InputNode &lt;INPUT&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CMPCONFIG_LOANWEIGHT = "xialotecon.admin.analytics.wealthList.cmpConfig.loanWeight";
-	/**
-	 * InputNode &lt;INPUT&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CMPCONFIG_SHAREDWEIGHT = "xialotecon.admin.analytics.wealthList.cmpConfig.sharedWeight";
-	/**
 	 * ComplexConfigNode &lt;COMPLEXCONFIG&gt;
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CURRENCYCONFIG = "xialotecon.admin.analytics.wealthList.currencyConfig";
@@ -79,14 +55,6 @@ final class KineticIds{
 	 * EachComplexNode &lt;EACH&gt;
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CURRENCYCONFIG_EACH = "xialotecon.admin.analytics.wealthList.currencyConfig.each";
-	/**
-	 * ToggleNode &lt;TOGGLE&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CURRENCYCONFIG_EACH_TOGGLE = "xialotecon.admin.analytics.wealthList.currencyConfig.each.toggle";
-	/**
-	 * InputNode &lt;INPUT&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CURRENCYCONFIG_EACH_WEIGHT = "xialotecon.admin.analytics.wealthList.currencyConfig.each.weight";
 	/**
 	 * IndexNode &lt;INDEX&gt;
 	 */

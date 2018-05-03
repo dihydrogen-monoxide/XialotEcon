@@ -55,8 +55,8 @@
           </each>
         </list>
 
-        <info id="balance" populator="Player\BalanceInfoPopulator" title="xialotecon.staff.analytics.balance.title"
-              content="xialotecon.staff.analytics.balance.content">
+        <info id="balance" onClick="Player\BalanceInfoPopulator" title="xialotecon.staff.analytics.balance.title"
+              synopsis="xialotecon.staff.analytics.balance.content">
           <command name="balance"/>
           <permission predicate="Player\BalancePermissionPredicate"/>
           <commandConfig argName="xialotecon.staff.analytics.balance.whose.arg-name">
@@ -69,6 +69,6 @@
         </info>
       </index>
     </index>
-    <info id="about" title="xialotecon.about" content="xialotecon.about.content"/>
+    <info id="about" title="xialotecon.about" synopsis="xialotecon.about.content"/>
   </index>
 </kinetic>
