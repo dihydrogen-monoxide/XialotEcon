@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <kinetic namespace="DHMO\XialotEcon"
          xmlns="https://rawgit.com/SOF3/libkinetic/master/libkinetic.xsd">
-  <index id="xialotecon" title="xialotecon.main.title" synopsis="xialotecon.main.synopsis">
+  <index id="xialotecon" indexName="xialotecon.main.title" synopsis="xialotecon.main.synopsis">
     <interact>
       <item fromConfig="master-menu-item"/>
       <block fromConfig="master-menu-block"/>
     </interact>
 
-    <index id="bank" title="Bank">
+    <index id="bank" indexName="Bank">
     </index>
 
-    <index id="admin" title="xialotecon.staff.title" synopsis="xialotecon.staff.synopsis">
-      <index id="moderation" title="xialotecon.staff.queues.title" synopsis="xialotecon.staff.queues.synopsis">
-        <list id="bankruptQueue" title="xialotecon.staff.queues.bankruptcy.title"
+    <index id="admin" indexName="xialotecon.staff.title" synopsis="xialotecon.staff.synopsis">
+      <index id="moderation" indexName="xialotecon.staff.queues.title" synopsis="xialotecon.staff.queues.synopsis">
+        <list id="bankruptQueue" indexName="xialotecon.staff.queues.bankruptcy.indexName" title="xialotecon.staff.queues.bankruptcy.title"
               synopsis="xialotecon.staff.queues.bankruptcy.synopsis" provider="Loan\BankruptcyQueueAdapter">
           <each configName="player">
           </each>
         </list>
       </index>
 
-      <index id="analytics" title="xialotecon.staff.analytics.title">
-        <list id="wealthList" title="xialotecon.staff.analytics.wealth-list.title"
+      <index id="analytics" indexName="xialotecon.staff.analytics.title">
+        <list id="wealthList" indexName="xialotecon.staff.analytics.wealth-list.title"
               synopsis="xialotecon.staff.analytics.wealth-list.title" provider="Player\WealthListProvider">
           <command name="top-money">
             <alias>topmoney</alias>
@@ -28,26 +28,26 @@
           <permission name="xialotecon.player.analysis.balance.his"
                       message="xialotecon.staff.analytics.wealth-list.permission-message.his"/>
 
-          <commandConfig argName="xialotecon.staff.analytics.wealth-list.limit.arg-name">
+          <commandArg argName="xialotecon.staff.analytics.wealth-list.limit.arg-name">
             <input id="limit" title="xialotecon.staff.analytics.wealth-list.limit.input-name" default="10"
                    typeCast="int"/>
-          </commandConfig>
+          </commandArg>
 
-          <complexConfig id="currencyConfig" title="xialotecon.staff.analytics.wealth-list.currency-weight.title"
+          <cycleArgs id="currencyConfig" title="xialotecon.staff.analytics.wealth-list.currency-weight.title"
                          provider="Player\CurrencyWeightAdapter">
             <each>
               <toggle id="toggle" title="xialotecon.staff.analytics.wealth-list.currency-weight.toggle"/>
               <input id="weight" title="xialotecon.staff.analytics.wealth-list.currency-weight.analytics"
                      typeCast="float"/>
             </each>
-          </complexConfig>
+          </cycleArgs>
 
-          <config id="cmpConfig" title="Choose which accounts to consider">
+          <simpleArgs id="cmpConfig" title="Choose which accounts to consider">
             <input id="sharedWeight" title="Weight of shared accounts" default="0" typeCast="float"
                    placeholder="Put a number here"/>
             <input id="loanWeight" title="Weight of debt accounts" default="0" typeCast="float"
                    placeholder="Put a positive number here. Outstanding debts will be deducted according to this ratio."/>
-          </config>
+          </simpleArgs>
 
           <before>
             <link target="xialotecon.admin.analytics.balance"/>
@@ -58,20 +58,20 @@
           </each>
         </list>
 
-        <info id="balance" onClick="Player\BalanceInfoPopulator" title="xialotecon.staff.analytics.balance.title"
+        <info id="balance" onClick="Player\BalanceInfoPopulator" indexName="xialotecon.staff.analytics.balance.title"
               synopsis="xialotecon.staff.analytics.balance.content">
           <command name="balance"/>
           <permission predicate="Player\BalancePermissionPredicate"/>
-          <commandConfig argName="xialotecon.staff.analytics.balance.whose.arg-name">
+          <commandArg argName="xialotecon.staff.analytics.balance.whose.arg-name">
             <input id="whose" title="xialotecon.staff.analytics.balance.whose.title"
                    placeholder="xialotecon.staff.analytics.balance.whose.placeholder"/>
-          </commandConfig>
+          </commandArg>
 
-          <listConfig id="which" title="xialotecon.staff.analytics.balance.which.title"
+          <menuArgs id="which" title="xialotecon.staff.analytics.balance.which.title"
                       provider="Player\WhichBalanceInfoProvider"/>
         </info>
       </index>
     </index>
-    <info id="about" title="xialotecon.about" synopsis="xialotecon.about.content"/>
+    <info id="about" indexName="xialotecon.about" synopsis="xialotecon.about.content"/>
   </index>
 </kinetic>

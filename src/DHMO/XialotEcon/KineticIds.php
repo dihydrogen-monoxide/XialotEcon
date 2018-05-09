@@ -32,10 +32,6 @@ final class KineticIds{
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_BALANCE = "xialotecon.admin.analytics.balance";
 	/**
-	 * ListConfigNode &lt;LISTCONFIG&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_BALANCE_WHICH = "xialotecon.admin.analytics.balance.which";
-	/**
 	 * ListNode &lt;LIST&gt;
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST = "xialotecon.admin.analytics.wealthList";
@@ -43,18 +39,6 @@ final class KineticIds{
 	 * BeforeListNode &lt;BEFORE&gt;
 	 */
 	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_BEFORE = "xialotecon.admin.analytics.wealthList.before";
-	/**
-	 * ConfigNode &lt;CONFIG&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CMPCONFIG = "xialotecon.admin.analytics.wealthList.cmpConfig";
-	/**
-	 * ComplexConfigNode &lt;COMPLEXCONFIG&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CURRENCYCONFIG = "xialotecon.admin.analytics.wealthList.currencyConfig";
-	/**
-	 * EachComplexNode &lt;EACH&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_CURRENCYCONFIG_EACH = "xialotecon.admin.analytics.wealthList.currencyConfig.each";
 	/**
 	 * IndexNode &lt;INDEX&gt;
 	 */
