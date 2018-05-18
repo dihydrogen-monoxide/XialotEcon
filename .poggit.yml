@@ -5,7 +5,7 @@ projects:
         version: ^3.0
         epitope: .sha
       - src: SOF3/libglocal/libglocal
-        version: 0.1.0
+        version: 0.2.0
         epitope: .sha
       - src: SOF3/libkinetic/libkinetic
         version: 0.0.1
