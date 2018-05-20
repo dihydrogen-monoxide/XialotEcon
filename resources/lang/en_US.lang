@@ -1,0 +1,41 @@
+base lang en_US English (US)
+author SOFe
+
+messages
+  xialotecon
+    main
+      title XialotEcon
+      synopsis Welcome to XialotEcon!
+        doc This is the line displayed in the main menu page.
+    player
+    bank
+    staff
+      title Staff Tools
+      synopsis Hello staff! What would you like to do?
+      queues
+        title Pending Queues
+        synopsis Some pending work to do.
+        bankruptcy
+          title Bankruptcy
+          synopsis Players below are unable to repay debts automatically. Click into each player to view his financial status. Help them liquidate properties and carry out any additional action.
+      analytics
+        title Global Economy Analytics
+        synopsis Analyze the economy situation in the whole server/network.
+        wealth-list
+          title Wealthiest Players
+          synopsis Click into each player to view his financial status.
+          permission-message
+            his %{error}You don't have permission to view other players' balance.
+          limit
+            arg-name display size
+            input-name Number of players to display
+          currency-weight
+            title Currency weight
+            toggle Include ${currency.name}?
+              arg currency.name
+            weight Weight:
+        balance
+          title Balance of ${whose}
+            arg whose
+          content \0 // TODO
+    about
