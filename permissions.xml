@@ -36,7 +36,8 @@
 			</balance>
 		</analysis>
 	</player>
-	<admin>
 
+	<admin>
+    <access>Allows accessing the staff portal</access>
 	</admin>
 </xialotecon>

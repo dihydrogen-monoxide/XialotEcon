@@ -181,4 +181,11 @@ final class Permissions{
 	 * Default: op
 	*/
 	public const ADMIN = "xialotecon.admin";
+
+	/**
+	 * Allows accessing the staff portal
+	 *
+	 * Default: op
+	*/
+	public const ADMIN_ACCESS = "xialotecon.admin.access";
 }

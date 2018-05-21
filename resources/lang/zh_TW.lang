@@ -4,7 +4,7 @@ messages
   plugin.name XialotEcon
   role.staff 管理員
 
-  xialotecon
+  xialotecon.kinetic
     main
       title #{plugin.name}
       synopsis 歡迎使用#{plugin.name}
@@ -13,7 +13,7 @@ messages
       synopsis \0
       queues
         title 待辦隊列
-        synopsis 一些有待%{role.staff}處理的事項
+        synopsis 一些有待#{role.staff}處理的事項
         bankruptcy
           title 破產管理
           synopsis 下列玩家未有手動償還欠債，自動還債亦未能償清此期最低還款額。點擊玩家以查看其財務狀況，為他們進行手動清盤，及決定進一步行動。

@@ -2,13 +2,14 @@ base lang en_US English (US)
 author SOFe
 
 messages
-  xialotecon
+  xialotecon.kinetic
     main
       title XialotEcon
       synopsis Welcome to XialotEcon!
         doc This is the line displayed in the main menu page.
     player
-    bank
+      title Personal
+      synopsis Manage your accounts
     staff
       title Staff Tools
       synopsis Hello staff! What would you like to do?

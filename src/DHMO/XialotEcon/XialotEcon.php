@@ -45,21 +45,25 @@ use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Transaction\TransactionModule;
 use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\StringUtil;
+use Exception;
 use LogicException;
+use pocketmine\command\CommandSender;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
-use SOFe\Libglocal\LanguageManager;
+use SOFe\Libglocal\LangManager;
 use SOFe\Libglocal\Libglocal;
+use SOFe\Libglocal\ParseException;
 use SOFe\libkinetic\KineticAdapter;
 use SOFe\libkinetic\KineticAdapterBase;
 use SOFe\libkinetic\KineticManager;
 use function array_values;
 use function json_encode;
 use function microtime;
+use function substr;
 use const JSON_PRETTY_PRINT;
 
 final class XialotEcon extends PluginBase implements Listener, KineticAdapter{
@@ -93,7 +97,7 @@ final class XialotEcon extends PluginBase implements Listener, KineticAdapter{
 	/** @var DataConnector */
 	private $connector;
 
-	/** @var LanguageManager */
+	/** @var LangManager */
 	private $lang;
 
 	/** @var KineticManager */
@@ -140,7 +144,12 @@ final class XialotEcon extends PluginBase implements Listener, KineticAdapter{
 		$this->modelCache = new DataModelCache($this, $connector);
 		$this->connector = $connector;
 
-		$this->lang = Libglocal::init($this);
+		try{
+			$this->lang = Libglocal::init($this);
+		}catch(ParseException $e){
+			$this->getLogger()->error($e->getMessage());
+			throw $e;
+		}
 
 		foreach($this->getConfig()->get("data-model")["types"] as $type => $modelConfig){
 			DataModel::$CONFIG[$type] = new DataModelTypeConfig($type, $modelConfig);
@@ -172,7 +181,13 @@ final class XialotEcon extends PluginBase implements Listener, KineticAdapter{
 					}
 				}
 				$graph->execute(function() use ($graph, $start){
-					$this->onAsyncReady($graph, $start);
+					try{
+						$this->onAsyncReady($graph, $start);
+					}catch(Exception $e){
+						$this->getLogger()->error("Sync init error: " . $e->getMessage());
+						$this->getLogger()->logException($e);
+						$this->getServer()->getPluginManager()->disablePlugin($this);
+					}
 				});
 			});
 		});
@@ -240,12 +255,16 @@ final class XialotEcon extends PluginBase implements Listener, KineticAdapter{
 		return $this->connector;
 	}
 
-	public function getLang() : LanguageManager{
+	public function getLang() : LangManager{
 		return $this->lang;
 	}
 
-	public function getMessage(?Player $player, string $key, array $args = []) : string{
-		return $this->lang->translate($player !== null ? $player->getLocale() : "en_US", $key, $args);
+	public function hasMessage(string $identifier) : bool{
+		return isset($this->lang->getMessages()[$identifier{0} === "." ? substr($identifier, 1) : ("xialotecon.kinetic." . $identifier)]);
+	}
+
+	public function getMessage(?CommandSender $sender, string $identifier, array $args = []) : string{
+		return $this->lang->translate($sender instanceof Player ? $sender->getLocale() : "en_US", $identifier{0} === "." ? substr($identifier, 1) : ("xialotecon.kinetic." . $identifier), $args);
 	}
 
 	public function getInitMode() : int{

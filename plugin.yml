@@ -87,4 +87,8 @@ permissions:
                     description: Allows accessing others' balance summary report
       xialotecon.admin:
         default: op
+        children:
+          xialotecon.admin.access:
+            default: op
+            description: Allows accessing the staff portal
 ...

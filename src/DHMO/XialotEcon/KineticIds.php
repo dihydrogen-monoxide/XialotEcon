@@ -16,39 +16,11 @@ final class KineticIds{
 	 */
 	public const XIALOTECON = "xialotecon";
 	/**
-	 * InfoNode &lt;INFO&gt;
+	 * IndexNode &lt;INDEX&gt;
 	 */
-	public const XIALOTECON_ABOUT = "xialotecon.about";
+	public const XIALOTECON_PLAYER = "xialotecon.player";
 	/**
 	 * IndexNode &lt;INDEX&gt;
 	 */
-	public const XIALOTECON_ADMIN = "xialotecon.admin";
-	/**
-	 * IndexNode &lt;INDEX&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS = "xialotecon.admin.analytics";
-	/**
-	 * InfoNode &lt;INFO&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_BALANCE = "xialotecon.admin.analytics.balance";
-	/**
-	 * ListNode &lt;LIST&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST = "xialotecon.admin.analytics.wealthList";
-	/**
-	 * BeforeListNode &lt;BEFORE&gt;
-	 */
-	public const XIALOTECON_ADMIN_ANALYTICS_WEALTHLIST_BEFORE = "xialotecon.admin.analytics.wealthList.before";
-	/**
-	 * IndexNode &lt;INDEX&gt;
-	 */
-	public const XIALOTECON_ADMIN_MODERATION = "xialotecon.admin.moderation";
-	/**
-	 * ListNode &lt;LIST&gt;
-	 */
-	public const XIALOTECON_ADMIN_MODERATION_BANKRUPTQUEUE = "xialotecon.admin.moderation.bankruptQueue";
-	/**
-	 * IndexNode &lt;INDEX&gt;
-	 */
-	public const XIALOTECON_BANK = "xialotecon.bank";
+	public const XIALOTECON_STAFF = "xialotecon.staff";
 }
