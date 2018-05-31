@@ -1,5 +1,6 @@
 projects:
   XialotEcon:
+    compressBuilds: false
     fullGzip: 9
     libs:
       - src: poggit/libasynql/libasynql
