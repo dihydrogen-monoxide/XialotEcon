@@ -11,3 +11,4 @@ projects:
       - src: SOF3/libkinetic/libkinetic
         version: ^0.0.2
         epitope: .sha
+        branch: "*"
