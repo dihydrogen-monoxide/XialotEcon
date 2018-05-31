@@ -1,13 +1,19 @@
 lang zh_TW 繁體中文
+author SOFe
 
 messages
-  plugin.name XialotEcon
-  role.staff 管理員
-
   xialotecon.kinetic
     main
       title #{plugin.name}
       synopsis 歡迎使用#{plugin.name}
+    player
+      title 個人
+      synopsis 管理你的帳戶
+      pay
+        title 付款
+        synopsis 付款給另一個#{role.player}
+        target
+          title 付款對象
     staff
       title #{role.staff}工具
       synopsis \0
@@ -32,3 +38,8 @@ messages
             title 貨幣比重
             toggle 計算${currency.name}？
             weight 比重︰
+
+  plugin.name XialotEcon
+  role.player 玩家
+  role.staff 管理員
+

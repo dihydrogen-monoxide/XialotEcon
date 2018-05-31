@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <kinetic namespace="DHMO\XialotEcon"
          xmlns="https://rawgit.com/SOF3/libkinetic/master/libkinetic.xsd">
-  <index id="xialotecon" indexName="main.title" synopsis="main.synopsis">
+  <index id="xialotecon" title="main.title" synopsis="main.synopsis">
     <command name="xialotecon">
       <alias>xe</alias>
     </command>
 
     <index id="player" indexName="player.title" synopsis="player.synopsis">
+      <info id="pay" indexName="player.pay.title" synopsis="player.pay.synopsis">
+        <simpleArgs title="player.pay.target.title">
+          
+        </simpleArgs>
+      </info>
     </index>
 
     <index id="staff" indexName="staff.title" synopsis="staff.synopsis">

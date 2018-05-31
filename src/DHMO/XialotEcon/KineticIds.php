@@ -11,16 +11,3 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon;
 
 final class KineticIds{
-	/**
-	 * IndexNode &lt;INDEX&gt;
-	 */
-	public const XIALOTECON = "xialotecon";
-	/**
-	 * IndexNode &lt;INDEX&gt;
-	 */
-	public const XIALOTECON_PLAYER = "xialotecon.player";
-	/**
-	 * IndexNode &lt;INDEX&gt;
-	 */
-	public const XIALOTECON_STAFF = "xialotecon.staff";
-}

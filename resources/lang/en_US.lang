@@ -6,10 +6,14 @@ messages
     main
       title XialotEcon
       synopsis Welcome to XialotEcon!
-        doc This is the line displayed in the main menu page.
     player
       title Personal
       synopsis Manage your accounts
+      pay
+        title Pay
+        synopsis Pay another player
+        target
+          title Whom to pay
     staff
       title Staff Tools
       synopsis Hello staff! What would you like to do?

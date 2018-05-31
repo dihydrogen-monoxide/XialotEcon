@@ -1,5 +1,6 @@
 projects:
   XialotEcon:
+    fullGzip: true
     libs:
       - src: poggit/libasynql/libasynql
         version: ^3.0
@@ -8,5 +9,5 @@ projects:
         version: ^0.2.0
         epitope: .sha
       - src: SOF3/libkinetic/libkinetic
-        version: ^0.0.1
+        version: ^0.0.2
         epitope: .sha
