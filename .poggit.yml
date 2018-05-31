@@ -1,7 +1,6 @@
 projects:
   XialotEcon:
     fullGzip: true
-
     libs:
       - src: poggit/libasynql/libasynql
         version: ^3.0
