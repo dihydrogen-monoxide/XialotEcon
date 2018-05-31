@@ -1,7 +1,6 @@
 projects:
   XialotEcon:
-    fullGzip: true
-    libs:
+    fullGzip: 9 libs:
       - src: poggit/libasynql/libasynql
         version: ^3.0
         epitope: .sha
