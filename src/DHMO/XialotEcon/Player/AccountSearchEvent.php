@@ -61,7 +61,7 @@ class AccountSearchEvent extends XialotEconEvent{
 	/** @var string */
 	private $playerName;
 
-	/** @var string[] */
+	/** @var string[][] */
 	private $accountIds = [];
 
 	public function __construct(string $playerName){
@@ -77,6 +77,9 @@ class AccountSearchEvent extends XialotEconEvent{
 		$this->accountIds[$flags][] = $accountId;
 	}
 
+	/**
+	 * @return string[][]
+	 */
 	public function getAccountIds() : array{
 		return $this->accountIds;
 	}

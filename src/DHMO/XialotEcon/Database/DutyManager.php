@@ -29,14 +29,13 @@ declare(strict_types=1);
 namespace DHMO\XialotEcon\Database;
 
 use DHMO\XialotEcon\XialotEcon;
-use pocketmine\scheduler\PluginTask;
+use pocketmine\scheduler\Task;
 
-class DutyManager extends PluginTask{
+class DutyManager extends Task{
 	private $plugin;
 	private $dutyAcquired = false;
 
 	public function __construct(XialotEcon $plugin){
-		parent::__construct($plugin);
 		$this->plugin = $plugin;
 	}
 

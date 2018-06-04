@@ -208,13 +208,13 @@ class InitGraph{
 			}
 		}
 
-		imageline($image, $leftPad, $topPad, $leftPad, $topPad + (int) (count($barLists) * $barHeight), $foreground);
+		imageline($image, $leftPad, $topPad, $leftPad, $topPad + count($barLists) * $barHeight, $foreground);
 		imageline($image, $leftPad, $topPad + (count($barLists) * $barHeight), $leftPad + (int) (($completeTime - $epoch) * $secondWidth), $topPad + count($barLists) * $barHeight, $foreground);
 		imagettftext($image, 6, 0, $leftPad + (int) (($completeTime - $epoch) * $secondWidth) - 5, $topPad + count($barLists) * $barHeight + 10, $foreground, $ttf, "ms");
 
 		foreach($this->namedMap as $node){
 			imagettftext($image, 6, 0, (int) ($leftPad + ($node->startTime - $epoch) * $secondWidth),
-				(int) ($topPad + count($barLists) * $barHeight + ($node->chartPosition + 1) * 20), $foreground, $ttf,
+				$topPad + count($barLists) * $barHeight + ($node->chartPosition + 1) * 20, $foreground, $ttf,
 				round(($node->startTime - $epoch) * 1000, 3) . " (tick {$node->startTick})");
 
 			imagettftext($image, 6, 0, (int) ($leftPad + ($node->endTime - $epoch) * $secondWidth),

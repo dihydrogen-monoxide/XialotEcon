@@ -8,9 +8,9 @@
 
     <index id="player" indexName="player.title" synopsis="player.synopsis">
       <info id="pay" indexName="player.pay.title" synopsis="player.pay.synopsis">
-        <simpleArgs title="player.pay.target.title">
+        <simpleArg title="player.pay.target.title">
           
-        </simpleArgs>
+        </simpleArg>
       </info>
     </index>
 

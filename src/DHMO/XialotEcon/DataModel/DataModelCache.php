@@ -32,9 +32,9 @@ use DHMO\XialotEcon\Account\Account;
 use DHMO\XialotEcon\Currency\Currency;
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Transaction\Transaction;
-use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\XialotEcon;
 use InvalidArgumentException;
+use poggit\libasynql\CallbackTask;
 use poggit\libasynql\DataConnector;
 use function assert;
 
@@ -74,12 +74,12 @@ final class DataModelCache{
 			if($remTicks <= 0){
 				$this->fetchUpdate();
 			}else{
-				$this->plugin->getServer()->getScheduler()->scheduleDelayedTask($this->fetchUpdateTask, $remTicks);
+				$this->plugin->getScheduler()->scheduleDelayedTask($this->fetchUpdateTask, $remTicks);
 			}
 		}else{
 			$this->lastUpdateTick = $this->plugin->getServer()->getTick();
 			$this->connector->executeSelect(Queries::XIALOTECON_DATA_MODEL_FEED_FETCH_FIRST, [], function(array $rows) use ($fetchFirst){
-				$this->lastUpdateId = isset($rows[0], $rows[0]["maxUpdateId"]) ? $rows[0]["maxUpdateId"] : -1;
+				$this->lastUpdateId = $rows[0]["maxUpdateId"] ?? -1;
 				if($fetchFirst !== null){
 					$fetchFirst();
 				}

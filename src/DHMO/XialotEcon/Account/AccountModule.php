@@ -30,10 +30,10 @@ namespace DHMO\XialotEcon\Account;
 
 use DHMO\XialotEcon\Database\Queries;
 use DHMO\XialotEcon\Init\InitGraph;
-use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\StringUtil;
 use DHMO\XialotEcon\XialotEcon;
 use DHMO\XialotEcon\XialotEconModule;
+use poggit\libasynql\CallbackTask;
 
 final class AccountModule extends XialotEconModule{
 	protected static function getName() : string{
@@ -53,7 +53,7 @@ final class AccountModule extends XialotEconModule{
 
 	public function onStartup() : void{
 		$obsoleteTime = StringUtil::parseTime($this->plugin->getConfig()->get("account")["obsolete-time"], 86400.0);
-		$this->plugin->getServer()->getScheduler()->scheduleRepeatingTask(new CallbackTask(function() use ($obsoleteTime){
+		$this->plugin->getScheduler()->scheduleRepeatingTask(new CallbackTask(function() use ($obsoleteTime){
 			$this->plugin->getConnector()->executeChange(Queries::XIALOTECON_ACCOUNT_OBSOLETE_DELETE_UNLIMITED, [
 				"time" => $obsoleteTime
 			], function(int $changes){

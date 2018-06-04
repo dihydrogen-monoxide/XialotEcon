@@ -43,7 +43,6 @@ use DHMO\XialotEcon\Init\InitGraph;
 use DHMO\XialotEcon\Loan\LoanModule;
 use DHMO\XialotEcon\Player\PlayerModule;
 use DHMO\XialotEcon\Transaction\TransactionModule;
-use DHMO\XialotEcon\Util\CallbackTask;
 use DHMO\XialotEcon\Util\StringUtil;
 use Exception;
 use LogicException;
@@ -52,14 +51,15 @@ use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
+use poggit\libasynql\CallbackTask;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
 use SOFe\Libglocal\LangManager;
 use SOFe\Libglocal\Libglocal;
 use SOFe\Libglocal\ParseException;
-use SOFe\libkinetic\KineticAdapter;
-use SOFe\libkinetic\KineticAdapterBase;
-use SOFe\libkinetic\KineticManager;
+use SOFe\Libkinetic\KineticAdapter;
+use SOFe\Libkinetic\KineticAdapterBase;
+use SOFe\Libkinetic\KineticManager;
 use function array_values;
 use function json_encode;
 use function microtime;
@@ -192,7 +192,7 @@ final class XialotEcon extends PluginBase implements Listener, KineticAdapter{
 			});
 		});
 
-		$this->getServer()->getScheduler()->scheduleDelayedTask(new CallbackTask(function(){
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask(function(){
 			if(!$this->asyncInitialized){
 				$this->getLogger()->critical("XialotEcon failed to initialize in one minute. An error probably occurred. Please check the console logs.");
 				$this->getServer()->getPluginManager()->disablePlugin($this);

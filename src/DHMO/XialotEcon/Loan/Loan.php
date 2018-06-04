@@ -152,7 +152,7 @@ class Loan extends DataModel{
 					"localReturn" => $this->localReturn,
 					"nextInterest" => $this->nextInterest,
 					"nextCompoundDate" => $this->nextCompoundDate,
-				]);
+				], $onComplete);
 			};
 		}
 		$this->refAccount->executeAfterNextUpload($this->creditor !== null ? function() use ($changeFunction){
