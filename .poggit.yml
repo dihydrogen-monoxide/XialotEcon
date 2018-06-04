@@ -6,10 +6,11 @@ projects:
       - src: poggit/libasynql/libasynql
         version: ^3.1.0
         epitope: .sha
+        branch: "dev"
       - src: SOF3/libglocal/libglocal
         version: ^0.2.0
         epitope: .sha
       - src: SOF3/libkinetic/libkinetic
         version: ^0.0.2
         epitope: .sha
-        branch: "*"
+        branch: "nodes-restructure"
