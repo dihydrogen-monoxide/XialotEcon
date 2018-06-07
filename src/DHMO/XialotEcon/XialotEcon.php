@@ -60,6 +60,7 @@ use SOFe\Libglocal\ParseException;
 use SOFe\Libkinetic\KineticAdapter;
 use SOFe\Libkinetic\KineticAdapterBase;
 use SOFe\Libkinetic\KineticManager;
+use spoondetector\SpoonDetector;
 use function array_values;
 use function json_encode;
 use function microtime;
@@ -117,6 +118,7 @@ final class XialotEcon extends PluginBase implements Listener, KineticAdapter{
 	public function onLoad() : void{
 		self::$instance = $this;
 		StringUtil::init($this);
+		SpoonDetector::printSpoon($this);
 	}
 
 	public function onEnable() : void{
