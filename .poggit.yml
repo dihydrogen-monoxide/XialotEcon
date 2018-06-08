@@ -1,5 +1,6 @@
 projects:
   XialotEcon:
+    path: XialotEcon
     compressBuilds: false
     fullGzip: 9
     libs:
