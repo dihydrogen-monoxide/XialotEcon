@@ -17,4 +17,3 @@ projects:
       - src: SOF3/libkinetic/libkinetic
         version: ^0.0.3
         epitope: .sha
-        branch: "nodes-restructure"
